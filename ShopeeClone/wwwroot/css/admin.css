@@ -1,12 +1,16 @@
-﻿/* =========================
+@import url('theme.css');
+
+/* =========================
    GLOBAL
 ========================= */
 body {
     margin: 0;
     padding: 0;
-    background: #f5f5f5;
-    font-family: "Segoe UI", sans-serif;
+    background: var(--bg-page, #f5f5f5);
+    color: var(--text-primary, #1f2937);
+    font-family: var(--font-sans, "Segoe UI", sans-serif);
     overflow-x: hidden;
+    transition: background-color var(--transition-normal, 0.25s), color var(--transition-normal, 0.25s);
 }
 
 /* =========================
@@ -44,16 +48,19 @@ body {
 }
 
     .admin-search .input-group {
-        background: white;
-        border-radius: 4px;
+        background: var(--bg-surface, white);
+        border: 1px solid var(--border-default, transparent);
+        border-radius: var(--radius-sm, 6px);
         overflow: hidden;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.08);
+        box-shadow: var(--shadow-xs, 0 2px 5px rgba(0,0,0,0.08));
     }
 
     .admin-search input {
         border: none;
         padding: 12px;
         font-size: 15px;
+        background: transparent;
+        color: var(--text-primary, #333);
     }
 
         .admin-search input:focus {
@@ -93,20 +100,22 @@ body {
     }
 
 .dropdown-menu {
-    border: none;
+    background-color: var(--bg-surface, white);
+    border: 1px solid var(--border-default, #eee);
     border-radius: 12px;
     overflow: hidden;
-    box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+    box-shadow: var(--shadow-lg, 0 5px 20px rgba(0,0,0,0.15));
 }
 
 .dropdown-item {
+    color: var(--text-primary, #333);
     padding: 12px 18px;
     transition: 0.2s;
 }
 
     .dropdown-item:hover {
-        background: #fff1ee;
-        color: #ee4d2d;
+        background: var(--shopee-orange-light, #fff1ee);
+        color: var(--shopee-orange, #ee4d2d);
     }
 
 /* =========================
@@ -115,6 +124,7 @@ body {
 .admin-container {
     display: flex;
     min-height: calc(100vh - 76px);
+    background: var(--bg-page, #f5f5f5);
 }
 
 /* =========================
@@ -122,21 +132,24 @@ body {
 ========================= */
 .admin-sidebar {
     width: 260px;
-    background: white;
-    border-right: 1px solid #eee;
+    background: var(--bg-surface, white);
+    border-right: 1px solid var(--border-default, #eee);
     padding: 25px 18px;
     position: sticky;
     top: 76px;
     height: calc(100vh - 76px);
     overflow-y: auto;
+    transition: transform var(--transition-normal, 0.25s), background-color var(--transition-normal, 0.25s);
 }
 
 .sidebar-title {
-    color: #ee4d2d;
-    font-size: 18px;
+    color: var(--shopee-orange, #ee4d2d);
+    font-size: 14px;
     font-weight: 800;
-    margin-bottom: 25px;
+    margin-bottom: 20px;
     padding-left: 10px;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
 }
 
 .admin-sidebar a {
@@ -144,10 +157,10 @@ body {
     align-items: center;
     gap: 14px;
     text-decoration: none;
-    color: #555;
-    padding: 14px 16px;
-    border-radius: 12px;
-    margin-bottom: 10px;
+    color: var(--text-secondary, #555);
+    padding: 12px 16px;
+    border-radius: var(--radius-sm, 12px);
+    margin-bottom: 8px;
     font-weight: 600;
     transition: all 0.25s ease;
 }
@@ -159,14 +172,15 @@ body {
     }
 
     .admin-sidebar a:hover {
-        background: #fff1ee;
-        color: #ee4d2d;
+        background: var(--shopee-orange-light, #fff1ee);
+        color: var(--shopee-orange, #ee4d2d);
         transform: translateX(4px);
     }
 
     .admin-sidebar a.active {
-        background: linear-gradient(90deg, #ee4d2d, #ff7337);
+        background: var(--shopee-gradient, linear-gradient(90deg, #ee4d2d, #ff7337));
         color: white;
+        box-shadow: var(--shadow-glow-sm, 0 2px 10px rgba(238, 77, 45, 0.2));
     }
 
 /* =========================
@@ -175,25 +189,26 @@ body {
 .admin-content {
     flex: 1;
     padding: 30px;
-    background: #f5f5f5;
+    background: var(--bg-page, #f5f5f5);
+    min-width: 0;
 }
 
 /* =========================
    CARD
 ========================= */
 .card-admin {
-    background: white;
-    border-radius: 18px;
+    background: var(--bg-surface, white);
+    border-radius: var(--radius-md, 18px);
     padding: 24px;
-    border: none;
-    box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+    border: 1px solid var(--border-default, rgba(0,0,0,0.06));
+    box-shadow: var(--shadow-sm, 0 2px 12px rgba(0,0,0,0.06));
     margin-bottom: 25px;
 }
 
     .card-admin h2,
     .card-admin h3,
     .card-admin h4 {
-        color: #ee4d2d;
+        color: var(--shopee-orange, #ee4d2d);
         font-weight: 700;
     }
 
@@ -288,37 +303,77 @@ img {
     }
 
 /* =========================
-   RESPONSIVE
+   RESPONSIVE & MOBILE SIDEBAR
 ========================= */
-@media (max-width: 992px) {
+.btn-sidebar-toggle {
+    display: none;
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
+    color: white;
+    width: 38px;
+    height: 38px;
+    border-radius: 8px;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: 0.2s;
+}
 
+.btn-sidebar-toggle:hover {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+#admin-sidebar-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+}
+
+#admin-sidebar-overlay.show {
+    display: block;
+}
+
+@media (max-width: 992px) {
     .admin-sidebar {
-        width: 90px;
-        padding: 20px 10px;
+        width: 80px;
+        padding: 20px 8px;
     }
 
         .admin-sidebar a span,
-        .sidebar-title {
+        .sidebar-title,
+        .sidebar-child {
             display: none;
         }
 
         .admin-sidebar a {
             justify-content: center;
+            padding: 12px;
         }
 
     .admin-search {
-        width: 55%;
+        width: 45%;
     }
 }
 
 @media (max-width: 768px) {
+    .btn-sidebar-toggle {
+        display: inline-flex;
+    }
 
     .admin-topbar .d-flex {
-        flex-direction: column;
-        gap: 15px;
+        flex-direction: row;
+        flex-wrap: wrap;
+        gap: 12px;
     }
 
     .admin-search {
+        order: 3;
         width: 100%;
     }
 
@@ -327,18 +382,34 @@ img {
     }
 
     .admin-sidebar {
-        width: 100%;
-        height: auto;
-        position: relative;
+        position: fixed;
         top: 0;
-        display: flex;
-        overflow-x: auto;
-        gap: 10px;
+        left: -280px;
+        width: 270px;
+        height: 100vh;
+        z-index: 1001;
+        box-shadow: 0 0 25px rgba(0, 0, 0, 0.25);
+        transition: left 0.3s ease;
+        padding: 20px 16px;
     }
 
-        .admin-sidebar a {
-            margin-bottom: 0;
-            white-space: nowrap;
+    .admin-sidebar.show {
+        left: 0;
+    }
+
+        .admin-sidebar a span,
+        .sidebar-title,
+        .sidebar-child {
+            display: block;
         }
+
+        .admin-sidebar a {
+            justify-content: flex-start;
+            padding: 12px 16px;
+        }
+
+    .admin-content {
+        padding: 16px;
+    }
 }
  

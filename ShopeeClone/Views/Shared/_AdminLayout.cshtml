@@ -1,248 +1,235 @@
-﻿@using Microsoft.AspNetCore.Http
+@using Microsoft.AspNetCore.Http
 
 @{
-    var tenDangNhap =
-        Context.Session.GetString("TenDangNhap");
-
-    var dsDanhMuc =
-        ViewBag.DanhMuc as List<Model_DB.DanhMuc>;
+    var tenDangNhap = Context.Session.GetString("TenDangNhap");
+    var dsDanhMuc = ViewBag.DanhMuc as List<Model_DB.DanhMuc>;
 }
 
 <!DOCTYPE html>
 <html lang="vi">
-<link rel="stylesheet"
-      href="~/css/admin.css" />
+
 <head>
-
     <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin Portal - ShopeeClone</title>
 
-    <meta name="viewport"
-          content="width=device-width, initial-scale=1.0" />
+    <!-- ANTI-FLICKER THEME SCRIPT -->
+    <script>
+        (function() {
+            try {
+                var saved = localStorage.getItem('shopee_theme');
+                var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+                var theme = (saved === 'dark' || saved === 'light') ? saved : (prefersDark ? 'dark' : 'light');
+                document.documentElement.setAttribute('data-theme', theme);
+            } catch (e) {}
+        })();
+    </script>
 
-    <title>
-        Admin - ShopeeClone
-    </title>
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
     <!-- BOOTSTRAP -->
-    <link rel="stylesheet"
-          href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
 
     <!-- FONT AWESOME -->
-    <link rel="stylesheet"
-          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+
+    <!-- DESIGN SYSTEM THEME CSS -->
+    <link rel="stylesheet" href="~/css/theme.css" asp-append-version="true" />
 
     <!-- ADMIN CSS -->
-    <link rel="stylesheet"
-          href="~/css/admin.css"
-          asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/admin.css" asp-append-version="true" />
 
+    @RenderSection("Styles", required: false)
 </head>
 
 <body>
 
     <!-- TOPBAR -->
     <div class="admin-topbar">
-
         <div class="container-fluid">
+            <div class="d-flex justify-content-between align-items-center">
 
-            <div class="d-flex
-                justify-content-between
-                align-items-center">
-
-                <!-- LEFT -->
-                <div class="admin-logo">
-
-                    <a asp-controller="VwQuanTri"
-                           asp-action="Dashboard">
-
+                <!-- LEFT: LOGO & MOBILE TOGGLE -->
+                <div class="admin-logo d-flex align-items-center gap-2">
+                    <button type="button" id="admin-sidebar-toggle" class="btn-sidebar-toggle me-2" aria-label="Mở/Đóng Menu Quản Trị">
+                        <i class="fa-solid fa-bars"></i>
+                    </button>
+                    <a asp-controller="VwQuanTri" asp-action="Dashboard">
                         <i class="fa-solid fa-shield-halved"></i>
-
-                        ADMIN PANEL
-
+                        <span>ADMIN PANEL</span>
                     </a>
-
                 </div>
 
-                <!-- SEARCH -->
+                <!-- SEARCH (CONTRACT: form GET /VwQuanTri/SanPham, input[name=keyword], .btn-search) -->
                 <div class="admin-search">
-
-                    <form asp-controller="VwQuanTri"
-                          asp-action="SanPham"
-                          method="get">
-
+                    <form asp-controller="VwQuanTri" asp-action="SanPham" method="get">
                         <div class="input-group">
-
                             <input type="text"
                                    name="keyword"
                                    class="form-control"
-                                   placeholder="Tìm kiếm sản phẩm..." />
+                                   placeholder="Tìm kiếm sản phẩm trong hệ thống..."
+                                   value="@Context.Request.Query["keyword"]" />
 
-                            <button class="btn btn-search"
-                                    type="submit">
-
+                            <button class="btn btn-search" type="submit" aria-label="Tìm kiếm">
                                 <i class="fas fa-search"></i>
-
                             </button>
-
                         </div>
-
                     </form>
-
                 </div>
 
-                <!-- RIGHT -->
-                <div class="admin-user">
+                <!-- RIGHT: ACTIONS & USER -->
+                <div class="admin-user d-flex align-items-center gap-3">
 
+                    <!-- XEM WEBSITE SHORTCUT -->
+                    <a asp-controller="Home" asp-action="Index" class="btn btn-user d-none d-md-inline-flex align-items-center gap-2 text-decoration-none" title="Xem trang chủ khách hàng">
+                        <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                        <span>Xem Website</span>
+                    </a>
+
+                    <!-- DARK MODE TOGGLE BUTTON -->
+                    <button type="button" class="btn-theme-toggle" data-theme-toggle title="Chuyển chế độ giao diện" aria-label="Đổi giao diện Sáng / Tối">
+                        <i class="fa-solid fa-sun icon-sun"></i>
+                        <i class="fa-solid fa-moon icon-moon"></i>
+                    </button>
+
+                    <!-- USER DROPDOWN -->
                     <div class="dropdown">
-
-                        <button class="btn btn-user dropdown-toggle"
-                                data-bs-toggle="dropdown">
-
-                            <i class="fas fa-user-shield"></i>
-
-                            @tenDangNhap
-
+                        <button class="btn btn-user dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fas fa-user-shield me-1"></i>
+                            <span>@tenDangNhap</span>
                         </button>
 
-                        <ul class="dropdown-menu dropdown-menu-end">
-
-                            <li>
-
-                                <a class="dropdown-item"
-                                       asp-controller="VwQuanTri"
-                                       asp-action="Dashboard">
-
-                                    <i class="fas fa-chart-line"></i>
-
-                                    Dashboard
-
-                                </a>
-
+                        <ul class="dropdown-menu dropdown-menu-end shadow">
+                            <li class="px-3 py-2 bg-light border-bottom">
+                                <small class="text-muted d-block">Quyền Quản Trị Viên</small>
+                                <strong class="text-dark">@tenDangNhap</strong>
                             </li>
-
+                            <li>
+                                <a class="dropdown-item" asp-controller="VwQuanTri" asp-action="Dashboard">
+                                    <i class="fas fa-chart-line text-primary me-2"></i>
+                                    <span>Dashboard Thống kê</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" asp-controller="Home" asp-action="Index">
+                                    <i class="fas fa-store text-success me-2"></i>
+                                    <span>Trang chủ Bán hàng</span>
+                                </a>
+                            </li>
                             <li>
                                 <hr class="dropdown-divider">
                             </li>
-
                             <li>
-
-                                <a class="dropdown-item text-danger"
-                                       asp-controller="VwTaiKhoan"
-                                       asp-action="DangXuat">
-
-                                    <i class="fas fa-sign-out-alt"></i>
-
-                                    Đăng xuất
-
+                                <a class="dropdown-item text-danger" asp-controller="VwTaiKhoan" asp-action="DangXuat">
+                                    <i class="fas fa-sign-out-alt me-2"></i>
+                                    <span>Đăng xuất</span>
                                 </a>
-
                             </li>
-
                         </ul>
-
                     </div>
 
                 </div>
 
             </div>
-
         </div>
-
     </div>
 
-    <!-- MAIN -->
+    <!-- MAIN WRAPPER -->
     <div class="admin-container">
 
+        <!-- MOBILE SIDEBAR OVERLAY -->
+        <div id="admin-sidebar-overlay"></div>
+
         <!-- SIDEBAR -->
-        <div class="admin-sidebar">
+        <aside class="admin-sidebar">
 
             <div class="sidebar-title">
-
-                QUẢN TRỊ HỆ THỐNG
-
+                <i class="fa-solid fa-sliders me-1"></i>
+                <span>QUẢN TRỊ HỆ THỐNG</span>
             </div>
 
-            <a asp-controller="VwQuanTri"
-                   asp-action="Dashboard">
-
+            <a asp-controller="VwQuanTri" asp-action="Dashboard">
                 <i class="fas fa-chart-pie"></i>
-
-                Dashboard
-
+                <span>Dashboard</span>
             </a>
 
-            <a asp-controller="VwQuanTri"
-                   asp-action="DanhMuc">
-
+            <a asp-controller="VwQuanTri" asp-action="DanhMuc">
                 <i class="fas fa-layer-group"></i>
-
-                Danh mục
-
+                <span>Danh mục</span>
             </a>
 
             <!-- MENU SẢN PHẨM -->
             <div class="sidebar-group">
-
                 <!-- CHA -->
-                <a asp-controller="VwQuanTri"
-                       asp-action="SanPham"
-                       class="menu-parent">
-
+                <a asp-controller="VwQuanTri" asp-action="SanPham" class="menu-parent">
                     <i class="fas fa-box-open"></i>
-
-                    Sản phẩm
-
+                    <span>Tất cả Sản phẩm</span>
                 </a>
 
-                <!-- CON -->
-                <div class="sidebar-child">
-
+                <!-- CON: DANH MỤC PHỤ -->
+                <div class="sidebar-child ps-3">
                     @if (dsDanhMuc != null)
                     {
                         @foreach (var dm in dsDanhMuc)
                         {
                             <a asp-controller="VwQuanTri"
-                                   asp-action="SanPhamTheoDanhMuc"
-                                   asp-route-id="@dm.MaDanhMuc">
-
-                                <i class="fas fa-circle"></i>
-
-                                @dm.TenDanhMuc
-
+                               asp-action="SanPhamTheoDanhMuc"
+                               asp-route-id="@dm.MaDanhMuc"
+                               class="py-1 small">
+                                <i class="fas fa-angle-right me-1 small"></i>
+                                <span>@dm.TenDanhMuc</span>
                             </a>
                         }
                     }
-
                 </div>
-
             </div>
 
-            <a asp-controller="VwQuanTri"
-                   asp-action="DonHang">
-
+            <a asp-controller="VwQuanTri" asp-action="DonHang">
                 <i class="fas fa-shopping-cart"></i>
-
-                Đơn hàng
-
+                <span>Quản lý Đơn hàng</span>
             </a>
 
-            <hr />
+            <hr class="my-3 opacity-25" />
 
-        </div>
+            <div class="sidebar-title">
+                <i class="fa-solid fa-link me-1"></i>
+                <span>ĐIỀU HƯỚNG NHANH</span>
+            </div>
+
+            <a asp-controller="Home" asp-action="Index">
+                <i class="fa-solid fa-house"></i>
+                <span>Về Trang Mua Sắm</span>
+            </a>
+
+            <a asp-controller="VwTaiKhoan" asp-action="DangXuat" class="text-danger mt-2">
+                <i class="fas fa-sign-out-alt"></i>
+                <span>Đăng xuất</span>
+            </a>
+
+        </aside>
 
         <!-- CONTENT -->
-        <div class="admin-content">
-
+        <main class="admin-content">
             @RenderBody()
-
-        </div>
+        </main>
 
     </div>
 
+    <!-- TOAST NOTIFICATION CONTAINER -->
+    <div id="toast-container" aria-live="polite" aria-atomic="true"></div>
+
+    <!-- BACK TO TOP BUTTON -->
+    <button type="button" id="back-to-top" aria-label="Cuộn lên đầu trang" title="Lên đầu trang">
+        <i class="fa-solid fa-arrow-up"></i>
+    </button>
+
     <!-- JS -->
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
-
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/ui-core.js" asp-append-version="true"></script>
 
     @RenderSection("Scripts", required: false)
 
