@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using ShopeeClone.BAL;
 
@@ -53,6 +53,15 @@ namespace ShopeeClone.Controllers
             int maSanPham,
             int soLuong = 1)
         {
+            if (soLuong <= 0)
+            {
+                return Json(new
+                {
+                    success = false,
+                    message = "Số lượng không hợp lệ"
+                });
+            }
+
             int? maNguoiDung =
                 HttpContext.Session
                 .GetInt32("MaNguoiDung");
@@ -66,18 +75,29 @@ namespace ShopeeClone.Controllers
                 });
             }
 
-            var result =
-                await _gioHangBAL
-                .ThemVaoGioAsync(
-                    maNguoiDung.Value,
-                    maSanPham,
-                    soLuong);
-
-            return Json(new
+            try
             {
-                success = result.Item1,
-                message = result.Item2
-            });
+                var result =
+                    await _gioHangBAL
+                    .ThemVaoGioAsync(
+                        maNguoiDung.Value,
+                        maSanPham,
+                        soLuong);
+
+                return Json(new
+                {
+                    success = result.Item1,
+                    message = result.Item2
+                });
+            }
+            catch (Exception ex)
+            {
+                return Json(new
+                {
+                    success = false,
+                    message = ex.Message
+                });
+            }
         }
 
         // =========================================
@@ -88,6 +108,15 @@ namespace ShopeeClone.Controllers
             int maSanPham,
             int soLuong = 1)
         {
+            if (soLuong <= 0)
+            {
+                return Json(new
+                {
+                    success = false,
+                    message = "Số lượng không hợp lệ"
+                });
+            }
+
             int? maNguoiDung =
                 HttpContext.Session
                 .GetInt32("MaNguoiDung");
@@ -101,18 +130,29 @@ namespace ShopeeClone.Controllers
                 });
             }
 
-            var result =
-                await _gioHangBAL
-                .MuaNgayAsync(
-                    maNguoiDung.Value,
-                    maSanPham,
-                    soLuong);
-
-            return Json(new
+            try
             {
-                success = result.Item1,
-                message = result.Item2
-            });
+                var result =
+                    await _gioHangBAL
+                    .MuaNgayAsync(
+                        maNguoiDung.Value,
+                        maSanPham,
+                        soLuong);
+
+                return Json(new
+                {
+                    success = result.Item1,
+                    message = result.Item2
+                });
+            }
+            catch (Exception ex)
+            {
+                return Json(new
+                {
+                    success = false,
+                    message = ex.Message
+                });
+            }
         }
 
         // =========================================

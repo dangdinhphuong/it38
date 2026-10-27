@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using ShopeeClone.BAL;
 using static ShopeeClone.Models.Model_DB;
 
@@ -12,6 +12,17 @@ namespace ShopeeClone.Controllers
             QuanTriBAL quanTriBAL)
         {
             _quanTriBAL = quanTriBAL;
+        }
+
+        public override void OnActionExecuting(Microsoft.AspNetCore.Mvc.Filters.ActionExecutingContext context)
+        {
+            base.OnActionExecuting(context);
+
+            var vaiTro = context.HttpContext.Session.GetString("VaiTro");
+            if (string.IsNullOrEmpty(vaiTro) || !string.Equals(vaiTro.Trim(), "Admin", StringComparison.OrdinalIgnoreCase))
+            {
+                context.Result = new RedirectToActionResult("DangNhap", "VwTaiKhoan", null);
+            }
         }
 
         // =========================================
