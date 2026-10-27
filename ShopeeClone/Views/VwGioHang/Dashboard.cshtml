@@ -1,510 +1,660 @@
-﻿@model IEnumerable<ShopeeClone.Models.Model_DB.ChiTietGioHang>
+@model IEnumerable<ShopeeClone.Models.Model_DB.ChiTietGioHang>
 
 @{
     ViewData["Title"] = "Giỏ hàng";
     Layout = "~/Views/Shared/_Layout.cshtml";
+
+    var items = Model?.ToList() ?? new List<ShopeeClone.Models.Model_DB.ChiTietGioHang>();
+    var totalItemsCount = items.Count;
 }
 
 @section Styles {
+    <style>
+        .cart-page-wrapper {
+            padding: 1.5rem 0 4rem;
+        }
 
-    <link rel="stylesheet"
-          href="~/css/site.css"
-          asp-append-version="true" />
+        /* Free shipping voucher bar */
+        .cart-promo-banner {
+            background: linear-gradient(90deg, #fff7ed 0%, #fff1f2 100%);
+            border: 1px solid #fed7aa;
+            border-radius: var(--radius-md);
+            padding: 0.85rem 1.25rem;
+            margin-bottom: 1.25rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            color: #9a3412;
+            font-size: 0.875rem;
+        }
 
-    <link rel="stylesheet"
-          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+        [data-theme="dark"] .cart-promo-banner {
+            background: rgba(238, 77, 45, 0.12);
+            border-color: rgba(238, 77, 45, 0.25);
+            color: #fdba74;
+        }
+
+        /* Cart Main Card */
+        .cart-card {
+            background-color: var(--bg-surface);
+            border: 1px solid var(--border-default);
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-sm);
+            overflow: hidden;
+            margin-bottom: 1.5rem;
+        }
+
+        .cart-table-head {
+            background-color: var(--bg-surface-sunken);
+            border-bottom: 1px solid var(--border-default);
+            padding: 0.85rem 1.5rem;
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+
+        .cart-shop-ribbon {
+            padding: 0.85rem 1.5rem;
+            border-bottom: 1px solid var(--border-subtle);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .cart-row-item {
+            padding: 1.25rem 1.5rem;
+            border-bottom: 1px solid var(--border-subtle);
+            transition: background var(--transition-fast);
+        }
+
+        .cart-row-item:hover {
+            background-color: var(--bg-hover);
+        }
+
+        .cart-row-item:last-child {
+            border-bottom: none;
+        }
+
+        /* Checkbox */
+        .cart-check-input {
+            width: 18px;
+            height: 18px;
+            accent-color: var(--shopee-orange);
+            cursor: pointer;
+        }
+
+        /* Product cell */
+        .cart-thumb-box {
+            width: 80px;
+            height: 80px;
+            border-radius: var(--radius-sm);
+            overflow: hidden;
+            background-color: var(--bg-surface-sunken);
+            border: 1px solid var(--border-subtle);
+            flex-shrink: 0;
+        }
+
+        .cart-thumb-box img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .cart-item-name {
+            font-size: 0.9375rem;
+            font-weight: 500;
+            color: var(--text-primary);
+            line-height: 1.4;
+            max-height: 2.8em;
+            overflow: hidden;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            text-decoration: none;
+            transition: color var(--transition-fast);
+        }
+
+        .cart-item-name:hover {
+            color: var(--shopee-orange);
+        }
+
+        .cart-variation-tag {
+            display: inline-block;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            background: var(--bg-surface-sunken);
+            padding: 2px 8px;
+            border-radius: var(--radius-xs);
+            margin-top: 4px;
+        }
+
+        /* Prices */
+        .cart-unit-price {
+            font-size: 0.9375rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .cart-old-price {
+            font-size: 0.8125rem;
+            color: var(--text-muted);
+            text-decoration: line-through;
+        }
+
+        .cart-subtotal {
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--shopee-orange);
+        }
+
+        /* Quantity controller */
+        .cart-qty-ctrl {
+            display: inline-flex;
+            align-items: center;
+            border: 1px solid var(--border-default);
+            border-radius: var(--radius-sm);
+            overflow: hidden;
+            background: var(--bg-surface);
+        }
+
+        .cart-qty-ctrl button {
+            width: 30px;
+            height: 30px;
+            border: none;
+            background: var(--bg-surface-sunken);
+            color: var(--text-primary);
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: background var(--transition-fast);
+        }
+
+        .cart-qty-ctrl button:hover {
+            background-color: var(--border-default);
+        }
+
+        .cart-qty-ctrl input {
+            width: 44px;
+            height: 30px;
+            border: none;
+            text-align: center;
+            font-size: 0.875rem;
+            font-weight: 600;
+            background: transparent;
+            color: var(--text-primary);
+            outline: none;
+        }
+
+        /* Remove button */
+        .btn-cart-remove {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            font-size: 0.875rem;
+            cursor: pointer;
+            padding: 4px 8px;
+            border-radius: var(--radius-xs);
+            transition: all var(--transition-fast);
+        }
+
+        .btn-cart-remove:hover {
+            color: var(--color-danger);
+            background-color: var(--color-danger-bg);
+        }
+
+        /* Sticky Footer Checkout Bar */
+        .cart-sticky-footer {
+            background-color: var(--bg-surface);
+            border: 1px solid var(--border-default);
+            border-radius: var(--radius-md);
+            padding: 1.25rem 1.75rem;
+            box-shadow: var(--shadow-md);
+            position: sticky;
+            bottom: 20px;
+            z-index: 99;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .total-amount-display {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: var(--shopee-orange);
+            line-height: 1;
+        }
+
+        .btn-checkout-action {
+            background: var(--shopee-gradient);
+            color: #ffffff !important;
+            border: none;
+            border-radius: var(--radius-sm);
+            padding: 0.75rem 2.5rem;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: var(--shadow-glow-sm);
+            transition: all var(--transition-fast);
+        }
+
+        .btn-checkout-action:hover:not(:disabled) {
+            background: linear-gradient(135deg, #f04815 0%, #d83b1c 100%);
+            box-shadow: var(--shadow-glow);
+            transform: translateY(-2px);
+        }
+    </style>
 }
 
-<div class="cart-page">
+<div class="cart-page-wrapper">
+    <div class="container">
 
-    <div class="cart-container">
+        <!-- BREADCRUMB -->
+        <nav aria-label="breadcrumb" class="mb-3">
+            <ol class="breadcrumb small">
+                <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index"><i class="fa-solid fa-house me-1"></i>Trang chủ</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Giỏ hàng của tôi</li>
+            </ol>
+        </nav>
 
-        <div class="cart-header">
-            <div>Sản phẩm</div>
-            <div>Đơn giá</div>
-            <div>Số lượng</div>
-            <div>Số tiền</div>
-            <div>Thao tác</div>
-        </div>
-
-        @if (Model != null && Model.Any())
+        @if (items.Any())
         {
-            <div class="cart-shop">
-
-                <div class="shop-header">
-
-                    <input type="checkbox"
-                           id="checkAll"
-                           class="cart-check" />
-
-                    <i class="fa-solid fa-store"></i>
-
-                    Shopping Home Mall
-
+            <!-- PROMO BANNER -->
+            <div class="cart-promo-banner">
+                <div class="d-flex align-items-center gap-2">
+                    <i class="fa-solid fa-truck-fast fs-5"></i>
+                    <span>Nhấn chọn <strong>Mã Miễn Phí Vận Chuyển</strong> ở bước thanh toán để được giảm đến 30.000₫ phí ship!</span>
                 </div>
-
-                @foreach (var item in Model)
-                {
-                    decimal gia =
-                        item.SanPham?.Gia ?? 0;
-
-                    decimal thanhTien =
-                        gia * item.SoLuong;
-
-                    <div class="cart-item">
-
-                        <!-- SẢN PHẨM -->
-                        <div class="cart-product">
-
-                            <input type="checkbox"
-                                   class="cart-check item-check"
-                                   data-id="@item.MaCTGioHang"
-                                   data-price="@thanhTien" />
-
-                            <div class="cart-image">
-
-                                <img src="@(string.IsNullOrEmpty(item.SanPham?.HinhAnh)
-                                                                                                         ? "/images/no-image.png"
-                                                                                                         : item.SanPham.HinhAnh)"
-                                     alt="@item.SanPham?.TenSanPham" />
-
-                            </div>
-
-                            <div class="cart-info">
-
-                                <div class="cart-name">
-                                    @item.SanPham?.TenSanPham
-                                </div>
-
-                                <div class="cart-variation">
-                                    Phân loại: Tiêu chuẩn
-                                </div>
-
-                            </div>
-
-                        </div>
-
-                        <!-- GIÁ -->
-                        <div>
-
-                            <div class="cart-old-price">
-                                @((gia * 1.2m).ToString("N0")) ₫
-                            </div>
-
-                            <div class="cart-price">
-                                @gia.ToString("N0") ₫
-                            </div>
-
-                        </div>
-
-                        <!-- SỐ LƯỢNG -->
-                        <div>
-
-                            <div class="quantity-control">
-
-                                <button type="button"
-                                        onclick="giamSoLuong(@item.MaCTGioHang)">
-                                    -
-                                </button>
-
-                                <input type="text"
-                                       id="qty-@item.MaCTGioHang"
-                                       value="@item.SoLuong"
-                                       readonly />
-
-                                <button type="button"
-                                        onclick="tangSoLuong(@item.MaCTGioHang)">
-                                    +
-                                </button>
-
-                            </div>
-
-                        </div>
-
-                        <!-- THÀNH TIỀN -->
-                        <div class="cart-total">
-                            @thanhTien.ToString("N0") ₫
-                        </div>
-
-                        <!-- XOÁ -->
-                        <div>
-
-                            <button type="button"
-                                    class="btn-remove"
-                                    onclick="xoaKhoiGio(@item.MaCTGioHang)">
-
-                                <i class="fa-solid fa-trash"></i>
-                                Xóa
-
-                            </button>
-
-                        </div>
-
-                    </div>
-                }
-
+                <span class="badge bg-danger text-white d-none d-sm-inline">Freeship Extra</span>
             </div>
 
-            <!-- FOOTER -->
-            <div class="cart-footer">
-
-                <div class="footer-left">
-
-                    <label>
-
-                        <input type="checkbox"
-                               id="checkAllFooter"
-                               class="cart-check" />
-
-                        Chọn tất cả
-
-                    </label>
-
+            <!-- CART MAIN CARD -->
+            <div class="cart-card">
+                <!-- TABLE HEAD (DESKTOP) -->
+                <div class="cart-table-head d-none d-md-flex align-items-center">
+                    <div style="width: 45%;">
+                        <div class="d-flex align-items-center gap-3">
+                            <input type="checkbox"
+                                   id="checkAll"
+                                   class="cart-check-input cart-check" />
+                            <span>Sản phẩm (@totalItemsCount món)</span>
+                        </div>
+                    </div>
+                    <div style="width: 15%;" class="text-center">Đơn giá</div>
+                    <div style="width: 15%;" class="text-center">Số lượng</div>
+                    <div style="width: 15%;" class="text-center">Số tiền</div>
+                    <div style="width: 10%;" class="text-end">Thao tác</div>
                 </div>
 
-                <div class="footer-right">
+                <!-- SHOP HEADER RIBBON -->
+                <div class="cart-shop-ribbon">
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="tag-mall">Mall</span>
+                        <i class="fa-solid fa-store text-danger"></i>
+                        <span>ShopeeClone Mall Official Store</span>
+                        <i class="fa-solid fa-circle-check text-primary small"></i>
+                    </div>
+                </div>
 
-                    <div class="checkout-summary">
+                <!-- CART ITEMS LIST (CONTRACT: .item-check, #qty-id, buttons) -->
+                <div class="cart-items-container">
+                    @foreach (var item in items)
+                    {
+                        decimal gia = item.SanPham?.Gia ?? 0;
+                        decimal thanhTien = gia * item.SoLuong;
+                        var imgItem = string.IsNullOrEmpty(item.SanPham?.HinhAnh) ? "/images/no-image.png" : item.SanPham.HinhAnh;
 
-                        <p>Tổng thanh toán</p>
+                        <div class="cart-row-item cart-item" id="cart-item-row-@item.MaCTGioHang">
+                            <div class="row align-items-center g-3">
 
-                        <strong id="tongTien">
+                                <!-- CHECKBOX & PRODUCT INFO (CONTRACT: .item-check data-id, data-price) -->
+                                <div class="col-12 col-md-5">
+                                    <div class="d-flex align-items-center gap-3">
+                                        <input type="checkbox"
+                                               class="cart-check-input cart-check item-check"
+                                               data-id="@item.MaCTGioHang"
+                                               data-price="@thanhTien" />
+
+                                        <div class="cart-thumb-box">
+                                            <img src="@imgItem"
+                                                 alt="@(item.SanPham?.TenSanPham ?? "Sản phẩm")"
+                                                 loading="lazy" />
+                                        </div>
+
+                                        <div class="flex-grow-1">
+                                            <a href="@Url.Action("ChiTietSanPham", "VwSanPham", new { id = item.MaSanPham })"
+                                               class="cart-item-name"
+                                               title="@item.SanPham?.TenSanPham">
+                                                @(item.SanPham?.TenSanPham ?? "Sản phẩm")
+                                            </a>
+                                            <div class="cart-variation-tag">
+                                                <i class="fa-solid fa-tag me-1 small"></i>Phân loại: Tiêu chuẩn
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- UNIT PRICE -->
+                                <div class="col-4 col-md-2 text-md-center">
+                                    <div class="cart-old-price">@((gia * 1.2m).ToString("N0")) ₫</div>
+                                    <div class="cart-unit-price">@gia.ToString("N0") ₫</div>
+                                </div>
+
+                                <!-- QUANTITY CONTROLLER (CONTRACT: #qty-id, tangSoLuong, giamSoLuong) -->
+                                <div class="col-4 col-md-2 text-center">
+                                    <div class="cart-qty-ctrl quantity-control">
+                                        <button type="button"
+                                                onclick="giamSoLuong(@item.MaCTGioHang)"
+                                                aria-label="Giảm số lượng">
+                                            <i class="fa-solid fa-minus small"></i>
+                                        </button>
+                                        <input type="text"
+                                               id="qty-@item.MaCTGioHang"
+                                               value="@item.SoLuong"
+                                               readonly
+                                               aria-label="Số lượng" />
+                                        <button type="button"
+                                                onclick="tangSoLuong(@item.MaCTGioHang)"
+                                                aria-label="Tăng số lượng">
+                                            <i class="fa-solid fa-plus small"></i>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <!-- SUBTOTAL -->
+                                <div class="col-3 col-md-2 text-center">
+                                    <div class="cart-subtotal cart-total">
+                                        @thanhTien.ToString("N0") ₫
+                                    </div>
+                                </div>
+
+                                <!-- ACTION: DELETE (CONTRACT: xoaKhoiGio) -->
+                                <div class="col-1 col-md-1 text-end">
+                                    <button type="button"
+                                            class="btn-cart-remove btn-remove"
+                                            onclick="xoaKhoiGio(@item.MaCTGioHang)"
+                                            title="Xoá món này khỏi giỏ hàng">
+                                        <i class="fa-solid fa-trash-can"></i>
+                                        <span class="d-none d-lg-inline ms-1">Xóa</span>
+                                    </button>
+                                </div>
+
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <!-- STICKY CHECKOUT FOOTER (CONTRACT: #checkAllFooter, #tongTien, thanhToanGioHang()) -->
+            <div class="cart-sticky-footer cart-footer">
+                <div class="d-flex align-items-center gap-3">
+                    <input type="checkbox"
+                           id="checkAllFooter"
+                           class="cart-check-input cart-check" />
+                    <label for="checkAllFooter" class="mb-0 fw-semibold cursor-pointer">
+                        Chọn tất cả (<span id="totalSelectedCount">0</span> món đã chọn)
+                    </label>
+                </div>
+
+                <div class="d-flex align-items-center gap-4 flex-wrap justify-content-end">
+                    <div class="text-end">
+                        <div class="text-muted small">Tổng thanh toán:</div>
+                        <div class="total-amount-display" id="tongTien">
                             0 ₫
-                        </strong>
-
+                        </div>
                     </div>
 
                     <button type="button"
-                            class="btn-checkout"
+                            class="btn-checkout-action btn-checkout"
                             onclick="thanhToanGioHang()">
-
-                        Mua hàng
-
+                        <i class="fa-solid fa-bag-shopping me-1"></i>
+                        <span>Mua Hàng</span>
                     </button>
-
                 </div>
-
             </div>
         }
         else
         {
-            <div class="empty-cart">
-
-                <i class="fa-solid fa-cart-shopping"></i>
-
-                <h3>
-                    Giỏ hàng của bạn còn trống
-                </h3>
-
-                <p>
-                    Hãy thêm sản phẩm vào giỏ hàng
-                    để tiếp tục mua sắm
-                </p>
-
-                <a asp-controller="Home"
-                       asp-action="Index"
-                       class="btn-shopping">
-
-                    <i class="fa-solid fa-bag-shopping"></i>
-
-                    Tiếp tục mua sắm
-
-                </a>
-
+            <!-- EMPTY CART STATE -->
+            <div class="card-modern p-5 text-center my-4">
+                <div class="empty-state empty-cart">
+                    <div class="empty-state-icon">
+                        <i class="fa-solid fa-cart-shopping"></i>
+                    </div>
+                    <h3 class="empty-state-title">Giỏ hàng của bạn còn trống</h3>
+                    <p class="empty-state-desc">Hãy dạo quanh một vòng và chọn cho mình những món đồ ưng ý nhất bạn nhé!</p>
+                    <div class="empty-state-action">
+                        <a asp-controller="Home" asp-action="Index" class="btn-shopee btn-shopping">
+                            <i class="fa-solid fa-bag-shopping me-1"></i> Tiếp tục mua sắm
+                        </a>
+                    </div>
+                </div>
             </div>
         }
 
     </div>
-
 </div>
 
 @section Scripts {
-
-    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-
     <script>
+        const checkAll = document.getElementById("checkAll");
+        const checkAllFooter = document.getElementById("checkAllFooter");
+        const tongTienEl = document.getElementById("tongTien");
+        const countDisplay = document.getElementById("totalSelectedCount");
 
-        const checkAll =
-        document.getElementById("checkAll");
-
-        const checkAllFooter =
-        document.getElementById("checkAllFooter");
-
-        const tongTienEl =
-        document.getElementById("tongTien");
-
-        // =========================================
-        // LẤY DANH SÁCH ITEM
-        // =========================================
-        function getItemChecks()
-        {
-        return document.querySelectorAll(
-        ".item-check"
-        );
+        // CONTRACT: Lấy danh sách checkboxes
+        function getItemChecks() {
+            return document.querySelectorAll(".item-check");
         }
 
-        // =========================================
-        // TÍNH TỔNG TIỀN
-        // =========================================
-        function tinhTongTien()
-        {
-        let tong = 0;
+        // CONTRACT: Tính tổng tiền (#tongTien)
+        function tinhTongTien() {
+            let tong = 0;
+            let checkedCount = 0;
 
-        getItemChecks().forEach(item =>
-        {
-        if (item.checked)
-        {
-        tong += parseFloat(
-        item.dataset.price
-        );
+            getItemChecks().forEach(item => {
+                if (item.checked) {
+                    tong += parseFloat(item.dataset.price) || 0;
+                    checkedCount++;
+                }
+            });
+
+            if (tongTienEl) {
+                tongTienEl.innerText = tong.toLocaleString('vi-VN') + ' ₫';
+            }
+
+            if (countDisplay) {
+                countDisplay.innerText = checkedCount;
+            }
         }
+
+        // CONTRACT: Check all header
+        if (checkAll) {
+            checkAll.addEventListener("change", function () {
+                getItemChecks().forEach(item => {
+                    item.checked = this.checked;
+                });
+                if (checkAllFooter) {
+                    checkAllFooter.checked = this.checked;
+                }
+                tinhTongTien();
+            });
+        }
+
+        // CONTRACT: Check all footer
+        if (checkAllFooter) {
+            checkAllFooter.addEventListener("change", function () {
+                getItemChecks().forEach(item => {
+                    item.checked = this.checked;
+                });
+                if (checkAll) {
+                    checkAll.checked = this.checked;
+                }
+                tinhTongTien();
+            });
+        }
+
+        // CONTRACT: Check từng item
+        getItemChecks().forEach(item => {
+            item.addEventListener("change", function () {
+                const allItems = getItemChecks();
+                const checkedItems = document.querySelectorAll(".item-check:checked");
+                const isAllChecked = (allItems.length > 0 && allItems.length === checkedItems.length);
+
+                if (checkAll) checkAll.checked = isAllChecked;
+                if (checkAllFooter) checkAllFooter.checked = isAllChecked;
+
+                tinhTongTien();
+            });
         });
 
-        tongTienEl.innerText =
-        tong.toLocaleString('vi-VN')
-        + ' ₫';
+        // CONTRACT: Tăng số lượng (tangSoLuong(id))
+        function tangSoLuong(id) {
+            $.ajax({
+                url: '/VwGioHang/Tang',
+                type: 'POST',
+                data: { id: id },
+                success: function (res) {
+                    if (res.success) {
+                        location.reload();
+                    } else {
+                        if (window.toast) {
+                            window.toast.warning(res.message, 'Thông báo');
+                        } else {
+                            alert(res.message);
+                        }
+                    }
+                },
+                error: function () {
+                    if (window.toast) {
+                        window.toast.error('Có lỗi xảy ra khi cập nhật số lượng.');
+                    } else {
+                        alert('Có lỗi xảy ra');
+                    }
+                }
+            });
         }
 
-        // =========================================
-        // CHECK ALL HEADER
-        // =========================================
-        if (checkAll)
-        {
-        checkAll.addEventListener(
-        "change",
-        function ()
-        {
-        getItemChecks().forEach(item =>
-        {
-        item.checked =
-        this.checked;
-        });
-
-        if (checkAllFooter)
-        {
-        checkAllFooter.checked =
-        this.checked;
+        // CONTRACT: Giảm số lượng (giamSoLuong(id))
+        function giamSoLuong(id) {
+            $.ajax({
+                url: '/VwGioHang/Giam',
+                type: 'POST',
+                data: { id: id },
+                success: function (res) {
+                    if (res.success) {
+                        location.reload();
+                    } else {
+                        if (window.toast) {
+                            window.toast.warning(res.message, 'Thông báo');
+                        } else {
+                            alert(res.message);
+                        }
+                    }
+                },
+                error: function () {
+                    if (window.toast) {
+                        window.toast.error('Có lỗi xảy ra khi cập nhật số lượng.');
+                    } else {
+                        alert('Có lỗi xảy ra');
+                    }
+                }
+            });
         }
 
-        tinhTongTien();
-        }
-        );
-        }
+        // CONTRACT: Xoá món khỏi giỏ (xoaKhoiGio(id))
+        function xoaKhoiGio(id) {
+            if (!confirm('Bạn có chắc chắn muốn bỏ sản phẩm này khỏi giỏ hàng?')) {
+                return;
+            }
 
-        // =========================================
-        // CHECK ALL FOOTER
-        // =========================================
-        if (checkAllFooter)
-        {
-        checkAllFooter.addEventListener(
-        "change",
-        function ()
-        {
-        getItemChecks().forEach(item =>
-        {
-        item.checked =
-        this.checked;
-        });
-
-        if (checkAll)
-        {
-        checkAll.checked =
-        this.checked;
-        }
-
-        tinhTongTien();
-        }
-        );
-        }
-
-        // =========================================
-        // CHECK TỪNG ITEM
-        // =========================================
-        getItemChecks().forEach(item =>
-        {
-        item.addEventListener(
-        "change",
-        function ()
-        {
-        const allItems =
-        getItemChecks();
-
-        const checkedItems =
-        document.querySelectorAll(
-        ".item-check:checked"
-        );
-
-        const isAllChecked =
-        allItems.length ===
-        checkedItems.length;
-
-        if (checkAll)
-        {
-        checkAll.checked =
-        isAllChecked;
+            $.ajax({
+                url: '/VwGioHang/Xoa',
+                type: 'POST',
+                data: { id: id },
+                success: function (res) {
+                    if (res.success) {
+                        if (window.toast) {
+                            window.toast.success(res.message || 'Đã xoá sản phẩm khỏi giỏ hàng.');
+                        }
+                        location.reload();
+                    } else {
+                        if (window.toast) {
+                            window.toast.error(res.message);
+                        } else {
+                            alert(res.message);
+                        }
+                    }
+                },
+                error: function () {
+                    if (window.toast) {
+                        window.toast.error('Có lỗi xảy ra khi xoá sản phẩm.');
+                    } else {
+                        alert('Có lỗi xảy ra');
+                    }
+                }
+            });
         }
 
-        if (checkAllFooter)
-        {
-        checkAllFooter.checked =
-        isAllChecked;
+        // CONTRACT: Thanh toán (thanhToanGioHang())
+        function thanhToanGioHang() {
+            const selectedItems = [];
+            document.querySelectorAll(".item-check:checked").forEach(item => {
+                selectedItems.push(item.dataset.id);
+            });
+
+            if (selectedItems.length <= 0) {
+                if (window.toast) {
+                    window.toast.warning("Vui lòng chọn ít nhất một sản phẩm để tiến hành mua hàng!", "Nhắc nhở");
+                } else {
+                    alert("Vui lòng chọn sản phẩm");
+                }
+                return;
+            }
+
+            $.ajax({
+                url: '/VwDonHang/ThanhToan',
+                type: 'POST',
+                traditional: true,
+                data: {
+                    dsChiTiet: selectedItems
+                },
+                success: function (res) {
+                    if (res.success) {
+                        if (window.toast) {
+                            window.toast.success(res.message || "Đặt hàng thành công!", "Thành Công");
+                        } else {
+                            alert(res.message);
+                        }
+                        setTimeout(function () {
+                            window.location = '/VwDonHang/Dashboard';
+                        }, 600);
+                    } else {
+                        if (window.toast) {
+                            window.toast.warning(res.message, "Thông báo");
+                        } else {
+                            alert(res.message);
+                        }
+                        if (res.message === "Vui lòng đăng nhập") {
+                            setTimeout(function () {
+                                window.location = '/VwTaiKhoan/DangNhap';
+                            }, 1200);
+                        }
+                    }
+                },
+                error: function () {
+                    if (window.toast) {
+                        window.toast.error("Có lỗi xảy ra trong quá trình thanh toán. Vui lòng thử lại!");
+                    } else {
+                        alert("Có lỗi xảy ra");
+                    }
+                }
+            });
         }
-
-        tinhTongTien();
-        }
-        );
-        });
-
-        // =========================================
-        // TĂNG SỐ LƯỢNG
-        // =========================================
-        function tangSoLuong(id)
-        {
-        $.ajax({
-
-        url: '/VwGioHang/Tang',
-        type: 'POST',
-
-        data: {
-        id: id
-        },
-
-        success: function (res)
-        {
-        if (res.success)
-        {
-        location.reload();
-        }
-        else
-        {
-        alert(res.message);
-        }
-        }
-
-        });
-        }
-
-        // =========================================
-        // GIẢM SỐ LƯỢNG
-        // =========================================
-        function giamSoLuong(id)
-        {
-        $.ajax({
-
-        url: '/VwGioHang/Giam',
-        type: 'POST',
-
-        data: {
-        id: id
-        },
-
-        success: function (res)
-        {
-        if (res.success)
-        {
-        location.reload();
-        }
-        else
-        {
-        alert(res.message);
-        }
-        }
-
-        });
-        }
-
-        // =========================================
-        // XOÁ
-        // =========================================
-        function xoaKhoiGio(id)
-        {
-        $.ajax({
-
-        url: '/VwGioHang/Xoa',
-        type: 'POST',
-
-        data: {
-        id: id
-        },
-
-        success: function (res)
-        {
-        if (res.success)
-        {
-        location.reload();
-        }
-        else
-        {
-        alert(res.message);
-        }
-        }
-
-        });
-        }
-
-        // =========================================
-        // THANH TOÁN
-        // =========================================
-        function thanhToanGioHang()
-        {
-        const selectedItems = [];
-
-        document
-        .querySelectorAll(
-        ".item-check:checked"
-        )
-        .forEach(item =>
-        {
-        selectedItems.push(
-        item.dataset.id
-        );
-        });
-
-        if (selectedItems.length <= 0)
-        {
-        alert(
-        "Vui lòng chọn sản phẩm"
-        );
-
-        return;
-        }
-
-        $.ajax({
-
-        url: '/VwDonHang/ThanhToan',
-        type: 'POST',
-
-        traditional: true,
-
-        data: {
-        dsChiTiet: selectedItems
-        },
-
-        success: function (res)
-        {
-        if (res.success)
-        {
-        alert(res.message);
-
-        window.location =
-        '/VwDonHang/Dashboard';
-        }
-        else
-        {
-        alert(res.message);
-
-        if (res.message ===
-        "Vui lòng đăng nhập")
-        {
-        window.location =
-        '/VwTaiKhoan/DangNhap';
-        }
-        }
-        }
-
-        });
-        }
-
     </script>
-
 }

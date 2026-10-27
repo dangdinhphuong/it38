@@ -1,239 +1,1005 @@
-﻿@model IEnumerable<ShopeeClone.Models.Model_DB.SanPham>
+@model IEnumerable<ShopeeClone.Models.Model_DB.SanPham>
 
 @using ShopeeClone.Models
 @using static ShopeeClone.Models.Model_DB
 
 @{
-    ViewData["Title"] = "Shopee Clone - Mua sắm trực tuyến";
-
+    ViewData["Title"] = "Shopee Clone - Mua sắm trực tuyến hàng triệu sản phẩm giá tốt";
     var topSanPham = ViewBag.TopSanPham as List<TopSanPhamBanChayModel>;
+    var keyword = Context.Request.Query["keyword"].ToString();
+    var hasKeyword = !string.IsNullOrWhiteSpace(keyword);
+    var productList = Model?.ToList() ?? new List<ShopeeClone.Models.Model_DB.SanPham>();
 }
 
 @section Styles {
-    <link rel="stylesheet"
-          href="~/css/site.css"
-          asp-append-version="true" />
+    <style>
+        /* Hero Banner Section */
+        .hero-banner-section {
+            margin-top: 1.25rem;
+            margin-bottom: 2rem;
+        }
+
+        .hero-carousel {
+            border-radius: var(--radius-md);
+            overflow: hidden;
+            box-shadow: var(--shadow-sm);
+            height: 320px;
+        }
+
+        .hero-carousel .carousel-item {
+            height: 320px;
+            background-size: cover;
+            background-position: center;
+        }
+
+        .hero-slide-1 {
+            background: linear-gradient(135deg, #ee4d2d 0%, #ff7337 50%, #f97316 100%);
+        }
+
+        .hero-slide-2 {
+            background: linear-gradient(135deg, #0284c7 0%, #38bdf8 100%);
+        }
+
+        .hero-slide-3 {
+            background: linear-gradient(135deg, #7c3aed 0%, #a855f7 100%);
+        }
+
+        .hero-slide-content {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 2.5rem;
+            color: #ffffff;
+        }
+
+        .hero-side-banner {
+            height: 152px;
+            border-radius: var(--radius-md);
+            overflow: hidden;
+            background: var(--bg-surface);
+            box-shadow: var(--shadow-sm);
+            display: flex;
+            align-items: center;
+            padding: 1.25rem;
+            transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+            color: var(--text-primary);
+            text-decoration: none;
+            border: 1px solid var(--border-subtle);
+        }
+
+        .hero-side-banner:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+            color: var(--text-primary);
+        }
+
+        /* Feature Badges Bar */
+        .feature-bar {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            padding: 1rem 1.5rem;
+            background-color: var(--bg-surface);
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border-default);
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow-xs);
+        }
+
+        .feature-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            color: var(--text-primary);
+            font-size: 0.875rem;
+        }
+
+        .feature-item i {
+            font-size: 1.5rem;
+            color: var(--shopee-orange);
+        }
+
+        /* Top Products Flash Ribbon */
+        .top-section-header {
+            background: linear-gradient(90deg, rgba(238, 77, 45, 0.12) 0%, transparent 100%);
+            border-left: 4px solid var(--shopee-orange);
+            padding: 0.75rem 1.25rem;
+            border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1.25rem;
+        }
+
+        .flash-timer {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            font-weight: 700;
+            font-size: 0.875rem;
+        }
+
+        .timer-badge {
+            background: #111827;
+            color: #ffffff;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.8125rem;
+        }
+
+        /* Filter & Sort Toolbar */
+        .sort-toolbar {
+            background-color: var(--bg-surface);
+            border: 1px solid var(--border-default);
+            border-radius: var(--radius-md);
+            padding: 0.85rem 1.25rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.75rem;
+            box-shadow: var(--shadow-xs);
+        }
+
+        .sort-btn-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            align-items: center;
+        }
+
+        .sort-btn {
+            background: var(--bg-surface-sunken);
+            border: 1px solid var(--border-default);
+            color: var(--text-secondary);
+            padding: 0.4rem 0.9rem;
+            border-radius: var(--radius-sm);
+            font-size: 0.875rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+        }
+
+        .sort-btn:hover {
+            border-color: var(--shopee-orange);
+            color: var(--shopee-orange);
+        }
+
+        .sort-btn.active {
+            background-color: var(--shopee-orange);
+            border-color: var(--shopee-orange);
+            color: #ffffff;
+        }
+
+        /* Product Cards Enhancement */
+        .product-card {
+            background: var(--bg-surface);
+            border: 1px solid var(--border-default);
+            border-radius: var(--radius-md);
+            overflow: hidden;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            transition: transform var(--transition-normal), box-shadow var(--transition-normal), border-color var(--transition-fast);
+            cursor: pointer;
+            height: 100%;
+        }
+
+        .product-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-md);
+            border-color: var(--shopee-orange);
+        }
+
+        .product-card .prod-img-box {
+            position: relative;
+            width: 100%;
+            padding-top: 100%; /* 1:1 Aspect Ratio */
+            background-color: var(--bg-surface-sunken);
+            overflow: hidden;
+        }
+
+        .product-card .prod-img-box img {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform var(--transition-normal);
+        }
+
+        .product-card:hover .prod-img-box img {
+            transform: scale(1.05);
+        }
+
+        .badge-rank-1 {
+            background: linear-gradient(135deg, #ffd700, #ffaa00);
+            color: #7a4100;
+            font-weight: 800;
+        }
+
+        .badge-rank-2 {
+            background: linear-gradient(135deg, #e0e0e0, #b0b0b0);
+            color: #333333;
+            font-weight: 800;
+        }
+
+        .badge-rank-3 {
+            background: linear-gradient(135deg, #e6a15c, #bd7024);
+            color: #ffffff;
+            font-weight: 800;
+        }
+
+        .badge-top-rank {
+            position: absolute;
+            top: 8px;
+            left: 8px;
+            padding: 2px 8px;
+            font-size: 0.75rem;
+            border-radius: 4px;
+            z-index: 2;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+        }
+
+        .badge-discount-corner {
+            position: absolute;
+            top: 0;
+            right: 0;
+            background: rgba(255, 230, 0, 0.95);
+            color: #ee4d2d;
+            font-size: 0.75rem;
+            font-weight: 800;
+            padding: 3px 6px;
+            border-bottom-left-radius: 6px;
+            z-index: 2;
+            line-height: 1.1;
+            text-align: center;
+        }
+
+        .prod-info {
+            padding: 0.75rem;
+            display: flex;
+            flex-direction: column;
+            flex-grow: 1;
+        }
+
+        .prod-title {
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--text-primary);
+            line-height: 1.35;
+            height: 2.7em;
+            overflow: hidden;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            margin-bottom: 0.5rem;
+        }
+
+        .prod-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+            margin-bottom: 0.5rem;
+        }
+
+        .tag-mall {
+            background: #d0011b;
+            color: #ffffff;
+            font-size: 0.6875rem;
+            font-weight: 700;
+            padding: 1px 5px;
+            border-radius: 3px;
+        }
+
+        .tag-fav {
+            border: 1px solid var(--shopee-orange);
+            color: var(--shopee-orange);
+            font-size: 0.6875rem;
+            font-weight: 600;
+            padding: 1px 5px;
+            border-radius: 3px;
+            background: var(--shopee-orange-light);
+        }
+
+        .prod-bottom {
+            margin-top: auto;
+            display: flex;
+            align-items: baseline;
+            justify-content: space-between;
+        }
+
+        .prod-price {
+            color: var(--shopee-orange);
+            font-weight: 700;
+            font-size: 1.05rem;
+        }
+
+        .prod-sold {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        .btn-add-cart-action {
+            position: absolute;
+            bottom: 12px;
+            right: 12px;
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            background: var(--shopee-orange);
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 8px rgba(238, 77, 45, 0.4);
+            transition: all var(--transition-fast);
+            z-index: 3;
+            border: none;
+            cursor: pointer;
+            opacity: 0.92;
+        }
+
+        .btn-add-cart-action:hover {
+            transform: scale(1.15);
+            opacity: 1;
+            background: var(--shopee-orange-hover);
+        }
+
+        /* Dark mode tweaks */
+        [data-theme="dark"] .badge-discount-corner {
+            background: #ffcc00;
+            color: #b91c1c;
+        }
+    </style>
 }
 
-<div class="shopee-container">
+<div class="shopee-container py-3">
 
-    <!-- DANH MỤC -->
-    <div class="section-header">
-        <h3>DANH MỤC HÀNG HOÁ</h3>
-    </div>
-
-    <div class="category-wrapper">
-
-        <button class="scroll-btn left"
-                onclick="scrollCategory(-1)">
-            <i class="fas fa-chevron-left"></i>
-        </button>
-
-        <div class="category-scroll"
-             id="categoryContainer">
-
-            <div class="text-muted">
-                Đang tải danh mục...
+    <!-- SEARCH RESULT BANNER (NẾU ĐANG TÌM KIẾM) -->
+    @if (hasKeyword)
+    {
+        <div class="card-modern mb-4 p-3 bg-white">
+            <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+                <div>
+                    <h5 class="mb-1 text-primary fw-bold">
+                        <i class="fa-solid fa-magnifying-glass me-2 text-danger"></i>
+                        Kết quả tìm kiếm cho: <span class="text-danger">"@keyword"</span>
+                    </h5>
+                    <p class="text-muted small mb-0">Tìm thấy <strong>@productList.Count</strong> sản phẩm phù hợp trong hệ thống</p>
+                </div>
+                <a asp-controller="Home" asp-action="Index" class="btn-shopee-secondary btn-shopee-sm">
+                    <i class="fa-solid fa-xmark"></i> Xóa bộ lọc tìm kiếm
+                </a>
             </div>
+        </div>
+    }
+    else
+    {
+        <!-- HERO BANNER SECTION (CHỈ HIỂN THỊ KHI TRANG CHỦ CHƯA TÌM KIẾM) -->
+        <section class="hero-banner-section">
+            <div class="row g-3">
+                <!-- CAROUSEL CHÍNH -->
+                <div class="col-lg-8">
+                    <div id="homeHeroCarousel" class="carousel slide hero-carousel" data-bs-ride="carousel" data-bs-interval="4500">
+                        <div class="carousel-indicators">
+                            <button type="button" data-bs-target="#homeHeroCarousel" data-bs-slide-to="0" class="active" aria-current="true"></button>
+                            <button type="button" data-bs-target="#homeHeroCarousel" data-bs-slide-to="1"></button>
+                            <button type="button" data-bs-target="#homeHeroCarousel" data-bs-slide-to="2"></button>
+                        </div>
+                        <div class="carousel-inner h-100">
+                            <div class="carousel-item active hero-slide-1">
+                                <div class="hero-slide-content">
+                                    <span class="badge bg-warning text-dark align-self-start mb-2 px-2 py-1 fw-bold">SIÊU SALE 11.11</span>
+                                    <h2 class="display-6 fw-bold mb-2">Đại Tiệc Mua Sắm</h2>
+                                    <p class="fs-6 mb-3 opacity-90">Giảm giá lên đến 50% toàn bộ gian hàng. Miễn phí vận chuyển toàn quốc!</p>
+                                    <div>
+                                        <a href="#goi-y-section" class="btn btn-light text-danger fw-bold rounded-pill px-4 py-2 shadow-sm">
+                                            Khám phá ngay <i class="fa-solid fa-arrow-right ms-1"></i>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="carousel-item hero-slide-2">
+                                <div class="hero-slide-content">
+                                    <span class="badge bg-light text-primary align-self-start mb-2 px-2 py-1 fw-bold">SHOPEE MALL</span>
+                                    <h2 class="display-6 fw-bold mb-2">Hàng Hiệu Chính Hãng</h2>
+                                    <p class="fs-6 mb-3 opacity-90">Cam kết 100% chính hãng từ các thương hiệu hàng đầu thế giới.</p>
+                                    <div>
+                                        <a href="/VwSanPham/Dashboard?id=1" class="btn btn-light text-primary fw-bold rounded-pill px-4 py-2 shadow-sm">
+                                            Xem thương hiệu <i class="fa-solid fa-arrow-right ms-1"></i>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="carousel-item hero-slide-3">
+                                <div class="hero-slide-content">
+                                    <span class="badge bg-warning text-dark align-self-start mb-2 px-2 py-1 fw-bold">VOUCHER 500K</span>
+                                    <h2 class="display-6 fw-bold mb-2">Deal Hời Mỗi Ngày</h2>
+                                    <p class="fs-6 mb-3 opacity-90">Thu thập mã giảm giá và hoàn xu cực đỉnh trên mọi đơn hàng!</p>
+                                    <div>
+                                        <a href="#goi-y-section" class="btn btn-light text-purple fw-bold rounded-pill px-4 py-2 shadow-sm" style="color: #7c3aed;">
+                                            Săn voucher <i class="fa-solid fa-arrow-right ms-1"></i>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <button class="carousel-control-prev" type="button" data-bs-target="#homeHeroCarousel" data-bs-slide="prev">
+                            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                            <span class="visually-hidden">Trước</span>
+                        </button>
+                        <button class="carousel-control-next" type="button" data-bs-target="#homeHeroCarousel" data-bs-slide="next">
+                            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                            <span class="visually-hidden">Sau</span>
+                        </button>
+                    </div>
+                </div>
 
+                <!-- 2 BANNER PHỤ BÊN CẠNH -->
+                <div class="col-lg-4 d-none d-lg-flex flex-column justify-content-between gap-3">
+                    <a href="/VwSanPham/Dashboard?id=2" class="hero-side-banner">
+                        <div class="flex-grow-1">
+                            <span class="badge bg-danger text-white mb-1">MỚI NHẤT</span>
+                            <h6 class="fw-bold mb-1">Đồ Gia Dụng Thông Minh</h6>
+                            <small class="text-muted">Ưu đãi đến 30% tuần này</small>
+                        </div>
+                        <i class="fa-solid fa-couch fa-2x text-warning opacity-75"></i>
+                    </a>
+                    <a href="/VwSanPham/Dashboard?id=3" class="hero-side-banner">
+                        <div class="flex-grow-1">
+                            <span class="badge bg-success text-white mb-1">FREESHIP EXTRA</span>
+                            <h6 class="fw-bold mb-1">Thiết Bị Điện Tử &amp; Phụ Kiện</h6>
+                            <small class="text-muted">Bảo hành 12 tháng 1 đổi 1</small>
+                        </div>
+                        <i class="fa-solid fa-laptop fa-2x text-info opacity-75"></i>
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <!-- THANH TIỆN ÍCH DỊCH VỤ -->
+        <div class="feature-bar">
+            <div class="feature-item">
+                <i class="fa-solid fa-shield-halved"></i>
+                <div>
+                    <div class="fw-bold">100% Chính Hãng</div>
+                    <div class="text-muted small">Cam kết hoàn tiền gấp đôi</div>
+                </div>
+            </div>
+            <div class="feature-item">
+                <i class="fa-solid fa-truck-fast"></i>
+                <div>
+                    <div class="fw-bold">Giao Hàng Miễn Phí</div>
+                    <div class="text-muted small">Đơn từ 0đ toàn quốc</div>
+                </div>
+            </div>
+            <div class="feature-item">
+                <i class="fa-solid fa-arrow-rotate-left"></i>
+                <div>
+                    <div class="fw-bold">15 Ngày Đổi Trả</div>
+                    <div class="text-muted small">Thủ tục nhanh chóng, tiện lợi</div>
+                </div>
+            </div>
+            <div class="feature-item">
+                <i class="fa-solid fa-headset"></i>
+                <div>
+                    <div class="fw-bold">Hỗ Trợ 24/7</div>
+                    <div class="text-muted small">Tư vấn tận tâm, chu đáo</div>
+                </div>
+            </div>
+        </div>
+    }
+
+    <!-- DANH MỤC HÀNG HOÁ (CONTRACT: #categoryContainer, .category-item, scrollCategory(-1)/(1)) -->
+    <section class="category-section mb-4">
+        <div class="section-header d-flex justify-content-between align-items-center mb-3">
+            <h3 class="mb-0 fw-bold fs-5 text-uppercase">
+                <i class="fa-solid fa-table-cells-large text-danger me-2"></i>DANH MỤC HÀNG HOÁ
+            </h3>
+            <span class="text-muted small d-none d-sm-inline">Vuốt hoặc bấm nút điều hướng để xem thêm</span>
         </div>
 
-        <button class="scroll-btn right"
-                onclick="scrollCategory(1)">
-            <i class="fas fa-chevron-right"></i>
-        </button>
+        <div class="category-wrapper position-relative">
+            <button class="scroll-btn left"
+                    onclick="scrollCategory(-1)"
+                    type="button"
+                    aria-label="Cuộn sang trái">
+                <i class="fas fa-chevron-left"></i>
+            </button>
 
-    </div>
+            <div class="category-scroll"
+                 id="categoryContainer">
+                <div class="d-flex align-items-center gap-3 p-3">
+                    <div class="skeleton skeleton-circle" style="width: 56px; height: 56px;"></div>
+                    <div class="skeleton skeleton-circle" style="width: 56px; height: 56px;"></div>
+                    <div class="skeleton skeleton-circle" style="width: 56px; height: 56px;"></div>
+                    <div class="skeleton skeleton-circle" style="width: 56px; height: 56px;"></div>
+                    <div class="skeleton skeleton-circle" style="width: 56px; height: 56px;"></div>
+                    <span class="text-muted small">Đang tải danh mục...</span>
+                </div>
+            </div>
 
-    <!-- GỢI Ý -->
-    <div class="section-header">
-        <h3>GỢI Ý HÔM NAY</h3>
-    </div>
+            <button class="scroll-btn right"
+                    onclick="scrollCategory(1)"
+                    type="button"
+                    aria-label="Cuộn sang phải">
+                <i class="fas fa-chevron-right"></i>
+            </button>
+        </div>
+    </section>
 
-    <!-- GRID -->
-    <div class="product-grid-container">
+    <!-- FLASH SALE / TOP BÁN CHẠY (NẾU CÓ DỮ LIỆU BÁN CHẠY) -->
+    @if (topSanPham != null && topSanPham.Any() && !hasKeyword)
+    {
+        <section class="top-sale-section mb-4">
+            <div class="top-section-header">
+                <div class="d-flex align-items-center gap-2">
+                    <span class="badge bg-danger text-white px-2 py-1"><i class="fa-solid fa-fire-flame-curved"></i> HOT</span>
+                    <h3 class="mb-0 fw-bold fs-5 text-uppercase text-danger">TOP SẢN PHẨM BÁN CHẠY</h3>
+                </div>
+                <div class="flash-timer d-none d-md-flex text-muted">
+                    <span class="me-1">Kết thúc sau:</span>
+                    <span class="timer-badge" id="timer-hours">03</span> :
+                    <span class="timer-badge" id="timer-mins">42</span> :
+                    <span class="timer-badge" id="timer-secs">19</span>
+                </div>
+            </div>
 
-        @if (topSanPham != null && topSanPham.Any())
-        {
-            int rank = 1;
-
-            @foreach (var top in topSanPham)
-            {
-                var sp = Model.FirstOrDefault(x => x.TenSanPham == top.TenSanPham);
-
-                if (sp != null)
+            <div class="row row-cols-2 row-cols-md-3 row-cols-lg-6 g-3 mb-4">
+                @{
+                    int topRank = 1;
+                }
+                @foreach (var top in topSanPham.Take(6))
                 {
-                    <div class="product-card"
-                         onclick="location.href='@Url.Action("ChiTietSanPham", "VwSanPham", new { id = sp.MaSanPham })'">
+                    var spTop = productList.FirstOrDefault(x => x.TenSanPham == top.TenSanPham);
+                    if (spTop != null)
+                    {
+                        var rankClass = topRank == 1 ? "badge-rank-1" : (topRank == 2 ? "badge-rank-2" : (topRank == 3 ? "badge-rank-3" : "bg-dark text-white"));
 
-                        <div class="badge-low-stock">
-                            TOP #@rank
+                        <div class="col">
+                            <div class="product-card"
+                                 onclick="location.href='@Url.Action("ChiTietSanPham", "VwSanPham", new { id = spTop.MaSanPham })'">
+
+                                <span class="badge-top-rank @rankClass">TOP #@topRank</span>
+                                <div class="badge-discount-corner">-15%</div>
+
+                                <div class="prod-img-box">
+                                    <img src="@(string.IsNullOrEmpty(spTop.HinhAnh) ? "/images/no-image.png" : spTop.HinhAnh)"
+                                         alt="@spTop.TenSanPham"
+                                         loading="lazy" />
+                                </div>
+
+                                <div class="prod-info">
+                                    <div class="prod-title" title="@spTop.TenSanPham">
+                                        @spTop.TenSanPham
+                                    </div>
+                                    <div class="prod-tags">
+                                        <span class="tag-fav">Bán chạy</span>
+                                    </div>
+                                    <div class="prod-bottom">
+                                        <span class="prod-price">@spTop.Gia.ToString("N0") ₫</span>
+                                        <span class="prod-sold">Đã bán @top.TongBan</span>
+                                    </div>
+                                </div>
+
+                                <button type="button"
+                                        class="btn-add-cart-action btn-add-cart"
+                                        title="Thêm vào giỏ hàng"
+                                        onclick="themVaoGioNhanh(@spTop.MaSanPham, event)">
+                                    <i class="fas fa-plus"></i>
+                                </button>
+                            </div>
                         </div>
+                        topRank++;
+                    }
+                }
+            </div>
+        </section>
+    }
 
-                        <div class="prod-img-box">
+    <!-- GỢI Ý HÔM NAY / DANH SÁCH TOÀN BỘ SẢN PHẨM -->
+    <section id="goi-y-section">
+        <div class="section-header d-flex justify-content-between align-items-center mb-3">
+            <h3 class="mb-0 fw-bold fs-5 text-uppercase">
+                <i class="fa-solid fa-sparkles text-warning me-2"></i>
+                @(hasKeyword ? "DANH SÁCH KẾT QUẢ TÌM KIẾM" : "GỢI Ý HÔM NAY")
+            </h3>
+            <span class="text-muted small">Cập nhật liên tục theo xu hướng</span>
+        </div>
 
-                            <img src="@sp.HinhAnh"
-                                 alt="@sp.TenSanPham" />
+        <!-- BỘ LỌC & SẮP XẾP PHÍA CLIENT -->
+        <div class="sort-toolbar">
+            <div class="d-flex align-items-center gap-2">
+                <span class="text-secondary small fw-semibold"><i class="fa-solid fa-arrow-down-wide-short me-1"></i> Sắp xếp theo:</span>
+                <div class="sort-btn-group" role="group" aria-label="Sắp xếp sản phẩm">
+                    <button type="button" class="sort-btn active" data-sort="default">Phổ biến</button>
+                    <button type="button" class="sort-btn" data-sort="newest">Mới nhất</button>
+                    <button type="button" class="sort-btn" data-sort="price-asc">Giá thấp đến cao</button>
+                    <button type="button" class="sort-btn" data-sort="price-desc">Giá cao đến thấp</button>
+                    <button type="button" class="sort-btn" data-sort="in-stock">Còn hàng</button>
+                </div>
+            </div>
 
-                        </div>
+            <!-- Client Filter Input -->
+            <div class="d-flex align-items-center gap-2">
+                <div class="input-group input-group-sm" style="max-width: 220px;">
+                    <span class="input-group-text bg-transparent border-end-0 text-muted">
+                        <i class="fa-solid fa-filter"></i>
+                    </span>
+                    <input type="text"
+                           id="clientFilterInput"
+                           class="form-control border-start-0"
+                           placeholder="Lọc nhanh tên..."
+                           aria-label="Lọc nhanh sản phẩm" />
+                </div>
+            </div>
+        </div>
 
-                        <div class="prod-info">
+        <!-- PRODUCT GRID (TẤT CẢ SẢN PHẨM) -->
+        <div class="row row-cols-2 row-cols-md-3 row-cols-lg-4 row-cols-xl-6 g-3 product-grid-container" id="productGridContainer">
+            @if (productList.Any())
+            {
+                int index = 0;
+                @foreach (var sp in productList)
+                {
+                    index++;
+                    bool isOutOfStock = sp.SoLuongTon <= 0;
+                    bool isLowStock = sp.SoLuongTon > 0 && sp.SoLuongTon <= 5;
 
-                            <div class="prod-title">
-                                @sp.TenSanPham
+                    <div class="col product-col-item"
+                         data-id="@sp.MaSanPham"
+                         data-name="@sp.TenSanPham.ToLower()"
+                         data-price="@((long)sp.Gia)"
+                         data-stock="@sp.SoLuongTon"
+                         data-index="@index">
+
+                        <div class="product-card"
+                             onclick="location.href='@Url.Action("ChiTietSanPham", "VwSanPham", new { id = sp.MaSanPham })'">
+
+                            @if (isLowStock)
+                            {
+                                <span class="badge-top-rank bg-warning text-dark">Sắp hết</span>
+                            }
+                            else if (isOutOfStock)
+                            {
+                                <span class="badge-top-rank bg-secondary text-white">Hết hàng</span>
+                            }
+                            else if (index <= 3 && !hasKeyword)
+                            {
+                                <span class="badge-top-rank bg-danger text-white">Hot</span>
+                            }
+
+                            <div class="badge-discount-corner">-10%</div>
+
+                            <div class="prod-img-box">
+                                <img src="@(string.IsNullOrEmpty(sp.HinhAnh) ? "/images/no-image.png" : sp.HinhAnh)"
+                                     alt="@sp.TenSanPham"
+                                     loading="lazy" />
                             </div>
 
-                            <div class="prod-tags">
+                            <div class="prod-info">
+                                <div class="prod-title" title="@sp.TenSanPham">
+                                    @sp.TenSanPham
+                                </div>
 
-                                <span class="tag-fav">
-                                    Bán chạy
-                                </span>
+                                <div class="prod-tags">
+                                    <span class="tag-mall">Mall</span>
+                                    <span class="tag-fav">Yêu thích</span>
+                                </div>
 
+                                <div class="prod-bottom">
+                                    <span class="prod-price">@sp.Gia.ToString("N0") ₫</span>
+                                    <span class="prod-sold">
+                                        @(isOutOfStock ? "Hết hàng" : $"Còn {sp.SoLuongTon}")
+                                    </span>
+                                </div>
                             </div>
 
-                            <div class="prod-bottom">
-
-                                <span class="prod-price">
-                                    @sp.Gia.ToString("N0") ₫
-                                </span>
-
-                                <span class="prod-sold">
-                                    Đã bán @top.TongBan
-                                </span>
-
-                            </div>
-
+                            <button type="button"
+                                    class="btn-add-cart-action btn-add-cart"
+                                    title="Thêm vào giỏ hàng"
+                                    onclick="themVaoGioNhanh(@sp.MaSanPham, event)"
+                                    @(isOutOfStock ? "disabled style='opacity:0.4;cursor:not-allowed;'" : "")>
+                                <i class="fas fa-plus"></i>
+                            </button>
                         </div>
-
-                        <div class="btn-add-cart"
-                             onclick="event.stopPropagation(); alert('Thêm giỏ hàng')">
-
-                            <i class="fas fa-plus"></i>
-
-                        </div>
-
                     </div>
-
-                    rank++;
                 }
             }
-        }
-        else
-        {
-            <div class="text-center w-100 py-5">
+            else
+            {
+                <div class="col-12 py-5" id="emptyStateContainer">
+                    <div class="empty-state">
+                        <div class="empty-state-icon">
+                            <i class="fa-solid fa-box-open"></i>
+                        </div>
+                        <div class="empty-state-title">
+                            @(hasKeyword ? $"Không tìm thấy sản phẩm nào khớp với '{keyword}'" : "Không có sản phẩm nào trong hệ thống")
+                        </div>
+                        <div class="empty-state-desc">
+                            Vui lòng thử tìm kiếm bằng từ khoá khác hoặc dạo xem các danh mục sản phẩm nổi bật nhé!
+                        </div>
+                        <div class="empty-state-action">
+                            <a href="/" class="btn-shopee">Về Trang Chủ Mua Sắm</a>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
 
-                <h5>
-                    Không có sản phẩm nào
-                </h5>
-
+        <!-- THÔNG BÁO KHI FILTER CLIENT KHÔNG TÌM THẤY -->
+        <div id="noFilterResult" class="col-12 py-5 d-none">
+            <div class="empty-state">
+                <div class="empty-state-icon">
+                    <i class="fa-solid fa-filter-circle-xmark"></i>
+                </div>
+                <div class="empty-state-title">Không tìm thấy sản phẩm phù hợp bộ lọc</div>
+                <div class="empty-state-desc">Hãy thử nhập từ khóa ngắn hơn hoặc chọn kiểu sắp xếp khác.</div>
+                <div class="empty-state-action">
+                    <button type="button" class="btn-shopee-secondary" onclick="resetClientFilter()">Xóa bộ lọc nhanh</button>
+                </div>
             </div>
-        }
+        </div>
 
-    </div>
+    </section>
 
 </div>
 
 @section Scripts {
-
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-
     <script>
-
         $(document).ready(function () {
-
-        loadDanhMuc();
-
+            loadDanhMuc();
+            initClientSortingAndFiltering();
+            startCountdownTimer();
         });
 
-        // =========================
-        // LOAD DANH MỤC
-        // =========================
+        // =========================================
+        // CONTRACT: LOAD DANH MỤC (#categoryContainer, .category-item)
+        // =========================================
         function loadDanhMuc() {
-
-        $.ajax({
-
-        url: '/api/danhmuc',
-        type: 'GET',
-
-        success: function (data) {
-
-        let html = '';
-
-        if (data && data.length > 0) {
-
-        data.forEach(cat => {
-
-        html += `
-        <div class="category-item"
-        onclick="goToCategory(${cat.maDanhMuc})">
-
-        <div class="cat-icon-box">
-
-        <img src="${cat.hinhAnh}"
-        alt="${cat.tenDanhMuc}" />
-
-        </div>
-
-        <div class="cat-name">
-
-        ${cat.tenDanhMuc}
-
-        </div>
-
-        </div>
-        `;
-        });
-
-        }
-        else {
-
-        html = `
-        <div class="text-muted px-3">
-        Không có danh mục
-        </div>
-        `;
-        }
-
-        $('#categoryContainer').html(html);
-        },
-
-        error: function () {
-
-        $('#categoryContainer').html(`
-        <div class="text-danger px-3">
-        Lỗi tải danh mục
-        </div>
-        `);
-        }
-        });
+            $.ajax({
+                url: '/api/danhmuc',
+                type: 'GET',
+                success: function (data) {
+                    let html = '';
+                    if (data && data.length > 0) {
+                        data.forEach(cat => {
+                            const imgSrc = cat.hinhAnh ? cat.hinhAnh : '/images/no-image.png';
+                            html += `
+                                <div class="category-item"
+                                     onclick="goToCategory(${cat.maDanhMuc})"
+                                     tabindex="0"
+                                     role="button"
+                                     title="Xem danh mục ${cat.tenDanhMuc}">
+                                    <div class="cat-icon-box">
+                                        <img src="${imgSrc}"
+                                             alt="${cat.tenDanhMuc}"
+                                             loading="lazy" />
+                                    </div>
+                                    <div class="cat-name">
+                                        ${cat.tenDanhMuc}
+                                    </div>
+                                </div>
+                            `;
+                        });
+                    } else {
+                        html = `
+                            <div class="text-muted px-3 py-2">
+                                Không có danh mục nào để hiển thị
+                            </div>
+                        `;
+                    }
+                    $('#categoryContainer').html(html);
+                },
+                error: function () {
+                    $('#categoryContainer').html(`
+                        <div class="text-danger px-3 py-2">
+                            <i class="fa-solid fa-triangle-exclamation me-1"></i> Không thể tải danh mục. Vui lòng thử lại sau.
+                        </div>
+                    `);
+                }
+            });
         }
 
-        // =========================
-        // CLICK DANH MỤC
-        // =========================
+        // =========================================
+        // CONTRACT: CLICK DANH MỤC
+        // =========================================
         function goToCategory(id) {
-
-        window.location.href =
-        '/VwSanPham/Dashboard?id=' + id;
+            window.location.href = '/VwSanPham/Dashboard?id=' + id;
         }
 
-        // =========================
-        // SCROLL DANH MỤC
-        // =========================
+        // =========================================
+        // CONTRACT: SCROLL DANH MỤC (scrollCategory(-1) / (1))
+        // =========================================
         function scrollCategory(direction) {
-
-        const container =
-        document.getElementById('categoryContainer');
-
-        const scrollAmount = 300;
-
-        container.scrollBy({
-
-        left: direction * scrollAmount,
-        behavior: 'smooth'
-
-        });
+            const container = document.getElementById('categoryContainer');
+            if (!container) return;
+            const scrollAmount = 320;
+            container.scrollBy({
+                left: direction * scrollAmount,
+                behavior: 'smooth'
+            });
         }
 
+        // =========================================
+        // THÊM VÀO GIỎ HÀNG NHANH + TOAST + CẬP NHẬT BADGE
+        // =========================================
+        function themVaoGioNhanh(maSanPham, event) {
+            if (event) {
+                event.stopPropagation();
+                event.preventDefault();
+            }
+
+            $.ajax({
+                url: '/VwGioHang/ThemVaoGio',
+                type: 'POST',
+                data: {
+                    maSanPham: maSanPham,
+                    soLuong: 1
+                },
+                success: function (res) {
+                    if (res.success) {
+                        if (window.toast) {
+                            window.toast.success(res.message || 'Đã thêm sản phẩm vào giỏ hàng!', 'Giỏ Hàng');
+                        } else {
+                            alert(res.message);
+                        }
+                        capNhatCartBadge();
+                    } else {
+                        if (window.toast) {
+                            window.toast.warning(res.message, 'Thông báo');
+                        } else {
+                            alert(res.message);
+                        }
+                        if (res.message === "Vui lòng đăng nhập") {
+                            setTimeout(function () {
+                                window.location = '/VwTaiKhoan/DangNhap';
+                            }, 1200);
+                        }
+                    }
+                },
+                error: function () {
+                    if (window.toast) {
+                        window.toast.error('Có lỗi xảy ra khi thêm vào giỏ hàng. Vui lòng thử lại!');
+                    } else {
+                        alert('Có lỗi xảy ra');
+                    }
+                }
+            });
+        }
+
+        function capNhatCartBadge() {
+            const badge = document.querySelector('.cart .badge');
+            if (badge) {
+                let current = parseInt(badge.textContent) || 0;
+                badge.textContent = current + 1;
+                badge.style.transform = 'scale(1.4)';
+                setTimeout(() => { badge.style.transform = 'scale(1)'; }, 300);
+            }
+        }
+
+        // =========================================
+        // CLIENT-SIDE SORTING & REALTIME FILTERING
+        // =========================================
+        function initClientSortingAndFiltering() {
+            const container = document.getElementById('productGridContainer');
+            if (!container) return;
+
+            const sortButtons = document.querySelectorAll('.sort-btn');
+            const filterInput = document.getElementById('clientFilterInput');
+            const noResultEl = document.getElementById('noFilterResult');
+
+            function applyFilterAndSort() {
+                const query = filterInput ? filterInput.value.trim().toLowerCase() : '';
+                const activeBtn = document.querySelector('.sort-btn.active');
+                const sortType = activeBtn ? activeBtn.dataset.sort : 'default';
+
+                const items = Array.from(container.querySelectorAll('.product-col-item'));
+                let visibleCount = 0;
+
+                // Lọc
+                items.forEach(item => {
+                    const name = item.dataset.name || '';
+                    const stock = parseInt(item.dataset.stock) || 0;
+                    let matchesFilter = true;
+
+                    if (query && !name.includes(query)) {
+                        matchesFilter = false;
+                    }
+
+                    if (sortType === 'in-stock' && stock <= 0) {
+                        matchesFilter = false;
+                    }
+
+                    if (matchesFilter) {
+                        item.classList.remove('d-none');
+                        visibleCount++;
+                    } else {
+                        item.classList.add('d-none');
+                    }
+                });
+
+                // Sắp xếp
+                items.sort((a, b) => {
+                    const priceA = parseFloat(a.dataset.price) || 0;
+                    const priceB = parseFloat(b.dataset.price) || 0;
+                    const indexA = parseInt(a.dataset.index) || 0;
+                    const indexB = parseInt(b.dataset.index) || 0;
+                    const stockA = parseInt(a.dataset.stock) || 0;
+                    const stockB = parseInt(b.dataset.stock) || 0;
+
+                    if (sortType === 'price-asc') return priceA - priceB;
+                    if (sortType === 'price-desc') return priceB - priceA;
+                    if (sortType === 'newest') return indexB - indexA;
+                    if (sortType === 'in-stock') return stockB - stockA;
+                    return indexA - indexB; // default
+                });
+
+                // Gắn lại vào DOM theo thứ tự đã sort
+                items.forEach(item => container.appendChild(item));
+
+                if (noResultEl) {
+                    if (visibleCount === 0 && items.length > 0) {
+                        noResultEl.classList.remove('d-none');
+                    } else {
+                        noResultEl.classList.add('d-none');
+                    }
+                }
+            }
+
+            // Gán sự kiện cho các nút sort
+            sortButtons.forEach(btn => {
+                btn.addEventListener('click', function () {
+                    sortButtons.forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    applyFilterAndSort();
+                });
+            });
+
+            // Gán sự kiện debounce cho ô nhập lọc
+            if (filterInput) {
+                let debounceTimer;
+                filterInput.addEventListener('input', function () {
+                    clearTimeout(debounceTimer);
+                    debounceTimer = setTimeout(applyFilterAndSort, 180);
+                });
+            }
+        }
+
+        function resetClientFilter() {
+            const filterInput = document.getElementById('clientFilterInput');
+            if (filterInput) filterInput.value = '';
+            const defBtn = document.querySelector('.sort-btn[data-sort="default"]');
+            if (defBtn) defBtn.click();
+        }
+
+        // =========================================
+        // ĐỒNG HỒ ĐẾM NGƯỢC FLASH SALE
+        // =========================================
+        function startCountdownTimer() {
+            let totalSeconds = 3 * 3600 + 42 * 60 + 19;
+            const hEl = document.getElementById('timer-hours');
+            const mEl = document.getElementById('timer-mins');
+            const sEl = document.getElementById('timer-secs');
+
+            if (!hEl || !mEl || !sEl) return;
+
+            setInterval(() => {
+                if (totalSeconds > 0) {
+                    totalSeconds--;
+                    const hours = Math.floor(totalSeconds / 3600);
+                    const mins = Math.floor((totalSeconds % 3600) / 60);
+                    const secs = totalSeconds % 60;
+
+                    hEl.textContent = String(hours).padStart(2, '0');
+                    mEl.textContent = String(mins).padStart(2, '0');
+                    sEl.textContent = String(secs).padStart(2, '0');
+                }
+            }, 1000);
+        }
     </script>
 }

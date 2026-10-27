@@ -1,6 +1,118 @@
-﻿@{
-    ViewData["Title"] = "Privacy Policy";
+@{
+    ViewData["Title"] = "Chính Sách Bảo Mật";
 }
-<h1>@ViewData["Title"]</h1>
 
-<p>Use this page to detail your site's privacy policy.</p>
+<div class="container py-4">
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index"><i class="fa-solid fa-house me-1"></i>Trang chủ</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Chính sách bảo mật</li>
+        </ol>
+    </nav>
+
+    <!-- Header Banner -->
+    <div class="card-modern mb-4 p-4 p-md-5 bg-white text-center">
+        <div class="d-inline-flex align-items-center justify-content-center p-3 rounded-circle mb-3" style="background: var(--shopee-orange-light); width: 68px; height: 68px;">
+            <i class="fa-solid fa-user-shield fa-2x" style="color: var(--shopee-orange);"></i>
+        </div>
+        <h1 class="fw-bold mb-2">Chính Sách Bảo Mật ShopeeClone</h1>
+        <p class="text-muted max-w-600 mx-auto mb-0">
+            Chúng tôi cam kết tôn trọng và bảo vệ quyền riêng tư cá nhân của mọi khách hàng khi sử dụng nền tảng thương mại điện tử ShopeeClone.
+        </p>
+        <small class="text-muted d-block mt-2">Cập nhật lần cuối: Tháng 10/2026</small>
+    </div>
+
+    <!-- Content Sections -->
+    <div class="row g-4">
+        <div class="col-md-6">
+            <div class="card-modern p-4 h-100">
+                <div class="d-flex align-items-center gap-3 mb-3">
+                    <span class="badge-modern badge-status-approved p-2 fs-6">
+                        <i class="fa-solid fa-database"></i>
+                    </span>
+                    <h5 class="fw-bold mb-0">1. Thu thập thông tin cá nhân</h5>
+                </div>
+                <p class="text-secondary small">
+                    Chúng tôi thu thập các thông tin cần thiết nhằm phục vụ quy trình xử lý đơn hàng và cải thiện trải nghiệm mua sắm:
+                </p>
+                <ul class="text-secondary small ps-3 mb-0">
+                    <li class="mb-1">Họ tên, địa chỉ nhận hàng, số điện thoại liên lạc.</li>
+                    <li class="mb-1">Tên đăng nhập, mật khẩu mã hoá (BCrypt hash) và email.</li>
+                    <li class="mb-1">Lịch sử duyệt sản phẩm, giỏ hàng và danh sách đơn mua.</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card-modern p-4 h-100">
+                <div class="d-flex align-items-center gap-3 mb-3">
+                    <span class="badge-modern badge-status-shipping p-2 fs-6">
+                        <i class="fa-solid fa-bullseye"></i>
+                    </span>
+                    <h5 class="fw-bold mb-0">2. Mục đích sử dụng thông tin</h5>
+                </div>
+                <p class="text-secondary small">
+                    Mọi dữ liệu người dùng được thu thập được sử dụng cho các mục đích chính đáng:
+                </p>
+                <ul class="text-secondary small ps-3 mb-0">
+                    <li class="mb-1">Xác nhận đơn hàng và điều phối đơn vị vận chuyển giao hàng.</li>
+                    <li class="mb-1">Hỗ trợ chăm sóc khách hàng, giải quyết khiếu nại và hoàn tiền.</li>
+                    <li class="mb-1">Ngăn chặn các hành vi gian lận tài khoản hoặc giao dịch bất thường.</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card-modern p-4 h-100">
+                <div class="d-flex align-items-center gap-3 mb-3">
+                    <span class="badge-modern badge-status-completed p-2 fs-6">
+                        <i class="fa-solid fa-lock"></i>
+                    </span>
+                    <h5 class="fw-bold mb-0">3. Bảo mật thanh toán &amp; Dữ liệu</h5>
+                </div>
+                <p class="text-secondary small">
+                    ShopeeClone áp dụng các biện pháp an ninh kỹ thuật nghiêm ngặt nhằm ngăn chặn truy cập trái phép:
+                </p>
+                <ul class="text-secondary small ps-3 mb-0">
+                    <li class="mb-1">Mã hoá chuẩn quốc tế SSL/TLS trên toàn bộ kết nối web.</li>
+                    <li class="mb-1">Mật khẩu người dùng được băm một chiều an toàn bằng thuật toán BCrypt.</li>
+                    <li class="mb-1">Không bao giờ chia sẻ thông tin cá nhân cho bên thứ ba vì mục đích thương mại.</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card-modern p-4 h-100">
+                <div class="d-flex align-items-center gap-3 mb-3">
+                    <span class="badge-modern badge-status-pending p-2 fs-6">
+                        <i class="fa-solid fa-scale-balanced"></i>
+                    </span>
+                    <h5 class="fw-bold mb-0">4. Quyền của người dùng</h5>
+                </div>
+                <p class="text-secondary small">
+                    Quý khách có toàn quyền quản lý dữ liệu cá nhân của mình trên hệ thống:
+                </p>
+                <ul class="text-secondary small ps-3 mb-0">
+                    <li class="mb-1">Xem, cập nhật thông tin địa chỉ và số điện thoại trong trang cá nhân.</li>
+                    <li class="mb-1">Chủ động đổi mật khẩu hoặc yêu cầu đặt lại mật khẩu khi cần.</li>
+                    <li class="mb-1">Liên hệ với tổng đài hỗ trợ 24/7 để yêu cầu giải đáp thắc mắc bảo mật.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Contact Box -->
+    <div class="card-modern mt-4 p-4 text-center">
+        <h6 class="fw-bold mb-2">Bạn có câu hỏi liên quan đến Chính Sách Bảo Mật?</h6>
+        <p class="text-muted small mb-3">Đội ngũ pháp lý và hỗ trợ khách hàng của ShopeeClone luôn sẵn sàng trợ giúp bạn mọi lúc.</p>
+        <div class="d-flex justify-content-center gap-3">
+            <a href="mailto:support@shopeeclone.vn" class="btn-shopee-secondary btn-shopee-sm">
+                <i class="fa-regular fa-envelope me-1"></i> support@shopeeclone.vn
+            </a>
+            <a href="tel:19001234" class="btn-shopee btn-shopee-sm">
+                <i class="fa-solid fa-phone me-1"></i> Tổng đài 1900 1234
+            </a>
+        </div>
+    </div>
+</div>

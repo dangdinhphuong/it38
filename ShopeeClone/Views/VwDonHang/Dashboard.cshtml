@@ -1,176 +1,406 @@
-﻿@model IEnumerable<ShopeeClone.Models.Model_DB.DonHang>
+@model IEnumerable<ShopeeClone.Models.Model_DB.DonHang>
 
 @{
-    ViewData["Title"] = "Đơn hàng của tôi";
+    ViewData["Title"] = "Đơn mua của tôi";
     Layout = "~/Views/Shared/_Layout.cshtml";
+
+    var donHangs = Model?.OrderByDescending(x => x.NgayDat).ToList() ?? new List<ShopeeClone.Models.Model_DB.DonHang>();
 }
 
 @section Styles {
-    <link rel="stylesheet"
-          href="~/css/site.css"
-          asp-append-version="true" />
+    <style>
+        .order-history-page {
+            padding: 1.5rem 0 4rem;
+        }
 
-    <link rel="stylesheet"
-          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+        /* Order Filter Tabs */
+        .order-tabs-bar {
+            background-color: var(--bg-surface);
+            border: 1px solid var(--border-default);
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-xs);
+            display: flex;
+            overflow-x: auto;
+            margin-bottom: 1.5rem;
+        }
+
+        .order-tab-item {
+            flex: 1;
+            text-align: center;
+            padding: 0.9rem 1.25rem;
+            font-size: 0.9375rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            white-space: nowrap;
+            transition: all var(--transition-fast);
+        }
+
+        .order-tab-item:hover {
+            color: var(--shopee-orange);
+        }
+
+        .order-tab-item.active {
+            color: var(--shopee-orange);
+            border-bottom-color: var(--shopee-orange);
+            background-color: var(--shopee-orange-light);
+        }
+
+        /* Order Card */
+        .order-card {
+            background-color: var(--bg-surface);
+            border: 1px solid var(--border-default);
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-sm);
+            margin-bottom: 1.5rem;
+            overflow: hidden;
+            transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+        }
+
+        .order-card:hover {
+            box-shadow: var(--shadow-md);
+        }
+
+        .order-card-header {
+            padding: 1rem 1.5rem;
+            background-color: var(--bg-surface);
+            border-bottom: 1px solid var(--border-subtle);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+        }
+
+        .order-date-text {
+            font-size: 0.8125rem;
+            color: var(--text-muted);
+        }
+
+        .order-product-row {
+            padding: 1.25rem 1.5rem;
+            border-bottom: 1px solid var(--border-subtle);
+            transition: background var(--transition-fast);
+        }
+
+        .order-product-row:hover {
+            background-color: var(--bg-hover);
+        }
+
+        .order-product-row:last-child {
+            border-bottom: none;
+        }
+
+        .order-thumb {
+            width: 80px;
+            height: 80px;
+            border-radius: var(--radius-sm);
+            overflow: hidden;
+            background-color: var(--bg-surface-sunken);
+            border: 1px solid var(--border-subtle);
+            flex-shrink: 0;
+        }
+
+        .order-thumb img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .order-item-title {
+            font-size: 0.9375rem;
+            font-weight: 500;
+            color: var(--text-primary);
+            text-decoration: none;
+            line-height: 1.4;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .order-item-title:hover {
+            color: var(--shopee-orange);
+        }
+
+        .order-card-footer {
+            padding: 1.25rem 1.5rem;
+            background-color: var(--bg-surface-sunken);
+            border-top: 1px solid var(--border-subtle);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .order-total-price {
+            font-size: 1.35rem;
+            font-weight: 800;
+            color: var(--shopee-orange);
+        }
+
+        /* Order Search Bar */
+        .order-search-box {
+            background-color: var(--bg-surface);
+            border: 1px solid var(--border-default);
+            border-radius: var(--radius-md);
+            padding: 0.75rem 1.25rem;
+            margin-bottom: 1.25rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+    </style>
 }
 
-<div class="container mt-4">
+<div class="order-history-page">
+    <div class="container">
 
-    <h2 class="mb-4">
-        Đơn hàng của tôi
-    </h2>
+        <!-- BREADCRUMB -->
+        <nav aria-label="breadcrumb" class="mb-3">
+            <ol class="breadcrumb small">
+                <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index"><i class="fa-solid fa-house me-1"></i>Trang chủ</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Lịch sử đơn mua</li>
+            </ol>
+        </nav>
 
-    @if (Model != null && Model.Any())
-    {
-        @foreach (var donHang in Model)
+        <div class="d-flex align-items-center justify-content-between mb-3">
+            <h1 class="h4 fw-bold text-primary mb-0">
+                <i class="fa-solid fa-box-open text-danger me-2"></i>Đơn Hàng Của Tôi
+            </h1>
+            <span class="text-muted small">Tổng cộng: <strong>@donHangs.Count</strong> đơn hàng</span>
+        </div>
+
+        @if (donHangs.Any())
         {
-            <div class="card shadow-sm mb-4 border-0">
+            <!-- STATUS FILTER TABS -->
+            <div class="order-tabs-bar" role="tablist">
+                <button type="button" class="order-tab-item active" data-filter="all">Tất cả (@donHangs.Count)</button>
+                <button type="button" class="order-tab-item" data-filter="cho-xu-ly">Chờ xử lý</button>
+                <button type="button" class="order-tab-item" data-filter="da-duyet">Đã duyệt / Giao</button>
+                <button type="button" class="order-tab-item" data-filter="hoan-thanh">Hoàn thành</button>
+                <button type="button" class="order-tab-item" data-filter="da-huy">Đã hủy</button>
+            </div>
 
-                <!-- HEADER -->
-                <div class="card-header bg-white d-flex justify-content-between align-items-center">
+            <!-- SEARCH ORDER BOX -->
+            <div class="order-search-box">
+                <i class="fa-solid fa-magnifying-glass text-muted"></i>
+                <input type="text"
+                       id="orderSearchInput"
+                       class="form-control border-0 p-0 shadow-none bg-transparent"
+                       placeholder="Tìm kiếm theo Mã đơn hàng hoặc Tên sản phẩm..."
+                       aria-label="Tìm đơn hàng" />
+            </div>
 
-                    <div>
+            <!-- ORDER LIST CONTAINER -->
+            <div id="orderListWrapper">
+                @foreach (var donHang in donHangs)
+                {
+                    var status = donHang.TrangThai ?? "Chờ xử lý";
+                    var statusSlug = "cho-xu-ly";
+                    var badgeClass = "badge-status-pending";
+                    var statusIcon = "fa-clock";
 
-                        <strong>
-                            Mã đơn:
-                        </strong>
-
-                        #@donHang.MaDonHang
-
-                    </div>
-
-                    <div>
-
-                        <span class="badge bg-warning text-dark">
-
-                            @donHang.TrangThai
-
-                        </span>
-
-                    </div>
-
-                </div>
-
-                <!-- BODY -->
-                <div class="card-body">
-
-                    <div class="mb-3 text-muted">
-
-                        <i class="fa-regular fa-clock"></i>
-
-                        @donHang.NgayDat.ToString("dd/MM/yyyy HH:mm")
-
-                    </div>
-
-                    @if (donHang.ChiTietDonHangs != null
-                   && donHang.ChiTietDonHangs.Any())
+                    if (status.Contains("Đã duyệt") || status.Contains("Đang giao"))
                     {
-                        @foreach (var item in donHang.ChiTietDonHangs)
-                        {
-                            <div class="row align-items-center border-bottom py-3">
-
-                                <!-- IMAGE -->
-                                <div class="col-md-2">
-
-                                    <img src="@(string.IsNullOrEmpty(item.SanPham?.HinhAnh)
-                                                                                                                     ? "/images/no-image.png"
-                                                                                                                     : item.SanPham.HinhAnh)"
-                                         class="img-fluid rounded"
-                                         style="height:100px;object-fit:cover;" />
-
-                                </div>
-
-                                <!-- INFO -->
-                                <div class="col-md-5">
-
-                                    <h6 class="mb-2">
-
-                                        @item.SanPham?.TenSanPham
-
-                                    </h6>
-
-                                    <div class="text-muted">
-
-                                        Số lượng:
-                                        @item.SoLuong
-
-                                    </div>
-
-                                </div>
-
-                                <!-- PRICE -->
-                                <div class="col-md-3 text-danger fw-bold">
-
-                                    @item.DonGia.ToString("N0") ₫
-
-                                </div>
-
-                                <!-- TOTAL -->
-                                <div class="col-md-2 fw-bold text-end">
-
-                                    @((item.SoLuong * item.DonGia).ToString("N0")) ₫
-
-                                </div>
-
-                            </div>
-                        }
+                        statusSlug = "da-duyet";
+                        badgeClass = "badge-status-approved";
+                        statusIcon = "fa-truck-fast";
+                    }
+                    else if (status.Contains("Hoàn thành"))
+                    {
+                        statusSlug = "hoan-thanh";
+                        badgeClass = "badge-status-completed";
+                        statusIcon = "fa-circle-check";
+                    }
+                    else if (status.Contains("Đã hủy"))
+                    {
+                        statusSlug = "da-huy";
+                        badgeClass = "badge-status-cancelled";
+                        statusIcon = "fa-ban";
                     }
 
-                </div>
+                    <div class="order-card order-item-card"
+                         data-id="@donHang.MaDonHang"
+                         data-status="@statusSlug">
 
-                <!-- FOOTER -->
-                <div class="card-footer bg-white d-flex justify-content-between align-items-center">
+                        <!-- HEADER -->
+                        <div class="order-card-header">
+                            <div class="d-flex align-items-center gap-3">
+                                <span class="fw-bold text-primary">
+                                    <i class="fa-solid fa-receipt me-1 text-danger"></i>Mã đơn: #@donHang.MaDonHang
+                                </span>
+                                <div class="order-date-text">
+                                    <i class="fa-regular fa-clock me-1"></i>@donHang.NgayDat.ToString("dd/MM/yyyy HH:mm")
+                                </div>
+                            </div>
 
-                    <div>
+                            <span class="badge-modern @badgeClass">
+                                <i class="fa-solid @statusIcon"></i> @status
+                            </span>
+                        </div>
 
-                        Tổng thanh toán:
+                        <!-- BODY: CHI TIẾT SẢN PHẨM -->
+                        <div class="order-card-body">
+                            @if (donHang.ChiTietDonHangs != null && donHang.ChiTietDonHangs.Any())
+                            {
+                                @foreach (var item in donHang.ChiTietDonHangs)
+                                {
+                                    var imgItem = string.IsNullOrEmpty(item.SanPham?.HinhAnh) ? "/images/no-image.png" : item.SanPham.HinhAnh;
 
-                        <span class="text-danger fw-bold fs-5">
+                                    <div class="order-product-row">
+                                        <div class="row align-items-center g-3">
+                                            <!-- THUMB -->
+                                            <div class="col-auto">
+                                                <div class="order-thumb">
+                                                    <img src="@imgItem"
+                                                         alt="@(item.SanPham?.TenSanPham ?? "Sản phẩm")"
+                                                         loading="lazy" />
+                                                </div>
+                                            </div>
 
-                            @donHang.TongTien.ToString("N0") ₫
+                                            <!-- INFO -->
+                                            <div class="col">
+                                                <a href="@Url.Action("ChiTietSanPham", "VwSanPham", new { id = item.MaSanPham })"
+                                                   class="order-item-title mb-1">
+                                                    @(item.SanPham?.TenSanPham ?? "Sản phẩm")
+                                                </a>
+                                                <div class="text-muted small">
+                                                    Phân loại: Tiêu chuẩn | Số lượng: <strong>x@item.SoLuong</strong>
+                                                </div>
+                                            </div>
 
-                        </span>
+                                            <!-- UNIT PRICE -->
+                                            <div class="col-auto text-end">
+                                                <div class="text-muted small">Đơn giá: @item.DonGia.ToString("N0") ₫</div>
+                                                <div class="fw-bold text-danger">@((item.SoLuong * item.DonGia).ToString("N0")) ₫</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+                            }
+                        </div>
+
+                        <!-- FOOTER (CONTRACT: TongTien) -->
+                        <div class="order-card-footer">
+                            <div class="d-flex align-items-center gap-2">
+                                <span class="text-secondary">Tổng thanh toán:</span>
+                                <span class="order-total-price">
+                                    @donHang.TongTien.ToString("N0") ₫
+                                </span>
+                            </div>
+
+                            <div class="d-flex gap-2">
+                                @if (donHang.ChiTietDonHangs != null && donHang.ChiTietDonHangs.Any())
+                                {
+                                    var firstSp = donHang.ChiTietDonHangs.First();
+                                    <a href="@Url.Action("ChiTietSanPham", "VwSanPham", new { id = firstSp.MaSanPham })"
+                                       class="btn-shopee-outline btn-shopee-sm">
+                                        <i class="fa-solid fa-rotate-right"></i> Mua lại
+                                    </a>
+                                }
+                                <a href="mailto:support@shopeeclone.vn?subject=HoTroDonHang-#@donHang.MaDonHang"
+                                   class="btn-shopee-secondary btn-shopee-sm">
+                                    <i class="fa-regular fa-comment-dots"></i> Liên hệ hỗ trợ
+                                </a>
+                            </div>
+                        </div>
 
                     </div>
+                }
+            </div>
 
-                    <div>
-
-                        <button class="btn btn-outline-primary">
-
-                            Mua lại
-
-                        </button>
-
+            <!-- NO FILTER RESULT -->
+            <div id="noOrderMatch" class="col-12 py-5 d-none">
+                <div class="empty-state">
+                    <div class="empty-state-icon">
+                        <i class="fa-solid fa-filter-circle-xmark"></i>
                     </div>
-
+                    <div class="empty-state-title">Không tìm thấy đơn hàng phù hợp</div>
+                    <div class="empty-state-desc">Hãy thử chọn tab trạng thái khác hoặc kiểm tra lại từ khóa tìm kiếm nhé.</div>
                 </div>
-
             </div>
         }
-    }
-    else
-    {
-        <div class="text-center py-5">
+        else
+        {
+            <!-- EMPTY STATE -->
+            <div class="card-modern p-5 text-center my-4">
+                <div class="empty-state">
+                    <div class="empty-state-icon">
+                        <i class="fa-solid fa-box-open"></i>
+                    </div>
+                    <h3 class="empty-state-title">Chưa có đơn hàng nào</h3>
+                    <p class="empty-state-desc">Bạn chưa phát sinh đơn hàng nào gần đây. Hãy dạo quanh một vòng và chọn cho mình những món đồ ưng ý nhé!</p>
+                    <div class="empty-state-action">
+                        <a asp-controller="Home" asp-action="Index" class="btn-shopee">
+                            <i class="fa-solid fa-bag-shopping me-1"></i> Bắt đầu mua sắm ngay
+                        </a>
+                    </div>
+                </div>
+            </div>
+        }
 
-            <i class="fa-solid fa-box-open fa-4x text-muted mb-3"></i>
-
-            <h4>
-                Chưa có đơn hàng nào
-            </h4>
-
-            <p class="text-muted">
-                Hãy mua sắm để tạo đơn hàng đầu tiên
-            </p>
-
-            <a asp-controller="Home"
-                   asp-action="Index"
-                   class="btn btn-danger mt-3">
-
-                Tiếp tục mua sắm
-
-            </a>
-
-        </div>
-    }
-
+    </div>
 </div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            const tabs = document.querySelectorAll('.order-tab-item');
+            const searchInput = document.getElementById('orderSearchInput');
+            const cards = document.querySelectorAll('.order-item-card');
+            const noMatchEl = document.getElementById('noOrderMatch');
+
+            function filterOrders() {
+                const activeTab = document.querySelector('.order-tab-item.active');
+                const filter = activeTab ? activeTab.dataset.filter : 'all';
+                const query = searchInput ? searchInput.value.trim().toLowerCase() : '';
+
+                let visibleCount = 0;
+
+                cards.forEach(card => {
+                    const status = card.dataset.status;
+                    const cardText = card.textContent.toLowerCase();
+
+                    let matchFilter = (filter === 'all' || status === filter);
+                    let matchSearch = (!query || cardText.includes(query));
+
+                    if (matchFilter && matchSearch) {
+                        card.classList.remove('d-none');
+                        visibleCount++;
+                    } else {
+                        card.classList.add('d-none');
+                    }
+                });
+
+                if (noMatchEl) {
+                    if (visibleCount === 0 && cards.length > 0) {
+                        noMatchEl.classList.remove('d-none');
+                    } else {
+                        noMatchEl.classList.add('d-none');
+                    }
+                }
+            }
+
+            tabs.forEach(tab => {
+                tab.addEventListener('click', function () {
+                    tabs.forEach(t => t.classList.remove('active'));
+                    this.classList.add('active');
+                    filterOrders();
+                });
+            });
+
+            if (searchInput) {
+                let debounce;
+                searchInput.addEventListener('input', function () {
+                    clearTimeout(debounce);
+                    debounce = setTimeout(filterOrders, 150);
+                });
+            }
+        });
+    </script>
+}
