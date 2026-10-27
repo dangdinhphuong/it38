@@ -1,0 +1,176 @@
+﻿@model IEnumerable<ShopeeClone.Models.Model_DB.DonHang>
+
+@{
+    ViewData["Title"] = "Đơn hàng của tôi";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@section Styles {
+    <link rel="stylesheet"
+          href="~/css/site.css"
+          asp-append-version="true" />
+
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+}
+
+<div class="container mt-4">
+
+    <h2 class="mb-4">
+        Đơn hàng của tôi
+    </h2>
+
+    @if (Model != null && Model.Any())
+    {
+        @foreach (var donHang in Model)
+        {
+            <div class="card shadow-sm mb-4 border-0">
+
+                <!-- HEADER -->
+                <div class="card-header bg-white d-flex justify-content-between align-items-center">
+
+                    <div>
+
+                        <strong>
+                            Mã đơn:
+                        </strong>
+
+                        #@donHang.MaDonHang
+
+                    </div>
+
+                    <div>
+
+                        <span class="badge bg-warning text-dark">
+
+                            @donHang.TrangThai
+
+                        </span>
+
+                    </div>
+
+                </div>
+
+                <!-- BODY -->
+                <div class="card-body">
+
+                    <div class="mb-3 text-muted">
+
+                        <i class="fa-regular fa-clock"></i>
+
+                        @donHang.NgayDat.ToString("dd/MM/yyyy HH:mm")
+
+                    </div>
+
+                    @if (donHang.ChiTietDonHangs != null
+                   && donHang.ChiTietDonHangs.Any())
+                    {
+                        @foreach (var item in donHang.ChiTietDonHangs)
+                        {
+                            <div class="row align-items-center border-bottom py-3">
+
+                                <!-- IMAGE -->
+                                <div class="col-md-2">
+
+                                    <img src="@(string.IsNullOrEmpty(item.SanPham?.HinhAnh)
+                                                                                                                     ? "/images/no-image.png"
+                                                                                                                     : item.SanPham.HinhAnh)"
+                                         class="img-fluid rounded"
+                                         style="height:100px;object-fit:cover;" />
+
+                                </div>
+
+                                <!-- INFO -->
+                                <div class="col-md-5">
+
+                                    <h6 class="mb-2">
+
+                                        @item.SanPham?.TenSanPham
+
+                                    </h6>
+
+                                    <div class="text-muted">
+
+                                        Số lượng:
+                                        @item.SoLuong
+
+                                    </div>
+
+                                </div>
+
+                                <!-- PRICE -->
+                                <div class="col-md-3 text-danger fw-bold">
+
+                                    @item.DonGia.ToString("N0") ₫
+
+                                </div>
+
+                                <!-- TOTAL -->
+                                <div class="col-md-2 fw-bold text-end">
+
+                                    @((item.SoLuong * item.DonGia).ToString("N0")) ₫
+
+                                </div>
+
+                            </div>
+                        }
+                    }
+
+                </div>
+
+                <!-- FOOTER -->
+                <div class="card-footer bg-white d-flex justify-content-between align-items-center">
+
+                    <div>
+
+                        Tổng thanh toán:
+
+                        <span class="text-danger fw-bold fs-5">
+
+                            @donHang.TongTien.ToString("N0") ₫
+
+                        </span>
+
+                    </div>
+
+                    <div>
+
+                        <button class="btn btn-outline-primary">
+
+                            Mua lại
+
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </div>
+        }
+    }
+    else
+    {
+        <div class="text-center py-5">
+
+            <i class="fa-solid fa-box-open fa-4x text-muted mb-3"></i>
+
+            <h4>
+                Chưa có đơn hàng nào
+            </h4>
+
+            <p class="text-muted">
+                Hãy mua sắm để tạo đơn hàng đầu tiên
+            </p>
+
+            <a asp-controller="Home"
+                   asp-action="Index"
+                   class="btn btn-danger mt-3">
+
+                Tiếp tục mua sắm
+
+            </a>
+
+        </div>
+    }
+
+</div>

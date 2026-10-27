@@ -1,0 +1,85 @@
+﻿@model ShopeeClone.Models.ViewModels.DangNhapViewModel
+
+@{
+    ViewData["Title"] = "Đăng nhập";
+}
+
+<div class="auth-page">
+
+    <div class="auth-container">
+
+        <div class="auth-left">
+            <h2>Xin chào!</h2>
+            <p>Đăng nhập để tiếp tục mua sắm.</p>
+        </div>
+
+        <div class="auth-right">
+
+            <h3 class="auth-title">Đăng nhập</h3>
+
+            @if (TempData["Error"] != null)
+            {
+                <div class="alert alert-danger">
+                    @TempData["Error"]
+                </div>
+            }
+
+            <form asp-action="DangNhap"
+                  asp-controller="VwTaiKhoan"
+                  method="post">
+
+                <div class="form-group">
+                    <label>Tên đăng nhập</label>
+                    <input asp-for="TenDangNhap"
+                           class="form-control" />
+
+                    <span asp-validation-for="TenDangNhap"
+                          class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label>Mật khẩu</label>
+
+                    <input asp-for="MatKhau"
+                           type="password"
+                           class="form-control" />
+
+                    <span asp-validation-for="MatKhau"
+                          class="text-danger"></span>
+                </div>
+
+                <button type="submit"
+                        class="btn-auth">
+                    Đăng nhập
+                </button>
+
+            </form>
+
+            <div class="auth-footer">
+                Chưa có tài khoản?
+                <a asp-action="DangKy"
+                       asp-controller="VwTaiKhoan">
+                    Đăng ký
+                </a>
+            </div>
+
+            <div class="auth-footer">
+
+                <a asp-action="QuenMatKhau"
+                       asp-controller="VwTaiKhoan">
+                    Quên mật khẩu?
+                </a>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

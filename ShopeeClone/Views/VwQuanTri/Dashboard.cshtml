@@ -1,0 +1,201 @@
+﻿@{
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+
+    ViewData["Title"] = "Dashboard Admin";
+}
+
+<link rel="stylesheet"
+      href="~/css/admin.css" />
+
+<div class="admin-wrapper">
+
+    <div class="content-area">
+
+        <div class="d-flex justify-content-between align-items-center mb-4">
+
+            <h2>
+                Dashboard Quản Trị
+            </h2>
+
+            <button class="btn btn-admin"
+                    onclick="loadDashboard()">
+
+                Làm mới dữ liệu
+
+            </button>
+
+        </div>
+
+        <div class="row g-4">
+
+            <div class="col-md-3">
+
+                <div class="card-admin">
+
+                    <h5>
+                        Tổng sản phẩm
+                    </h5>
+
+                    <h2 id="tongSanPham">
+                        @ViewBag.TongSanPham
+                    </h2>
+
+                </div>
+
+            </div>
+
+            <div class="col-md-3">
+
+                <div class="card-admin">
+
+                    <h5>
+                        Tổng danh mục
+                    </h5>
+
+                    <h2 id="tongDanhMuc">
+                        @ViewBag.TongDanhMuc
+                    </h2>
+
+                </div>
+
+            </div>
+
+            <div class="col-md-3">
+
+                <div class="card-admin">
+
+                    <h5>
+                        Tổng đơn hàng
+                    </h5>
+
+                    <h2 id="tongDonHang">
+                        @ViewBag.TongDonHang
+                    </h2>
+
+                </div>
+
+            </div>
+
+            <div class="col-md-3">
+
+                <div class="card-admin">
+
+                    <h5>
+                        Doanh thu
+                    </h5>
+
+                    <h2 id="doanhThu">
+                        @ViewBag.DoanhThu.ToString("N0") đ
+                    </h2>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- TOP SẢN PHẨM -->
+
+        <div class="card-admin mt-4">
+
+            <div class="d-flex justify-content-between align-items-center mb-3">
+
+                <h4 class="mb-0">
+                    Top sản phẩm bán chạy
+                </h4>
+
+            </div>
+
+            <table class="table table-bordered">
+
+                <thead>
+
+                    <tr>
+
+                        <th>
+                            Sản phẩm
+                        </th>
+
+                        <th>
+                            Tổng bán
+                        </th>
+
+                    </tr>
+
+                </thead>
+
+                <tbody id="topSanPhamBody">
+
+                    @foreach (var item in ViewBag.TopSanPham)
+                    {
+                        <tr>
+
+                            <td>
+                                @item.TenSanPham
+                            </td>
+
+                            <td>
+                                @item.TongBan
+                            </td>
+
+                        </tr>
+                    }
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+
+    async function loadDashboard() {
+
+        let response =
+            await fetch('/VwQuanTri/GetDashboardData');
+
+        let result = await response.json();
+
+        document.getElementById("tongSanPham")
+            .innerText = result.tongSanPham;
+
+        document.getElementById("tongDanhMuc")
+            .innerText = result.tongDanhMuc;
+
+        document.getElementById("tongDonHang")
+            .innerText = result.tongDonHang;
+
+        document.getElementById("doanhThu")
+            .innerText =
+            Number(result.doanhThu).toLocaleString('vi-VN') + ' đ';
+
+        let html = "";
+
+        result.topSanPham.forEach(item => {
+
+            html += `
+                <tr>
+
+                    <td>
+                        ${item.tenSanPham}
+                    </td>
+
+                    <td>
+                        ${item.tongBan}
+                    </td>
+
+                </tr>
+            `;
+
+        });
+
+        document.getElementById("topSanPhamBody")
+            .innerHTML = html;
+
+    }
+
+</script>

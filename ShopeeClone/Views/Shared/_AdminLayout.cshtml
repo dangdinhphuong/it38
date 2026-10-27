@@ -1,0 +1,251 @@
+﻿@using Microsoft.AspNetCore.Http
+
+@{
+    var tenDangNhap =
+        Context.Session.GetString("TenDangNhap");
+
+    var dsDanhMuc =
+        ViewBag.DanhMuc as List<Model_DB.DanhMuc>;
+}
+
+<!DOCTYPE html>
+<html lang="vi">
+<link rel="stylesheet"
+      href="~/css/admin.css" />
+<head>
+
+    <meta charset="utf-8" />
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0" />
+
+    <title>
+        Admin - ShopeeClone
+    </title>
+
+    <!-- BOOTSTRAP -->
+    <link rel="stylesheet"
+          href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+
+    <!-- FONT AWESOME -->
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+
+    <!-- ADMIN CSS -->
+    <link rel="stylesheet"
+          href="~/css/admin.css"
+          asp-append-version="true" />
+
+</head>
+
+<body>
+
+    <!-- TOPBAR -->
+    <div class="admin-topbar">
+
+        <div class="container-fluid">
+
+            <div class="d-flex
+                justify-content-between
+                align-items-center">
+
+                <!-- LEFT -->
+                <div class="admin-logo">
+
+                    <a asp-controller="VwQuanTri"
+                           asp-action="Dashboard">
+
+                        <i class="fa-solid fa-shield-halved"></i>
+
+                        ADMIN PANEL
+
+                    </a>
+
+                </div>
+
+                <!-- SEARCH -->
+                <div class="admin-search">
+
+                    <form asp-controller="VwQuanTri"
+                          asp-action="SanPham"
+                          method="get">
+
+                        <div class="input-group">
+
+                            <input type="text"
+                                   name="keyword"
+                                   class="form-control"
+                                   placeholder="Tìm kiếm sản phẩm..." />
+
+                            <button class="btn btn-search"
+                                    type="submit">
+
+                                <i class="fas fa-search"></i>
+
+                            </button>
+
+                        </div>
+
+                    </form>
+
+                </div>
+
+                <!-- RIGHT -->
+                <div class="admin-user">
+
+                    <div class="dropdown">
+
+                        <button class="btn btn-user dropdown-toggle"
+                                data-bs-toggle="dropdown">
+
+                            <i class="fas fa-user-shield"></i>
+
+                            @tenDangNhap
+
+                        </button>
+
+                        <ul class="dropdown-menu dropdown-menu-end">
+
+                            <li>
+
+                                <a class="dropdown-item"
+                                       asp-controller="VwQuanTri"
+                                       asp-action="Dashboard">
+
+                                    <i class="fas fa-chart-line"></i>
+
+                                    Dashboard
+
+                                </a>
+
+                            </li>
+
+                            <li>
+                                <hr class="dropdown-divider">
+                            </li>
+
+                            <li>
+
+                                <a class="dropdown-item text-danger"
+                                       asp-controller="VwTaiKhoan"
+                                       asp-action="DangXuat">
+
+                                    <i class="fas fa-sign-out-alt"></i>
+
+                                    Đăng xuất
+
+                                </a>
+
+                            </li>
+
+                        </ul>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- MAIN -->
+    <div class="admin-container">
+
+        <!-- SIDEBAR -->
+        <div class="admin-sidebar">
+
+            <div class="sidebar-title">
+
+                QUẢN TRỊ HỆ THỐNG
+
+            </div>
+
+            <a asp-controller="VwQuanTri"
+                   asp-action="Dashboard">
+
+                <i class="fas fa-chart-pie"></i>
+
+                Dashboard
+
+            </a>
+
+            <a asp-controller="VwQuanTri"
+                   asp-action="DanhMuc">
+
+                <i class="fas fa-layer-group"></i>
+
+                Danh mục
+
+            </a>
+
+            <!-- MENU SẢN PHẨM -->
+            <div class="sidebar-group">
+
+                <!-- CHA -->
+                <a asp-controller="VwQuanTri"
+                       asp-action="SanPham"
+                       class="menu-parent">
+
+                    <i class="fas fa-box-open"></i>
+
+                    Sản phẩm
+
+                </a>
+
+                <!-- CON -->
+                <div class="sidebar-child">
+
+                    @if (dsDanhMuc != null)
+                    {
+                        @foreach (var dm in dsDanhMuc)
+                        {
+                            <a asp-controller="VwQuanTri"
+                                   asp-action="SanPhamTheoDanhMuc"
+                                   asp-route-id="@dm.MaDanhMuc">
+
+                                <i class="fas fa-circle"></i>
+
+                                @dm.TenDanhMuc
+
+                            </a>
+                        }
+                    }
+
+                </div>
+
+            </div>
+
+            <a asp-controller="VwQuanTri"
+                   asp-action="DonHang">
+
+                <i class="fas fa-shopping-cart"></i>
+
+                Đơn hàng
+
+            </a>
+
+            <hr />
+
+        </div>
+
+        <!-- CONTENT -->
+        <div class="admin-content">
+
+            @RenderBody()
+
+        </div>
+
+    </div>
+
+    <!-- JS -->
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+
+    @RenderSection("Scripts", required: false)
+
+</body>
+
+</html>

@@ -1,0 +1,181 @@
+﻿@model List<ShopeeClone.Models.Model_DB.DonHang>
+
+@{
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    ViewData["Title"] = "Quản lý đơn hàng";
+}
+
+<link rel="stylesheet"
+      href="~/css/admin.css" />
+
+<div class="admin-wrapper">
+
+    <div class="content-area">
+
+        <h2 class="mb-4">
+            Quản lý đơn hàng
+        </h2>
+
+        <table class="table table-bordered">
+
+            <thead>
+
+                <tr>
+
+                    <th>Mã đơn</th>
+
+                    <th>Khách hàng</th>
+
+                    <th>Ngày đặt</th>
+
+                    <th>Tổng tiền</th>
+
+                    <th>Trạng thái</th>
+
+                    <th width="220">
+                        Chức năng
+                    </th>
+
+                </tr>
+
+            </thead>
+
+            <tbody id="tableDonHang">
+
+                @foreach (var item in Model)
+                {
+                    <tr id="row_@item.MaDonHang">
+
+                        <td>
+                            #@item.MaDonHang
+                        </td>
+
+                        <td>
+                            @item.NguoiDung?.TenDangNhap
+                        </td>
+
+                        <td>
+                            @item.NgayDat.ToString("dd/MM/yyyy")
+                        </td>
+
+                        <td>
+                            @item.TongTien.ToString("N0") đ
+                        </td>
+
+                        <td id="status_@item.MaDonHang">
+
+                            @if (item.TrangThai == "Chờ xử lý")
+                            {
+                                <span class="badge bg-warning">
+                                    Chờ xử lý
+                                </span>
+                            }
+                            else if (item.TrangThai == "Đã duyệt")
+                            {
+                                <span class="badge bg-success">
+                                    Đã duyệt
+                                </span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-danger">
+                                    Đã hủy
+                                </span>
+                            }
+
+                        </td>
+
+                        <td id="action_@item.MaDonHang">
+
+                            @if (item.TrangThai == "Chờ xử lý")
+                            {
+                                <button class="btn btn-success btn-sm"
+                                        onclick="duyetDon(@item.MaDonHang)">
+
+                                    Duyệt đơn
+
+                                </button>
+
+                                <button class="btn btn-danger btn-sm"
+                                        onclick="huyDon(@item.MaDonHang)">
+
+                                    Hủy đơn
+
+                                </button>
+                            }
+
+                        </td>
+
+                    </tr>
+                }
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
+
+<script>
+
+    async function duyetDon(id) {
+
+        let response =
+            await fetch('/VwQuanTri/DuyetDon/' + id, {
+
+                method: 'POST'
+
+            });
+
+        let result = await response.json();
+
+        if (result.success) {
+
+            document.getElementById("status_" + id).innerHTML =
+                `<span class="badge bg-success">
+                    Đã duyệt
+                </span>`;
+
+            document.getElementById("action_" + id).innerHTML = "";
+
+        } else {
+
+            alert(result.message);
+
+        }
+
+    }
+
+    async function huyDon(id) {
+
+        if (!confirm('Bạn có chắc muốn hủy đơn này không?'))
+            return;
+
+        let response =
+            await fetch('/VwQuanTri/HuyDon/' + id, {
+
+                method: 'POST'
+
+            });
+
+        let result = await response.json();
+
+        if (result.success) {
+
+            document.getElementById("status_" + id).innerHTML =
+                `<span class="badge bg-danger">
+                    Đã hủy
+                </span>`;
+
+            document.getElementById("action_" + id).innerHTML = "";
+
+        } else {
+
+            alert(result.message);
+
+        }
+
+    }
+
+</script>

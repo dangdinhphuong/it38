@@ -1,0 +1,23 @@
+# Environment files
+.env
+.env.*
+!.env.example
+
+# .NET artifacts
+**/bin/
+**/obj/
+**/.vs/
+ShopeeClone/bin/
+ShopeeClone/obj/
+ShopeeClone/.vs/
+*.user
+
+# Node / Test artifacts
+node_modules/
+tests/e2e/node_modules/
+tests/e2e/test-results/
+tests/e2e/playwright-report/
+
+# SQL Server local database files
+DATABASE/*.mdf
+DATABASE/*.ldf

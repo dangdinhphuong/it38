@@ -1,0 +1,122 @@
+﻿@model ShopeeClone.Models.ViewModels.DangKyViewModel
+
+@{
+    ViewData["Title"] = "Đăng ký";
+}
+
+<div class="auth-page">
+
+    <div class="auth-container">
+
+        <div class="auth-left">
+            <h2>Tạo tài khoản mới</h2>
+            <p>Mua sắm dễ dàng hơn.</p>
+        </div>
+
+        <div class="auth-right">
+
+            <h3 class="auth-title">Đăng ký</h3>
+
+            @if (TempData["Error"] != null)
+            {
+                <div class="alert alert-danger">
+                    @TempData["Error"]
+                </div>
+            }
+
+            <form asp-action="DangKy"
+                  asp-controller="VwTaiKhoan"
+                  method="post">
+
+                <div class="form-group">
+                    <label>Họ tên</label>
+
+                    <input asp-for="HoTen"
+                           class="form-control" />
+
+                    <span asp-validation-for="HoTen"
+                          class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label>Tên đăng nhập</label>
+
+                    <input asp-for="TenDangNhap"
+                           class="form-control" />
+
+                    <span asp-validation-for="TenDangNhap"
+                          class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label>Email</label>
+
+                    <input asp-for="Email"
+                           type="email"
+                           class="form-control" />
+
+                    <span asp-validation-for="Email"
+                          class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label>Số điện thoại</label>
+
+                    <input asp-for="SoDienThoai"
+                           class="form-control" />
+
+                    <span asp-validation-for="SoDienThoai"
+                          class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label>Địa chỉ</label>
+
+                    <textarea asp-for="DiaChi"
+                              rows="3"
+                              class="form-control"></textarea>
+
+                    <span asp-validation-for="DiaChi"
+                          class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label>Mật khẩu</label>
+
+                    <input asp-for="MatKhau"
+                           type="password"
+                           class="form-control" />
+
+                    <span asp-validation-for="MatKhau"
+                          class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label>Xác nhận mật khẩu</label>
+
+                    <input asp-for="XacNhanMatKhau"
+                           type="password"
+                           class="form-control" />
+
+                    <span asp-validation-for="XacNhanMatKhau"
+                          class="text-danger"></span>
+                </div>
+
+                <button type="submit"
+                        class="btn-auth">
+                    Đăng ký
+                </button>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

@@ -1,0 +1,245 @@
+﻿@model ShopeeClone.Models.DashboardViewModel
+
+@{
+    ViewData["Title"] = "Danh sách sản phẩm";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@section Styles {
+    <link rel="stylesheet"
+          href="~/css/site.css"
+          asp-append-version="true" />
+}
+
+<div class="dashboard-container">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+
+        <div class="sidebar-header">
+            <i class="fas fa-list-ul"></i>
+            Danh mục sản phẩm
+        </div>
+
+        <div class="category-tree">
+
+            <ul>
+
+                @if (Model?.Categories != null && Model.Categories.Any())
+                {
+                    @foreach (var cat in Model.Categories)
+                    {
+                        var isActive =
+                            Model.SelectedCategoryId == cat.MaDanhMuc;
+
+                        <li>
+
+                            <a href="@Url.Action("Dashboard", "VwSanPham", new {
+                                        id = cat.MaDanhMuc,
+                                        page = 1
+                                   })"
+                               class="category-item-link @(isActive ? "active" : "")">
+
+                                <span class="category-icon">
+                                    <i class="fas fa-angle-right"></i>
+                                </span>
+
+                                <span>
+                                    @cat.TenDanhMuc
+                                </span>
+
+                            </a>
+
+                        </li>
+                    }
+                }
+                else
+                {
+                    <li class="text-muted px-2">
+                        Không có danh mục
+                    </li>
+                }
+
+            </ul>
+
+        </div>
+
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="main-content">
+
+        <!-- HEADER -->
+        <div class="content-header">
+
+            <h2 class="current-category-title">
+
+                @{
+                    var currentCategory = Model?.Categories?
+                        .FirstOrDefault(x =>
+                            x.MaDanhMuc == Model.SelectedCategoryId);
+                }
+
+                @(currentCategory != null
+                    ? currentCategory.TenDanhMuc
+                    : "Tất cả sản phẩm")
+
+            </h2>
+
+            <div class="sort-box">
+
+                <select class="form-select form-select-sm"
+                        style="width:auto;">
+
+                    <option>Mới nhất</option>
+                    <option>Bán chạy</option>
+                    <option>Giá thấp đến cao</option>
+
+                </select>
+
+            </div>
+
+        </div>
+
+        <!-- PRODUCT GRID -->
+        <div class="product-grid">
+
+            @if (Model?.Products != null && Model.Products.Any())
+            {
+                @foreach (var item in Model.Products)
+                {
+                    <div class="product-card"
+                         onclick="location.href='@Url.Action("ChiTietSanPham", "VwSanPham", new { id = item.MaSanPham })'">
+
+                        @if (item.SoLuongTon < 5 && item.SoLuongTon > 0)
+                        {
+                            <div class="badge-low-stock">
+                                Sắp hết
+                            </div>
+                        }
+
+                        <div class="prod-img-box">
+
+                            <img src="@item.HinhAnh"
+                                 alt="@item.TenSanPham" />
+
+                        </div>
+
+                        <div class="prod-info">
+
+                            <div class="prod-title">
+                                @item.TenSanPham
+                            </div>
+
+                            <div class="prod-tags">
+
+                                <span class="tag-mall">
+                                    Mall
+                                </span>
+
+                                <span class="tag-fav">
+                                    Yêu thích
+                                </span>
+
+                            </div>
+
+                            <div class="prod-bottom">
+
+                                <span class="prod-price">
+                                    @item.Gia.ToString("N0") ₫
+                                </span>
+
+                                <span class="prod-sold">
+                                    Còn @item.SoLuongTon
+                                </span>
+
+                            </div>
+
+                        </div>
+
+                        <div class="btn-add-cart"
+                             onclick="event.stopPropagation(); alert('Thêm giỏ hàng')">
+
+                            <i class="fas fa-plus"></i>
+
+                        </div>
+
+                    </div>
+                }
+            }
+            else
+            {
+                <div class="text-center py-5">
+
+                    <p class="text-muted">
+                        Không tìm thấy sản phẩm nào.
+                    </p>
+
+                </div>
+            }
+
+        </div>
+
+        <!-- PAGINATION -->
+        @if (Model != null && Model.TotalPages > 1)
+        {
+            <div class="pagination-wrapper">
+
+                <ul class="pagination">
+
+                    <!-- PREVIOUS -->
+                    <li class="page-item @(Model.CurrentPage == 1 ? "disabled" : "")">
+
+                        <a class="page-link"
+                           href="@Url.Action("Dashboard", "VwSanPham", new {
+                                    id = Model.SelectedCategoryId,
+                                    page = Model.CurrentPage - 1
+                                })">
+
+                            &laquo;
+
+                        </a>
+
+                    </li>
+
+                    <!-- PAGE NUMBER -->
+                    @for (int i = 1; i <= Model.TotalPages; i++)
+                    {
+                        <li class="page-item @(i == Model.CurrentPage ? "active" : "")">
+
+                            <a class="page-link"
+                               href="@Url.Action("Dashboard", "VwSanPham", new {
+                                        id = Model.SelectedCategoryId,
+                                        page = i
+                                   })">
+
+                                @i
+
+                            </a>
+
+                        </li>
+                    }
+
+                    <!-- NEXT -->
+                    <li class="page-item @(Model.CurrentPage == Model.TotalPages ? "disabled" : "")">
+
+                        <a class="page-link"
+                           href="@Url.Action("Dashboard", "VwSanPham", new {
+                                    id = Model.SelectedCategoryId,
+                                    page = Model.CurrentPage + 1
+                                })">
+
+                            &raquo;
+
+                        </a>
+
+                    </li>
+
+                </ul>
+
+            </div>
+        }
+
+    </main>
+
+</div>

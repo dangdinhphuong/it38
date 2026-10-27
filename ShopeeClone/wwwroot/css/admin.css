@@ -1,0 +1,344 @@
+﻿/* =========================
+   GLOBAL
+========================= */
+body {
+    margin: 0;
+    padding: 0;
+    background: #f5f5f5;
+    font-family: "Segoe UI", sans-serif;
+    overflow-x: hidden;
+}
+
+/* =========================
+   TOPBAR
+========================= */
+.admin-topbar {
+    background: linear-gradient(180deg, #ee4d2d, #ff7337);
+    padding: 14px 25px;
+    position: sticky;
+    top: 0;
+    z-index: 999;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.12);
+}
+
+.admin-logo a {
+    color: white;
+    font-size: 28px;
+    font-weight: 800;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    letter-spacing: 1px;
+}
+
+.admin-logo i {
+    font-size: 32px;
+}
+
+/* =========================
+   SEARCH
+========================= */
+.admin-search {
+    width: 45%;
+}
+
+    .admin-search .input-group {
+        background: white;
+        border-radius: 4px;
+        overflow: hidden;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.08);
+    }
+
+    .admin-search input {
+        border: none;
+        padding: 12px;
+        font-size: 15px;
+    }
+
+        .admin-search input:focus {
+            box-shadow: none;
+            border: none;
+        }
+
+.btn-search {
+    background: #fb5533;
+    color: white;
+    width: 55px;
+    border: none;
+    transition: 0.3s;
+}
+
+    .btn-search:hover {
+        background: #d93f21;
+        color: white;
+    }
+
+/* =========================
+   USER
+========================= */
+.btn-user {
+    background: rgba(255,255,255,0.18);
+    color: white;
+    border: 1px solid rgba(255,255,255,0.2);
+    padding: 10px 16px;
+    border-radius: 30px;
+    font-weight: 600;
+    transition: 0.3s;
+}
+
+    .btn-user:hover {
+        background: white;
+        color: #ee4d2d;
+    }
+
+.dropdown-menu {
+    border: none;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+}
+
+.dropdown-item {
+    padding: 12px 18px;
+    transition: 0.2s;
+}
+
+    .dropdown-item:hover {
+        background: #fff1ee;
+        color: #ee4d2d;
+    }
+
+/* =========================
+   MAIN LAYOUT
+========================= */
+.admin-container {
+    display: flex;
+    min-height: calc(100vh - 76px);
+}
+
+/* =========================
+   SIDEBAR
+========================= */
+.admin-sidebar {
+    width: 260px;
+    background: white;
+    border-right: 1px solid #eee;
+    padding: 25px 18px;
+    position: sticky;
+    top: 76px;
+    height: calc(100vh - 76px);
+    overflow-y: auto;
+}
+
+.sidebar-title {
+    color: #ee4d2d;
+    font-size: 18px;
+    font-weight: 800;
+    margin-bottom: 25px;
+    padding-left: 10px;
+}
+
+.admin-sidebar a {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    text-decoration: none;
+    color: #555;
+    padding: 14px 16px;
+    border-radius: 12px;
+    margin-bottom: 10px;
+    font-weight: 600;
+    transition: all 0.25s ease;
+}
+
+    .admin-sidebar a i {
+        width: 22px;
+        text-align: center;
+        font-size: 17px;
+    }
+
+    .admin-sidebar a:hover {
+        background: #fff1ee;
+        color: #ee4d2d;
+        transform: translateX(4px);
+    }
+
+    .admin-sidebar a.active {
+        background: linear-gradient(90deg, #ee4d2d, #ff7337);
+        color: white;
+    }
+
+/* =========================
+   CONTENT
+========================= */
+.admin-content {
+    flex: 1;
+    padding: 30px;
+    background: #f5f5f5;
+}
+
+/* =========================
+   CARD
+========================= */
+.card-admin {
+    background: white;
+    border-radius: 18px;
+    padding: 24px;
+    border: none;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+    margin-bottom: 25px;
+}
+
+    .card-admin h2,
+    .card-admin h3,
+    .card-admin h4 {
+        color: #ee4d2d;
+        font-weight: 700;
+    }
+
+/* =========================
+   BUTTON
+========================= */
+.btn-admin {
+    background: linear-gradient(180deg, #ee4d2d, #fb5533);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 18px;
+    font-weight: 600;
+    transition: 0.3s;
+}
+
+    .btn-admin:hover {
+        background: linear-gradient(180deg, #d93f21, #ee4d2d);
+        color: white;
+        transform: translateY(-1px);
+    }
+
+/* =========================
+   TABLE
+========================= */
+.table {
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+    .table thead th {
+        background: #ee4d2d;
+        color: white;
+        border: none;
+        padding: 14px;
+        font-weight: 600;
+    }
+
+    .table tbody td {
+        vertical-align: middle;
+        padding: 14px;
+    }
+
+    .table tbody tr {
+        transition: 0.2s;
+    }
+
+        .table tbody tr:hover {
+            background: #fff7f5;
+        }
+
+/* =========================
+   FORM
+========================= */
+.form-control,
+.form-select {
+    border-radius: 10px;
+    border: 1px solid #ddd;
+    padding: 10px 14px;
+}
+
+    .form-control:focus,
+    .form-select:focus {
+        border-color: #ee4d2d;
+        box-shadow: 0 0 0 0.15rem rgba(238,77,45,0.2);
+    }
+
+/* =========================
+   IMAGE
+========================= */
+img {
+    border-radius: 10px;
+    object-fit: cover;
+}
+
+/* =========================
+   SCROLLBAR
+========================= */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #d6d6d6;
+    border-radius: 20px;
+}
+
+    ::-webkit-scrollbar-thumb:hover {
+        background: #bbb;
+    }
+
+/* =========================
+   RESPONSIVE
+========================= */
+@media (max-width: 992px) {
+
+    .admin-sidebar {
+        width: 90px;
+        padding: 20px 10px;
+    }
+
+        .admin-sidebar a span,
+        .sidebar-title {
+            display: none;
+        }
+
+        .admin-sidebar a {
+            justify-content: center;
+        }
+
+    .admin-search {
+        width: 55%;
+    }
+}
+
+@media (max-width: 768px) {
+
+    .admin-topbar .d-flex {
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    .admin-search {
+        width: 100%;
+    }
+
+    .admin-container {
+        flex-direction: column;
+    }
+
+    .admin-sidebar {
+        width: 100%;
+        height: auto;
+        position: relative;
+        top: 0;
+        display: flex;
+        overflow-x: auto;
+        gap: 10px;
+    }
+
+        .admin-sidebar a {
+            margin-bottom: 0;
+            white-space: nowrap;
+        }
+}
+ 

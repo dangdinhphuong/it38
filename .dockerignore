@@ -1,0 +1,11 @@
+**/.git
+**/.vs
+**/bin
+**/obj
+**/.vscode
+**/.idea
+ShopeeClone/bin
+ShopeeClone/obj
+ShopeeClone/.vs
+.env
+

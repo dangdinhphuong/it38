@@ -1,0 +1,536 @@
+﻿@model List<ShopeeClone.Models.Model_DB.SanPham>
+
+@using ShopeeClone.Models
+@using static ShopeeClone.Models.Model_DB
+
+@{
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    ViewData["Title"] = "Quản lý sản phẩm";
+
+    var dsDanhMuc =
+        ViewBag.DanhMuc as List<DanhMuc>;
+}
+
+<link rel="stylesheet"
+      href="~/css/admin.css" />
+
+<div class="admin-wrapper">
+
+    <div class="content-area">
+
+        <div class="d-flex
+            justify-content-between
+            align-items-center
+            mb-4">
+
+            <h2>Quản lý sản phẩm</h2>
+
+            <button class="btn btn-admin"
+                    data-bs-toggle="modal"
+                    data-bs-target="#modalThem">
+
+                + Thêm sản phẩm
+
+            </button>
+
+        </div>
+
+        <table class="table table-bordered align-middle">
+
+            <thead>
+
+                <tr>
+
+                    <th>Ảnh</th>
+
+                    <th>Tên SP</th>
+
+                    <th>Giá</th>
+
+                    <th>Tồn kho</th>
+
+                    <th>Danh mục</th>
+
+                    <th>Trạng thái</th>
+
+                    <th width="180">
+                        Chức năng
+                    </th>
+
+                </tr>
+
+            </thead>
+
+            <tbody id="tableSanPham">
+
+                @foreach (var item in Model)
+                {
+                    <tr id="row_@item.MaSanPham">
+
+                        <td>
+
+                            <img src="@item.HinhAnh"
+                                 width="70"
+                                 class="img-thumbnail" />
+
+                        </td>
+
+                        <td>
+                            @item.TenSanPham
+                        </td>
+
+                        <td>
+                            @item.Gia.ToString("N0") đ
+                        </td>
+
+                        <td>
+                            @item.SoLuongTon
+                        </td>
+
+                        <td>
+                            @item.DanhMuc?.TenDanhMuc
+                        </td>
+
+                        <td>
+                            @item.TrangThai
+                        </td>
+
+                        <td>
+
+                            <button class="btn btn-warning btn-sm"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#edit_@item.MaSanPham">
+
+                                Sửa
+
+                            </button>
+
+                            <button class="btn btn-danger btn-sm"
+                                    onclick="xoaSanPham(@item.MaSanPham)">
+
+                                Xóa
+
+                            </button>
+
+                        </td>
+
+                    </tr>
+                }
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
+
+@foreach (var item in Model)
+{
+    <!-- MODAL SỬA -->
+    <div class="modal fade"
+         id="edit_@item.MaSanPham"
+         tabindex="-1">
+
+        <div class="modal-dialog modal-lg">
+
+            <div class="modal-content">
+
+                <form class="formSuaSanPham"
+                      enctype="multipart/form-data">
+
+                    <div class="modal-header">
+
+                        <h5>
+                            Sửa sản phẩm
+                        </h5>
+
+                        <button type="button"
+                                class="btn-close"
+                                data-bs-dismiss="modal">
+                        </button>
+
+                    </div>
+
+                    <div class="modal-body">
+
+                        <input type="hidden"
+                               name="MaSanPham"
+                               value="@item.MaSanPham" />
+
+                        <input type="hidden"
+                               name="HinhAnh"
+                               value="@item.HinhAnh" />
+
+                        <input class="form-control mb-3"
+                               name="TenSanPham"
+                               value="@item.TenSanPham"
+                               placeholder="Tên sản phẩm" />
+
+                        <textarea class="form-control mb-3"
+                                  name="MoTa"
+                                  placeholder="Mô tả">@item.MoTa</textarea>
+
+                        <input class="form-control mb-3"
+                               type="number"
+                               name="Gia"
+                               value="@item.Gia"
+                               placeholder="Giá" />
+
+                        <input class="form-control mb-3"
+                               type="number"
+                               name="SoLuongTon"
+                               value="@item.SoLuongTon"
+                               placeholder="Số lượng tồn" />
+
+                        <select class="form-select mb-3"
+                                name="MaDanhMuc">
+
+                            @foreach (var dm in dsDanhMuc ?? new List<DanhMuc>())
+                            {
+                                if (dm.MaDanhMuc == item.MaDanhMuc)
+                                {
+                                    <option value="@dm.MaDanhMuc" selected>
+                                        @dm.TenDanhMuc
+                                    </option>
+                                }
+                                else
+                                {
+                                    <option value="@dm.MaDanhMuc">
+                                        @dm.TenDanhMuc
+                                    </option>
+                                }
+                            }
+
+                        </select>
+
+                        @if (!string.IsNullOrEmpty(item.HinhAnh))
+                        {
+                            <div class="mb-3 text-center">
+
+                                <img src="@item.HinhAnh"
+                                     width="120"
+                                     class="img-thumbnail" />
+
+                            </div>
+                        }
+
+                        <input class="form-control"
+                               type="file"
+                               name="fileAnh" />
+
+                    </div>
+
+                    <div class="modal-footer">
+
+                        <button type="submit"
+                                class="btn btn-success">
+
+                            Cập nhật
+
+                        </button>
+
+                    </div>
+
+                </form>
+
+            </div>
+
+        </div>
+
+    </div>
+}
+
+<!-- MODAL THÊM -->
+
+<div class="modal fade"
+     id="modalThem"
+     tabindex="-1">
+
+    <div class="modal-dialog modal-lg">
+
+        <div class="modal-content">
+
+            <form id="formThemSanPham"
+                  enctype="multipart/form-data">
+
+                <div class="modal-header">
+
+                    <h5>
+                        Thêm sản phẩm
+                    </h5>
+
+                    <button type="button"
+                            class="btn-close"
+                            data-bs-dismiss="modal">
+                    </button>
+
+                </div>
+
+                <div class="modal-body">
+
+                    <input class="form-control mb-3"
+                           name="TenSanPham"
+                           placeholder="Tên sản phẩm" />
+
+                    <textarea class="form-control mb-3"
+                              name="MoTa"
+                              placeholder="Mô tả"></textarea>
+
+                    <input class="form-control mb-3"
+                           type="number"
+                           name="Gia"
+                           placeholder="Giá" />
+
+                    <input class="form-control mb-3"
+                           type="number"
+                           name="SoLuongTon"
+                           placeholder="Số lượng tồn" />
+
+                    <select class="form-select mb-3"
+                            name="MaDanhMuc">
+
+                        @foreach (var dm in dsDanhMuc ?? new List<DanhMuc>())
+                        {
+                            <option value="@dm.MaDanhMuc">
+                                @dm.TenDanhMuc
+                            </option>
+                        }
+
+                    </select>
+
+                    <input class="form-control"
+                           type="file"
+                           name="fileAnh" />
+
+                </div>
+
+                <div class="modal-footer">
+
+                    <button type="submit"
+                            class="btn btn-success">
+
+                        Lưu sản phẩm
+
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+
+    // THÊM SẢN PHẨM
+    document.getElementById("formThemSanPham")
+        .addEventListener("submit", async function (e) {
+
+            e.preventDefault();
+
+            let formData = new FormData(this);
+
+            let response = await fetch('/VwQuanTri/ThemSanPham', {
+                method: 'POST',
+                body: formData
+            });
+
+            let result = await response.json();
+
+            if (result.success) {
+
+                let sp = result.data;
+
+                let html = `
+                    <tr id="row_${sp.maSanPham}">
+
+                        <td>
+
+                            <img src="${sp.hinhAnh}"
+                                 width="70"
+                                 class="img-thumbnail" />
+
+                        </td>
+
+                        <td>
+                            ${sp.tenSanPham}
+                        </td>
+
+                        <td>
+                            ${Number(sp.gia).toLocaleString('vi-VN')} đ
+                        </td>
+
+                        <td>
+                            ${sp.soLuongTon}
+                        </td>
+
+                        <td>
+                            ${sp.tenDanhMuc}
+                        </td>
+
+                        <td>
+                            ${sp.trangThai}
+                        </td>
+
+                        <td>
+
+                            <button class="btn btn-warning btn-sm"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#edit_${sp.maSanPham}">
+
+                                Sửa
+
+                            </button>
+
+                            <button class="btn btn-danger btn-sm"
+                                    onclick="xoaSanPham(${sp.maSanPham})">
+
+                                Xóa
+
+                            </button>
+
+                        </td>
+
+                    </tr>
+                `;
+
+                document.getElementById("tableSanPham")
+                    .insertAdjacentHTML("beforeend", html);
+
+                bootstrap.Modal.getInstance(
+                    document.getElementById('modalThem')
+                ).hide();
+
+                document.getElementById("formThemSanPham")
+                    .reset();
+
+            } else {
+
+                alert(result.message);
+
+            }
+
+        });
+
+    // SỬA SẢN PHẨM
+    document.querySelectorAll(".formSuaSanPham")
+        .forEach(form => {
+
+            form.addEventListener("submit", async function (e) {
+
+                e.preventDefault();
+
+                let formData = new FormData(this);
+
+                let response = await fetch('/VwQuanTri/SuaSanPham', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                let result = await response.json();
+
+                if (result.success) {
+
+                    let sp = result.data;
+
+                    let row =
+                        document.getElementById(
+                            "row_" + sp.maSanPham
+                        );
+
+                    row.innerHTML = `
+                        <td>
+
+                            <img src="${sp.hinhAnh}"
+                                 width="70"
+                                 class="img-thumbnail" />
+
+                        </td>
+
+                        <td>
+                            ${sp.tenSanPham}
+                        </td>
+
+                        <td>
+                            ${Number(sp.gia).toLocaleString('vi-VN')} đ
+                        </td>
+
+                        <td>
+                            ${sp.soLuongTon}
+                        </td>
+
+                        <td>
+                            ${sp.tenDanhMuc}
+                        </td>
+
+                        <td>
+                            ${sp.trangThai}
+                        </td>
+
+                        <td>
+
+                            <button class="btn btn-warning btn-sm"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#edit_${sp.maSanPham}">
+
+                                Sửa
+
+                            </button>
+
+                            <button class="btn btn-danger btn-sm"
+                                    onclick="xoaSanPham(${sp.maSanPham})">
+
+                                Xóa
+
+                            </button>
+
+                        </td>
+                    `;
+
+                    bootstrap.Modal.getInstance(
+                        form.closest('.modal')
+                    ).hide();
+
+                } else {
+
+                    alert(result.message);
+
+                }
+
+            });
+
+        });
+
+    // XÓA SẢN PHẨM
+    async function xoaSanPham(id) {
+
+        if (!confirm('Bạn có chắc muốn xoá sản phẩm này không?'))
+            return;
+
+        let response =
+            await fetch('/VwQuanTri/XoaSanPham/' + id, {
+
+                method: 'POST'
+
+            });
+
+        let result = await response.json();
+
+        if (result.success) {
+
+            document.getElementById("row_" + id)
+                .remove();
+
+        } else {
+
+            alert(result.message);
+
+        }
+
+    }
+
+</script>

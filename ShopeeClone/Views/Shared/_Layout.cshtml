@@ -1,0 +1,287 @@
+﻿@using Microsoft.AspNetCore.Http
+
+@{
+    var tenDangNhap =
+        Context.Session.GetString("TenDangNhap");
+}
+
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+
+    <meta charset="utf-8" />
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0" />
+
+    <title>
+        @ViewData["Title"] - ShopeeClone
+    </title>
+
+    <!-- Bootstrap -->
+    <link rel="stylesheet"
+          href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+
+    <!-- Global CSS -->
+    <link rel="stylesheet"
+          href="~/css/site.css"
+          asp-append-version="true" />
+
+    @RenderSection("Styles", required: false)
+
+</head>
+
+<body>
+
+    <!-- TOP BAR -->
+    <div class="topbar">
+
+        <div class="container d-flex justify-content-between">
+
+            <div>
+                <a href="#">
+                    Website mua sắm trực tuyến
+                </a>
+            </div>
+
+            <div>
+
+                <a href="#">
+                    Thông báo
+                </a>
+
+                <a href="#">
+                    Hỗ trợ
+                </a>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- HEADER -->
+    <header class="header-main">
+
+        <div class="container d-flex align-items-center">
+
+            <!-- LOGO -->
+            <a class="logo"
+                   asp-controller="Home"
+                   asp-action="Index">
+
+                Shopping Home
+
+            </a>
+
+            <!-- SEARCH -->
+            <div class="search-box flex-grow-1 mx-4">
+
+                <form asp-controller="Home"
+                      asp-action="Index"
+                      method="get">
+
+                    <div class="input-group">
+
+                        <input type="text"
+                               name="keyword"
+                               class="form-control"
+                               placeholder="Tìm sản phẩm..."
+                               value="@Context.Request.Query["keyword"]" />
+
+                        <button class="btn btn-search"
+                                type="submit">
+
+                            <i class="fas fa-search"></i>
+
+                        </button>
+
+                    </div>
+
+                </form>
+
+            </div>
+
+            <!-- RIGHT -->
+            <div class="header-right d-flex align-items-center gap-4">
+
+                <!-- ĐƠN HÀNG -->
+                @if (!string.IsNullOrEmpty(tenDangNhap))
+                {
+                    <a asp-controller="VwDonHang"
+                           asp-action="Dashboard"
+                           class="header-order text-decoration-none">
+
+                        <div class="position-relative">
+
+                            <i class="fa-solid fa-box fs-4"></i>
+
+                        </div>
+
+                        <span class="d-block text-center small mt-1">
+                            Đơn mua
+                        </span>
+
+                    </a>
+                }
+
+                <!-- CART -->
+                <a asp-controller="VwGioHang"
+                       asp-action="Dashboard"
+                       class="cart text-decoration-none">
+
+                    <div class="position-relative">
+
+                        <i class="fas fa-shopping-cart fs-4"></i>
+
+                        <span class="badge">
+                            0
+                        </span>
+
+                    </div>
+
+                    <span class="d-block text-center small mt-1">
+                        Giỏ hàng
+                    </span>
+
+                </a>
+
+                @if (string.IsNullOrEmpty(tenDangNhap))
+                {
+                    <!-- LOGIN -->
+                    <a asp-controller="VwTaiKhoan"
+                           asp-action="DangNhap"
+                           class="btn-login">
+
+                        <i class="fas fa-sign-in-alt"></i>
+
+                        Đăng nhập
+
+                    </a>
+
+                    <!-- REGISTER -->
+                    <a asp-controller="VwTaiKhoan"
+                           asp-action="DangKy"
+                           class="btn-register">
+
+                        <i class="fas fa-user-plus"></i>
+
+                        Đăng ký
+
+                    </a>
+                }
+                else
+                {
+                    <!-- ACCOUNT -->
+                    <div class="account-dropdown">
+
+                        <a asp-controller="VwTaiKhoan"
+                               asp-action="TaiKhoan"
+                               class="btn-account">
+
+                            <i class="fas fa-user"></i>
+
+                            @tenDangNhap
+
+                            <i class="fas fa-chevron-down ms-1"></i>
+
+                        </a>
+
+                        <!-- MENU CON -->
+                        <div class="account-menu">
+
+                            <a asp-controller="VwTaiKhoan"
+                                   asp-action="TaiKhoan">
+
+                                <i class="fas fa-id-card"></i>
+
+                                Thông tin tài khoản
+
+                            </a>
+
+                            <a asp-controller="VwTaiKhoan"
+                                   asp-action="DoiMatKhau">
+
+                                <i class="fas fa-key"></i>
+
+                                Đổi mật khẩu
+
+                            </a>
+
+                            <a asp-controller="VwDonHang"
+                                   asp-action="Dashboard">
+
+                                <i class="fas fa-box"></i>
+
+                                Đơn mua
+
+                            </a>
+
+                            <a asp-controller="VwGioHang"
+                                   asp-action="Dashboard">
+
+                                <i class="fas fa-shopping-cart"></i>
+
+                                Giỏ hàng
+
+                            </a>
+
+                            <hr class="my-1" />
+
+                            <a asp-controller="VwTaiKhoan"
+                                   asp-action="DangXuat">
+
+                                <i class="fas fa-sign-out-alt"></i>
+
+                                Đăng xuất
+
+                            </a>
+
+                        </div>
+
+                    </div>
+                }
+
+            </div>
+
+        </div>
+
+    </header>
+
+    <!-- MAIN -->
+    <main class="main-content">
+
+        <div class="container">
+
+            @RenderBody()
+
+        </div>
+
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="footer">
+
+        <div class="container text-center">
+
+            © 2026 - Kênh mua sắm online
+
+        </div>
+
+    </footer>
+
+    <!-- JS -->
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+
+    @RenderSection("Scripts", required: false)
+
+</body>
+
+</html>

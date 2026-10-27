@@ -1,0 +1,82 @@
+﻿@model ShopeeClone.Models.ViewModels.CapNhatThongTinViewModel
+
+@{
+    ViewData["Title"] = "Thông tin tài khoản";
+}
+
+<div class="container mt-4">
+
+    <div class="card shadow-sm">
+
+        <div class="card-header">
+            <h4>Thông tin tài khoản</h4>
+        </div>
+
+        <div class="card-body">
+
+            @if (TempData["Success"] != null)
+            {
+                <div class="alert alert-success">
+                    @TempData["Success"]
+                </div>
+            }
+
+            @if (TempData["Error"] != null)
+            {
+                <div class="alert alert-danger">
+                    @TempData["Error"]
+                </div>
+            }
+
+            <form asp-action="TaiKhoan"
+                  method="post">
+
+                <input type="hidden"
+                       asp-for="MaNguoiDung" />
+
+                <div class="mb-3">
+                    <label>Họ tên</label>
+
+                    <input asp-for="HoTen"
+                           class="form-control" />
+                </div>
+
+                <div class="mb-3">
+                    <label>Email</label>
+
+                    <input asp-for="Email"
+                           class="form-control" />
+                </div>
+
+                <div class="mb-3">
+                    <label>Số điện thoại</label>
+
+                    <input asp-for="SoDienThoai"
+                           class="form-control" />
+                </div>
+
+                <div class="mb-3">
+                    <label>Địa chỉ</label>
+
+                    <textarea asp-for="DiaChi"
+                              rows="3"
+                              class="form-control"></textarea>
+                </div>
+
+                <button type="submit"
+                        class="btn btn-danger">
+                    Cập nhật
+                </button>
+
+                <a asp-action="DoiMatKhau"
+                       class="btn btn-dark">
+                    Đổi mật khẩu
+                </a>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</div>

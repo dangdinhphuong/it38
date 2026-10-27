@@ -1,0 +1,487 @@
+﻿@model ShopeeClone.Models.Model_DB.SanPham
+
+@{
+    ViewData["Title"] = "Chi tiết sản phẩm";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@section Styles {
+    <link rel="stylesheet"
+          href="~/css/site.css"
+          asp-append-version="true" />
+}
+
+<div class="container product-detail-page">
+
+    @if (Model != null)
+    {
+        <div class="detail-wrapper">
+
+            <!-- LEFT -->
+            <div class="detail-left">
+
+                <div class="main-image">
+
+                    <img id="mainProductImage"
+                         src="@Model.HinhAnh"
+                         alt="@Model.TenSanPham" />
+
+                </div>
+
+                <div class="thumb-list">
+
+                    @for (int i = 0; i < 5; i++)
+                    {
+                        <div class="thumb-item">
+
+                            <img src="@Model.HinhAnh"
+                                 alt="@Model.TenSanPham"
+                                 onclick="changeImage(this.src)" />
+
+                        </div>
+                    }
+
+                </div>
+
+            </div>
+
+            <!-- RIGHT -->
+            <div class="detail-right">
+
+                <h1 class="product-name">
+                    @Model.TenSanPham
+                </h1>
+
+                <div class="product-meta">
+
+                    <div>
+                        <span class="rating-star">
+                            4.9 ★
+                        </span>
+                    </div>
+
+                    <div>
+                        1.2k Đánh giá
+                    </div>
+
+                    <div>
+                        5.4k Đã bán
+                    </div>
+
+                </div>
+
+                <div class="product-price-box">
+
+                    <div class="product-price">
+                        @Model.Gia.ToString("N0") ₫
+                    </div>
+
+                    <div class="product-stock">
+
+                        @if (Model.SoLuongTon > 0)
+                        {
+                            <span>
+                                Còn lại: @Model.SoLuongTon sản phẩm
+                            </span>
+                        }
+                        else
+                        {
+                            <span class="text-danger">
+                                Hết hàng
+                            </span>
+                        }
+
+                    </div>
+
+                </div>
+
+                <div class="mb-3">
+
+                    <span class="tag-fav">
+                        Giảm 10%
+                    </span>
+
+                    <span class="tag-fav">
+                        Freeship
+                    </span>
+
+                </div>
+
+                <div class="quantity-box">
+
+                    <span>Số lượng</span>
+
+                    <div class="quantity-control">
+
+                        <button type="button"
+                                onclick="decreaseQty()">
+                            -
+                        </button>
+
+                        <input type="text"
+                               id="qtyInput"
+                               value="1" />
+
+                        <button type="button"
+                                onclick="increaseQty()">
+                            +
+                        </button>
+
+                    </div>
+
+                </div>
+
+                <div class="action-buttons">
+
+                    <button class="btn-add"
+                            onclick="themVaoGio(@Model.MaSanPham)">
+
+                        <i class="fas fa-cart-plus"></i>
+
+                        Thêm vào giỏ hàng
+
+                    </button>
+
+                    <button class="btn-buy"
+                            onclick="muaNgay(@Model.MaSanPham)">
+
+                        Mua ngay
+
+                    </button>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- MÔ TẢ -->
+        <div class="product-description">
+
+            <div class="desc-title">
+                CHI TIẾT SẢN PHẨM
+            </div>
+
+            <div class="desc-content">
+
+                <table class="table table-bordered">
+
+                    <tbody>
+
+                        <tr>
+                            <th width="220">
+                                Mã sản phẩm
+                            </th>
+
+                            <td>
+                                @Model.MaSanPham
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <th>
+                                Tên sản phẩm
+                            </th>
+
+                            <td>
+                                @Model.TenSanPham
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <th>
+                                Giá bán
+                            </th>
+
+                            <td>
+                                @Model.Gia.ToString("N0") ₫
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <th>
+                                Số lượng tồn
+                            </th>
+
+                            <td>
+                                @Model.SoLuongTon
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <th>
+                                Trạng thái
+                            </th>
+
+                            <td>
+                                @Model.TrangThai
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <th>
+                                Danh mục
+                            </th>
+
+                            <td>
+                                @(Model.DanhMuc != null
+                                    ? Model.DanhMuc.TenDanhMuc
+                                    : "Không có")
+                            </td>
+                        </tr>
+
+                    </tbody>
+
+                </table>
+
+                <div class="mt-4">
+
+                    <p>
+                        Sản phẩm chất lượng cao,
+                        thiết kế hiện đại,
+                        phù hợp với nhu cầu sử dụng hàng ngày.
+                    </p>
+
+                    <p>
+                        ✔ Chính hãng 100% <br />
+                        ✔ Đổi trả dễ dàng <br />
+                        ✔ Hỗ trợ vận chuyển toàn quốc
+                    </p>
+
+                </div>
+
+            </div>
+
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-danger mt-5">
+
+            Không tìm thấy sản phẩm.
+
+        </div>
+    }
+
+</div>
+
+@section Scripts {
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+
+    <script>
+
+        function changeImage(src)
+        {
+        document.getElementById(
+        "mainProductImage"
+        ).src = src;
+        }
+
+        function increaseQty()
+        {
+        let qty =
+        document.getElementById("qtyInput");
+
+        qty.value =
+        parseInt(qty.value) + 1;
+        }
+
+        function decreaseQty()
+        {
+        let qty =
+        document.getElementById("qtyInput");
+
+        if (parseInt(qty.value) > 1)
+        {
+        qty.value =
+        parseInt(qty.value) - 1;
+        }
+        }
+
+        // =====================================
+        // THÊM VÀO GIỎ
+        // =====================================
+
+        function themVaoGio(maSanPham)
+        {
+        let soLuong =
+        parseInt(
+        document.getElementById(
+        "qtyInput"
+        ).value
+        );
+
+        $.ajax({
+
+        url: '/VwGioHang/ThemVaoGio',
+        type: 'POST',
+
+        data:
+        {
+        maSanPham: maSanPham,
+        soLuong: soLuong
+        },
+
+        success: function(res)
+        {
+        if(res.success)
+        {
+        alert(res.message);
+        }
+        else
+        {
+        alert(res.message);
+        }
+        },
+
+        error: function()
+        {
+        alert(
+        'Có lỗi xảy ra'
+        );
+        }
+
+        });
+        }
+
+        // =====================================
+        // MUA NGAY
+        // =====================================
+
+        function muaNgay(maSanPham)
+        {
+        let soLuong =
+        parseInt(
+        document.getElementById(
+        "qtyInput"
+        ).value
+        );
+
+        $.ajax({
+
+        url: '/VwGioHang/MuaNgay',
+        type: 'POST',
+
+        data:
+        {
+        maSanPham: maSanPham,
+        soLuong: soLuong
+        },
+
+        success: function(res)
+        {
+        if(res.success)
+        {
+        alert(res.message);
+
+        window.location =
+        '/VwGioHang/Dashboard';
+        }
+        else
+        {
+        alert(res.message);
+        }
+        },
+
+        error: function()
+        {
+        alert(
+        'Có lỗi xảy ra'
+        );
+        }
+
+        });
+        }
+
+    </script>
+
+    <script>
+
+        function themVaoGio(maSanPham)
+        {
+        let soLuong =
+        parseInt(
+        document.getElementById(
+        "qtyInput"
+        ).value
+        );
+
+        $.ajax({
+
+        url: '/VwGioHang/ThemVaoGio',
+        type: 'POST',
+
+        data:
+        {
+        maSanPham: maSanPham,
+        soLuong: soLuong
+        },
+
+        success: function(res)
+        {
+        if(res.success)
+        {
+        alert(res.message);
+        }
+        else
+        {
+        alert(res.message);
+
+        if(res.message === "Vui lòng đăng nhập")
+        {
+        window.location =
+        '/VwTaiKhoan/DangNhap';
+        }
+        }
+        }
+
+        });
+        }
+
+        function muaNgay(maSanPham)
+        {
+        let soLuong =
+        parseInt(
+        document.getElementById(
+        "qtyInput"
+        ).value
+        );
+
+        $.ajax({
+
+        url: '/VwGioHang/MuaNgay',
+        type: 'POST',
+
+        data:
+        {
+        maSanPham: maSanPham,
+        soLuong: soLuong
+        },
+
+        success: function(res)
+        {
+        if(res.success)
+        {
+        alert(res.message);
+
+        window.location =
+        '/VwDonHang/Dashboard';
+        }
+        else
+        {
+        alert(res.message);
+
+        if(res.message === "Vui lòng đăng nhập")
+        {
+        window.location =
+        '/VwTaiKhoan/DangNhap';
+        }
+        }
+        }
+
+        });
+        }
+
+    </script>
+}

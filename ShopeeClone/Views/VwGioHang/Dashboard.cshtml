@@ -1,0 +1,510 @@
+﻿@model IEnumerable<ShopeeClone.Models.Model_DB.ChiTietGioHang>
+
+@{
+    ViewData["Title"] = "Giỏ hàng";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@section Styles {
+
+    <link rel="stylesheet"
+          href="~/css/site.css"
+          asp-append-version="true" />
+
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+}
+
+<div class="cart-page">
+
+    <div class="cart-container">
+
+        <div class="cart-header">
+            <div>Sản phẩm</div>
+            <div>Đơn giá</div>
+            <div>Số lượng</div>
+            <div>Số tiền</div>
+            <div>Thao tác</div>
+        </div>
+
+        @if (Model != null && Model.Any())
+        {
+            <div class="cart-shop">
+
+                <div class="shop-header">
+
+                    <input type="checkbox"
+                           id="checkAll"
+                           class="cart-check" />
+
+                    <i class="fa-solid fa-store"></i>
+
+                    Shopping Home Mall
+
+                </div>
+
+                @foreach (var item in Model)
+                {
+                    decimal gia =
+                        item.SanPham?.Gia ?? 0;
+
+                    decimal thanhTien =
+                        gia * item.SoLuong;
+
+                    <div class="cart-item">
+
+                        <!-- SẢN PHẨM -->
+                        <div class="cart-product">
+
+                            <input type="checkbox"
+                                   class="cart-check item-check"
+                                   data-id="@item.MaCTGioHang"
+                                   data-price="@thanhTien" />
+
+                            <div class="cart-image">
+
+                                <img src="@(string.IsNullOrEmpty(item.SanPham?.HinhAnh)
+                                                                                                         ? "/images/no-image.png"
+                                                                                                         : item.SanPham.HinhAnh)"
+                                     alt="@item.SanPham?.TenSanPham" />
+
+                            </div>
+
+                            <div class="cart-info">
+
+                                <div class="cart-name">
+                                    @item.SanPham?.TenSanPham
+                                </div>
+
+                                <div class="cart-variation">
+                                    Phân loại: Tiêu chuẩn
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                        <!-- GIÁ -->
+                        <div>
+
+                            <div class="cart-old-price">
+                                @((gia * 1.2m).ToString("N0")) ₫
+                            </div>
+
+                            <div class="cart-price">
+                                @gia.ToString("N0") ₫
+                            </div>
+
+                        </div>
+
+                        <!-- SỐ LƯỢNG -->
+                        <div>
+
+                            <div class="quantity-control">
+
+                                <button type="button"
+                                        onclick="giamSoLuong(@item.MaCTGioHang)">
+                                    -
+                                </button>
+
+                                <input type="text"
+                                       id="qty-@item.MaCTGioHang"
+                                       value="@item.SoLuong"
+                                       readonly />
+
+                                <button type="button"
+                                        onclick="tangSoLuong(@item.MaCTGioHang)">
+                                    +
+                                </button>
+
+                            </div>
+
+                        </div>
+
+                        <!-- THÀNH TIỀN -->
+                        <div class="cart-total">
+                            @thanhTien.ToString("N0") ₫
+                        </div>
+
+                        <!-- XOÁ -->
+                        <div>
+
+                            <button type="button"
+                                    class="btn-remove"
+                                    onclick="xoaKhoiGio(@item.MaCTGioHang)">
+
+                                <i class="fa-solid fa-trash"></i>
+                                Xóa
+
+                            </button>
+
+                        </div>
+
+                    </div>
+                }
+
+            </div>
+
+            <!-- FOOTER -->
+            <div class="cart-footer">
+
+                <div class="footer-left">
+
+                    <label>
+
+                        <input type="checkbox"
+                               id="checkAllFooter"
+                               class="cart-check" />
+
+                        Chọn tất cả
+
+                    </label>
+
+                </div>
+
+                <div class="footer-right">
+
+                    <div class="checkout-summary">
+
+                        <p>Tổng thanh toán</p>
+
+                        <strong id="tongTien">
+                            0 ₫
+                        </strong>
+
+                    </div>
+
+                    <button type="button"
+                            class="btn-checkout"
+                            onclick="thanhToanGioHang()">
+
+                        Mua hàng
+
+                    </button>
+
+                </div>
+
+            </div>
+        }
+        else
+        {
+            <div class="empty-cart">
+
+                <i class="fa-solid fa-cart-shopping"></i>
+
+                <h3>
+                    Giỏ hàng của bạn còn trống
+                </h3>
+
+                <p>
+                    Hãy thêm sản phẩm vào giỏ hàng
+                    để tiếp tục mua sắm
+                </p>
+
+                <a asp-controller="Home"
+                       asp-action="Index"
+                       class="btn-shopping">
+
+                    <i class="fa-solid fa-bag-shopping"></i>
+
+                    Tiếp tục mua sắm
+
+                </a>
+
+            </div>
+        }
+
+    </div>
+
+</div>
+
+@section Scripts {
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+
+    <script>
+
+        const checkAll =
+        document.getElementById("checkAll");
+
+        const checkAllFooter =
+        document.getElementById("checkAllFooter");
+
+        const tongTienEl =
+        document.getElementById("tongTien");
+
+        // =========================================
+        // LẤY DANH SÁCH ITEM
+        // =========================================
+        function getItemChecks()
+        {
+        return document.querySelectorAll(
+        ".item-check"
+        );
+        }
+
+        // =========================================
+        // TÍNH TỔNG TIỀN
+        // =========================================
+        function tinhTongTien()
+        {
+        let tong = 0;
+
+        getItemChecks().forEach(item =>
+        {
+        if (item.checked)
+        {
+        tong += parseFloat(
+        item.dataset.price
+        );
+        }
+        });
+
+        tongTienEl.innerText =
+        tong.toLocaleString('vi-VN')
+        + ' ₫';
+        }
+
+        // =========================================
+        // CHECK ALL HEADER
+        // =========================================
+        if (checkAll)
+        {
+        checkAll.addEventListener(
+        "change",
+        function ()
+        {
+        getItemChecks().forEach(item =>
+        {
+        item.checked =
+        this.checked;
+        });
+
+        if (checkAllFooter)
+        {
+        checkAllFooter.checked =
+        this.checked;
+        }
+
+        tinhTongTien();
+        }
+        );
+        }
+
+        // =========================================
+        // CHECK ALL FOOTER
+        // =========================================
+        if (checkAllFooter)
+        {
+        checkAllFooter.addEventListener(
+        "change",
+        function ()
+        {
+        getItemChecks().forEach(item =>
+        {
+        item.checked =
+        this.checked;
+        });
+
+        if (checkAll)
+        {
+        checkAll.checked =
+        this.checked;
+        }
+
+        tinhTongTien();
+        }
+        );
+        }
+
+        // =========================================
+        // CHECK TỪNG ITEM
+        // =========================================
+        getItemChecks().forEach(item =>
+        {
+        item.addEventListener(
+        "change",
+        function ()
+        {
+        const allItems =
+        getItemChecks();
+
+        const checkedItems =
+        document.querySelectorAll(
+        ".item-check:checked"
+        );
+
+        const isAllChecked =
+        allItems.length ===
+        checkedItems.length;
+
+        if (checkAll)
+        {
+        checkAll.checked =
+        isAllChecked;
+        }
+
+        if (checkAllFooter)
+        {
+        checkAllFooter.checked =
+        isAllChecked;
+        }
+
+        tinhTongTien();
+        }
+        );
+        });
+
+        // =========================================
+        // TĂNG SỐ LƯỢNG
+        // =========================================
+        function tangSoLuong(id)
+        {
+        $.ajax({
+
+        url: '/VwGioHang/Tang',
+        type: 'POST',
+
+        data: {
+        id: id
+        },
+
+        success: function (res)
+        {
+        if (res.success)
+        {
+        location.reload();
+        }
+        else
+        {
+        alert(res.message);
+        }
+        }
+
+        });
+        }
+
+        // =========================================
+        // GIẢM SỐ LƯỢNG
+        // =========================================
+        function giamSoLuong(id)
+        {
+        $.ajax({
+
+        url: '/VwGioHang/Giam',
+        type: 'POST',
+
+        data: {
+        id: id
+        },
+
+        success: function (res)
+        {
+        if (res.success)
+        {
+        location.reload();
+        }
+        else
+        {
+        alert(res.message);
+        }
+        }
+
+        });
+        }
+
+        // =========================================
+        // XOÁ
+        // =========================================
+        function xoaKhoiGio(id)
+        {
+        $.ajax({
+
+        url: '/VwGioHang/Xoa',
+        type: 'POST',
+
+        data: {
+        id: id
+        },
+
+        success: function (res)
+        {
+        if (res.success)
+        {
+        location.reload();
+        }
+        else
+        {
+        alert(res.message);
+        }
+        }
+
+        });
+        }
+
+        // =========================================
+        // THANH TOÁN
+        // =========================================
+        function thanhToanGioHang()
+        {
+        const selectedItems = [];
+
+        document
+        .querySelectorAll(
+        ".item-check:checked"
+        )
+        .forEach(item =>
+        {
+        selectedItems.push(
+        item.dataset.id
+        );
+        });
+
+        if (selectedItems.length <= 0)
+        {
+        alert(
+        "Vui lòng chọn sản phẩm"
+        );
+
+        return;
+        }
+
+        $.ajax({
+
+        url: '/VwDonHang/ThanhToan',
+        type: 'POST',
+
+        traditional: true,
+
+        data: {
+        dsChiTiet: selectedItems
+        },
+
+        success: function (res)
+        {
+        if (res.success)
+        {
+        alert(res.message);
+
+        window.location =
+        '/VwDonHang/Dashboard';
+        }
+        else
+        {
+        alert(res.message);
+
+        if (res.message ===
+        "Vui lòng đăng nhập")
+        {
+        window.location =
+        '/VwTaiKhoan/DangNhap';
+        }
+        }
+        }
+
+        });
+        }
+
+    </script>
+
+}

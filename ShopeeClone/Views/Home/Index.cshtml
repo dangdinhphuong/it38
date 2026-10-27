@@ -1,0 +1,239 @@
+﻿@model IEnumerable<ShopeeClone.Models.Model_DB.SanPham>
+
+@using ShopeeClone.Models
+@using static ShopeeClone.Models.Model_DB
+
+@{
+    ViewData["Title"] = "Shopee Clone - Mua sắm trực tuyến";
+
+    var topSanPham = ViewBag.TopSanPham as List<TopSanPhamBanChayModel>;
+}
+
+@section Styles {
+    <link rel="stylesheet"
+          href="~/css/site.css"
+          asp-append-version="true" />
+}
+
+<div class="shopee-container">
+
+    <!-- DANH MỤC -->
+    <div class="section-header">
+        <h3>DANH MỤC HÀNG HOÁ</h3>
+    </div>
+
+    <div class="category-wrapper">
+
+        <button class="scroll-btn left"
+                onclick="scrollCategory(-1)">
+            <i class="fas fa-chevron-left"></i>
+        </button>
+
+        <div class="category-scroll"
+             id="categoryContainer">
+
+            <div class="text-muted">
+                Đang tải danh mục...
+            </div>
+
+        </div>
+
+        <button class="scroll-btn right"
+                onclick="scrollCategory(1)">
+            <i class="fas fa-chevron-right"></i>
+        </button>
+
+    </div>
+
+    <!-- GỢI Ý -->
+    <div class="section-header">
+        <h3>GỢI Ý HÔM NAY</h3>
+    </div>
+
+    <!-- GRID -->
+    <div class="product-grid-container">
+
+        @if (topSanPham != null && topSanPham.Any())
+        {
+            int rank = 1;
+
+            @foreach (var top in topSanPham)
+            {
+                var sp = Model.FirstOrDefault(x => x.TenSanPham == top.TenSanPham);
+
+                if (sp != null)
+                {
+                    <div class="product-card"
+                         onclick="location.href='@Url.Action("ChiTietSanPham", "VwSanPham", new { id = sp.MaSanPham })'">
+
+                        <div class="badge-low-stock">
+                            TOP #@rank
+                        </div>
+
+                        <div class="prod-img-box">
+
+                            <img src="@sp.HinhAnh"
+                                 alt="@sp.TenSanPham" />
+
+                        </div>
+
+                        <div class="prod-info">
+
+                            <div class="prod-title">
+                                @sp.TenSanPham
+                            </div>
+
+                            <div class="prod-tags">
+
+                                <span class="tag-fav">
+                                    Bán chạy
+                                </span>
+
+                            </div>
+
+                            <div class="prod-bottom">
+
+                                <span class="prod-price">
+                                    @sp.Gia.ToString("N0") ₫
+                                </span>
+
+                                <span class="prod-sold">
+                                    Đã bán @top.TongBan
+                                </span>
+
+                            </div>
+
+                        </div>
+
+                        <div class="btn-add-cart"
+                             onclick="event.stopPropagation(); alert('Thêm giỏ hàng')">
+
+                            <i class="fas fa-plus"></i>
+
+                        </div>
+
+                    </div>
+
+                    rank++;
+                }
+            }
+        }
+        else
+        {
+            <div class="text-center w-100 py-5">
+
+                <h5>
+                    Không có sản phẩm nào
+                </h5>
+
+            </div>
+        }
+
+    </div>
+
+</div>
+
+@section Scripts {
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <script>
+
+        $(document).ready(function () {
+
+        loadDanhMuc();
+
+        });
+
+        // =========================
+        // LOAD DANH MỤC
+        // =========================
+        function loadDanhMuc() {
+
+        $.ajax({
+
+        url: '/api/danhmuc',
+        type: 'GET',
+
+        success: function (data) {
+
+        let html = '';
+
+        if (data && data.length > 0) {
+
+        data.forEach(cat => {
+
+        html += `
+        <div class="category-item"
+        onclick="goToCategory(${cat.maDanhMuc})">
+
+        <div class="cat-icon-box">
+
+        <img src="${cat.hinhAnh}"
+        alt="${cat.tenDanhMuc}" />
+
+        </div>
+
+        <div class="cat-name">
+
+        ${cat.tenDanhMuc}
+
+        </div>
+
+        </div>
+        `;
+        });
+
+        }
+        else {
+
+        html = `
+        <div class="text-muted px-3">
+        Không có danh mục
+        </div>
+        `;
+        }
+
+        $('#categoryContainer').html(html);
+        },
+
+        error: function () {
+
+        $('#categoryContainer').html(`
+        <div class="text-danger px-3">
+        Lỗi tải danh mục
+        </div>
+        `);
+        }
+        });
+        }
+
+        // =========================
+        // CLICK DANH MỤC
+        // =========================
+        function goToCategory(id) {
+
+        window.location.href =
+        '/VwSanPham/Dashboard?id=' + id;
+        }
+
+        // =========================
+        // SCROLL DANH MỤC
+        // =========================
+        function scrollCategory(direction) {
+
+        const container =
+        document.getElementById('categoryContainer');
+
+        const scrollAmount = 300;
+
+        container.scrollBy({
+
+        left: direction * scrollAmount,
+        behavior: 'smooth'
+
+        });
+        }
+
+    </script>
+}
