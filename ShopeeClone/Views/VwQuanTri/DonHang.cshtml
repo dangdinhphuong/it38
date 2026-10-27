@@ -1,181 +1,331 @@
-﻿@model List<ShopeeClone.Models.Model_DB.DonHang>
+@model List<ShopeeClone.Models.Model_DB.DonHang>
 
 @{
     Layout = "~/Views/Shared/_AdminLayout.cshtml";
     ViewData["Title"] = "Quản lý đơn hàng";
+
+    int countChoXuLy = Model.Count(x => x.TrangThai == "Chờ xử lý");
+    int countDaDuyet = Model.Count(x => x.TrangThai == "Đã duyệt");
+    int countDaHuy = Model.Count(x => x.TrangThai == "Đã hủy");
 }
 
-<link rel="stylesheet"
-      href="~/css/admin.css" />
-
-<div class="admin-wrapper">
-
-    <div class="content-area">
-
-        <h2 class="mb-4">
-            Quản lý đơn hàng
-        </h2>
-
-        <table class="table table-bordered">
-
-            <thead>
-
-                <tr>
-
-                    <th>Mã đơn</th>
-
-                    <th>Khách hàng</th>
-
-                    <th>Ngày đặt</th>
-
-                    <th>Tổng tiền</th>
-
-                    <th>Trạng thái</th>
-
-                    <th width="220">
-                        Chức năng
-                    </th>
-
-                </tr>
-
-            </thead>
-
-            <tbody id="tableDonHang">
-
-                @foreach (var item in Model)
-                {
-                    <tr id="row_@item.MaDonHang">
-
-                        <td>
-                            #@item.MaDonHang
-                        </td>
-
-                        <td>
-                            @item.NguoiDung?.TenDangNhap
-                        </td>
-
-                        <td>
-                            @item.NgayDat.ToString("dd/MM/yyyy")
-                        </td>
-
-                        <td>
-                            @item.TongTien.ToString("N0") đ
-                        </td>
-
-                        <td id="status_@item.MaDonHang">
-
-                            @if (item.TrangThai == "Chờ xử lý")
-                            {
-                                <span class="badge bg-warning">
-                                    Chờ xử lý
-                                </span>
-                            }
-                            else if (item.TrangThai == "Đã duyệt")
-                            {
-                                <span class="badge bg-success">
-                                    Đã duyệt
-                                </span>
-                            }
-                            else
-                            {
-                                <span class="badge bg-danger">
-                                    Đã hủy
-                                </span>
-                            }
-
-                        </td>
-
-                        <td id="action_@item.MaDonHang">
-
-                            @if (item.TrangThai == "Chờ xử lý")
-                            {
-                                <button class="btn btn-success btn-sm"
-                                        onclick="duyetDon(@item.MaDonHang)">
-
-                                    Duyệt đơn
-
-                                </button>
-
-                                <button class="btn btn-danger btn-sm"
-                                        onclick="huyDon(@item.MaDonHang)">
-
-                                    Hủy đơn
-
-                                </button>
-                            }
-
-                        </td>
-
-                    </tr>
-                }
-
-            </tbody>
-
-        </table>
-
+<div class="admin-donhang-page">
+    <!-- PAGE HEADER -->
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3 mb-4">
+        <div>
+            <h2 class="mb-1 fw-bold text-primary-emphasis d-flex align-items-center gap-2">
+                <i class="fa-solid fa-receipt text-shopee"></i>
+                <span>Quản Lý Đơn Hàng</span>
+            </h2>
+            <p class="text-muted mb-0 small">Theo dõi danh sách đơn mua, trạng thái xử lý và vận hành đơn từ khách hàng.</p>
+        </div>
+        <div class="d-flex align-items-center gap-2">
+            <span class="badge-modern badge-status-approved">
+                Tổng cộng: <strong class="ms-1">@Model.Count</strong> đơn
+            </span>
+        </div>
     </div>
 
+    <!-- FILTER STATUS TABS -->
+    <div class="card-modern mb-4">
+        <div class="p-3 d-flex flex-wrap justify-content-between align-items-center gap-3">
+            <div class="btn-group btn-group-sm flex-wrap" role="group" aria-label="Bộ lọc trạng thái đơn hàng">
+                <button type="button" class="btn btn-outline-secondary active order-filter-btn" data-filter="all">
+                    Tất cả <span class="badge bg-secondary ms-1">@Model.Count</span>
+                </button>
+                <button type="button" class="btn btn-outline-warning text-dark order-filter-btn" data-filter="Chờ xử lý">
+                    <i class="fa-solid fa-clock text-warning me-1"></i> Chờ xử lý
+                    <span class="badge bg-warning text-dark ms-1" id="badgeChoXuLyCount">@countChoXuLy</span>
+                </button>
+                <button type="button" class="btn btn-outline-success order-filter-btn" data-filter="Đã duyệt">
+                    <i class="fa-solid fa-check text-success me-1"></i> Đã duyệt
+                    <span class="badge bg-success ms-1" id="badgeDaDuyetCount">@countDaDuyet</span>
+                </button>
+                <button type="button" class="btn btn-outline-danger order-filter-btn" data-filter="Đã hủy">
+                    <i class="fa-solid fa-ban text-danger me-1"></i> Đã hủy
+                    <span class="badge bg-danger ms-1" id="badgeDaHuyCount">@countDaHuy</span>
+                </button>
+            </div>
+
+            <!-- SEARCH ORDER ID OR USERNAME -->
+            <div class="d-flex align-items-center gap-2" style="max-width: 320px; width: 100%;">
+                <div class="input-group input-group-sm">
+                    <span class="input-group-text bg-surface-sunken border-default text-muted">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                    </span>
+                    <input type="text"
+                           id="orderSearchInput"
+                           class="form-control-modern form-control-sm border-start-0"
+                           placeholder="Mã đơn hoặc tên khách..." />
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MAIN ORDERS TABLE -->
+    <div class="card-modern">
+        <div class="table-modern-wrapper border-0 rounded-0">
+            <table class="table-modern w-100">
+                <thead>
+                    <tr>
+                        <th style="width: 100px;" class="text-center">Mã đơn</th>
+                        <th>Khách hàng</th>
+                        <th style="width: 150px;">Ngày đặt</th>
+                        <th style="width: 170px;" class="text-end">Tổng tiền</th>
+                        <th style="width: 160px;" class="text-center">Trạng thái</th>
+                        <th style="width: 220px;" class="text-end">Thao tác xử lý</th>
+                    </tr>
+                </thead>
+                <tbody id="tableDonHang">
+                    @foreach (var item in Model)
+                    {
+                        <tr id="row_@item.MaDonHang" data-status="@item.TrangThai">
+                            <td class="text-center">
+                                <span class="badge-modern badge-status-pending font-monospace fw-bold">#@item.MaDonHang</span>
+                            </td>
+                            <td>
+                                <div class="d-flex align-items-center gap-2">
+                                    <div class="user-avatar-placeholder rounded-circle bg-surface-sunken d-flex align-items-center justify-content-center text-muted">
+                                        <i class="fa-solid fa-user"></i>
+                                    </div>
+                                    <div>
+                                        <div class="fw-semibold text-primary-emphasis">
+                                            @(item.NguoiDung?.HoTen ?? item.NguoiDung?.TenDangNhap ?? "Khách vãng lai")
+                                        </div>
+                                        @if (!string.IsNullOrEmpty(item.NguoiDung?.TenDangNhap))
+                                        {
+                                            <small class="text-muted">@@@item.NguoiDung.TenDangNhap</small>
+                                        }
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="text-secondary small">
+                                    <i class="fa-regular fa-calendar me-1 text-muted"></i>
+                                    @item.NgayDat.ToString("dd/MM/yyyy")
+                                </div>
+                                <div class="text-muted small">
+                                    <i class="fa-regular fa-clock me-1"></i>
+                                    @item.NgayDat.ToString("HH:mm")
+                                </div>
+                            </td>
+                            <td class="text-end">
+                                <span class="fw-bold text-shopee fs-6">@item.TongTien.ToString("N0") đ</span>
+                            </td>
+                            <td id="status_@item.MaDonHang" class="text-center">
+                                @if (item.TrangThai == "Chờ xử lý")
+                                {
+                                    <span class="badge-modern badge-status-pending">
+                                        <i class="fa-solid fa-clock"></i> Chờ xử lý
+                                    </span>
+                                }
+                                else if (item.TrangThai == "Đã duyệt")
+                                {
+                                    <span class="badge-modern badge-status-approved">
+                                        <i class="fa-solid fa-circle-check"></i> Đã duyệt
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="badge-modern badge-status-cancelled">
+                                        <i class="fa-solid fa-ban"></i> Đã hủy
+                                    </span>
+                                }
+                            </td>
+                            <td id="action_@item.MaDonHang" class="text-end">
+                                @if (item.TrangThai == "Chờ xử lý")
+                                {
+                                    <div class="d-inline-flex gap-2">
+                                        <button type="button"
+                                                class="btn btn-sm btn-success rounded-pill px-3 d-inline-flex align-items-center gap-1 shadow-sm"
+                                                onclick="duyetDon(@item.MaDonHang)"
+                                                title="Phê duyệt đơn hàng này">
+                                            <i class="fa-solid fa-check"></i>
+                                            <span>Duyệt đơn</span>
+                                        </button>
+                                        <button type="button"
+                                                class="btn btn-sm btn-outline-danger rounded-pill px-3 d-inline-flex align-items-center gap-1"
+                                                onclick="huyDon(@item.MaDonHang)"
+                                                title="Hủy đơn hàng này">
+                                            <i class="fa-solid fa-xmark"></i>
+                                            <span>Hủy đơn</span>
+                                        </button>
+                                    </div>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
 </div>
 
+<style>
+    .text-shopee {
+        color: var(--shopee-orange) !important;
+    }
+    .user-avatar-placeholder {
+        width: 36px;
+        height: 36px;
+        flex-shrink: 0;
+        font-size: 0.95rem;
+    }
+    .bg-surface-sunken {
+        background-color: var(--bg-surface-sunken);
+    }
+</style>
+
 <script>
+    // BỘ LỌC THEO TRẠNG THÁI VÀ TÌM KIẾM
+    let currentFilter = 'all';
+    const filterButtons = document.querySelectorAll(".order-filter-btn");
+    const searchInput = document.getElementById("orderSearchInput");
 
-    async function duyetDon(id) {
+    function applyOrderFilter() {
+        const query = searchInput ? searchInput.value.toLowerCase().trim() : '';
+        const rows = document.querySelectorAll("#tableDonHang tr");
 
-        let response =
-            await fetch('/VwQuanTri/DuyetDon/' + id, {
+        rows.forEach(row => {
+            const rowStatus = row.getAttribute("data-status") || '';
+            const rowText = row.innerText.toLowerCase();
 
-                method: 'POST'
+            const matchFilter = (currentFilter === 'all') || (rowStatus === currentFilter);
+            const matchSearch = (!query) || (rowText.includes(query));
 
-            });
-
-        let result = await response.json();
-
-        if (result.success) {
-
-            document.getElementById("status_" + id).innerHTML =
-                `<span class="badge bg-success">
-                    Đã duyệt
-                </span>`;
-
-            document.getElementById("action_" + id).innerHTML = "";
-
-        } else {
-
-            alert(result.message);
-
-        }
-
+            row.style.display = (matchFilter && matchSearch) ? "" : "none";
+        });
     }
 
-    async function huyDon(id) {
+    if (filterButtons) {
+        filterButtons.forEach(btn => {
+            btn.addEventListener("click", function() {
+                filterButtons.forEach(b => b.classList.remove("active"));
+                this.classList.add("active");
+                currentFilter = this.getAttribute("data-filter") || 'all';
+                applyOrderFilter();
+            });
+        });
+    }
 
-        if (!confirm('Bạn có chắc muốn hủy đơn này không?'))
+    if (searchInput) {
+        searchInput.addEventListener("input", applyOrderFilter);
+    }
+
+    // DUYỆT ĐƠN
+    async function duyetDon(id) {
+        try {
+            let response = await fetch('/VwQuanTri/DuyetDon/' + id, {
+                method: 'POST'
+            });
+
+            let result = await response.json();
+            if (result.success) {
+                // Cập nhật DOM theo Contract ID
+                const statusEl = document.getElementById("status_" + id);
+                if (statusEl) {
+                    statusEl.innerHTML = `
+                        <span class="badge-modern badge-status-approved">
+                            <i class="fa-solid fa-circle-check"></i> Đã duyệt
+                        </span>
+                    `;
+                }
+
+                const actionEl = document.getElementById("action_" + id);
+                if (actionEl) {
+                    actionEl.innerHTML = "";
+                }
+
+                const row = document.getElementById("row_" + id);
+                if (row) {
+                    row.setAttribute("data-status", "Đã duyệt");
+                }
+
+                // Cập nhật số liệu badge đếm
+                const badgeChoXuLy = document.getElementById("badgeChoXuLyCount");
+                if (badgeChoXuLy) {
+                    let cur = parseInt(badgeChoXuLy.innerText) || 1;
+                    badgeChoXuLy.innerText = Math.max(0, cur - 1);
+                }
+                const badgeDaDuyet = document.getElementById("badgeDaDuyetCount");
+                if (badgeDaDuyet) {
+                    let cur = parseInt(badgeDaDuyet.innerText) || 0;
+                    badgeDaDuyet.innerText = cur + 1;
+                }
+
+                if (window.toast) {
+                    window.toast.success(`Đã phê duyệt đơn hàng #${id} thành công!`);
+                }
+            } else {
+                if (window.toast) {
+                    window.toast.error(result.message || 'Không thể duyệt đơn này');
+                } else {
+                    alert(result.message);
+                }
+            }
+        } catch (err) {
+            console.error(err);
+            if (window.toast) window.toast.error('Lỗi kết nối khi duyệt đơn hàng');
+        }
+    }
+
+    // HỦY ĐƠN
+    async function huyDon(id) {
+        if (!confirm('Bạn có chắc muốn hủy đơn hàng #' + id + ' không?'))
             return;
 
-        let response =
-            await fetch('/VwQuanTri/HuyDon/' + id, {
-
+        try {
+            let response = await fetch('/VwQuanTri/HuyDon/' + id, {
                 method: 'POST'
-
             });
 
-        let result = await response.json();
+            let result = await response.json();
+            if (result.success) {
+                // Cập nhật DOM theo Contract ID
+                const statusEl = document.getElementById("status_" + id);
+                if (statusEl) {
+                    statusEl.innerHTML = `
+                        <span class="badge-modern badge-status-cancelled">
+                            <i class="fa-solid fa-ban"></i> Đã hủy
+                        </span>
+                    `;
+                }
 
-        if (result.success) {
+                const actionEl = document.getElementById("action_" + id);
+                if (actionEl) {
+                    actionEl.innerHTML = "";
+                }
 
-            document.getElementById("status_" + id).innerHTML =
-                `<span class="badge bg-danger">
-                    Đã hủy
-                </span>`;
+                const row = document.getElementById("row_" + id);
+                if (row) {
+                    row.setAttribute("data-status", "Đã hủy");
+                }
 
-            document.getElementById("action_" + id).innerHTML = "";
+                // Cập nhật số liệu badge đếm
+                const badgeChoXuLy = document.getElementById("badgeChoXuLyCount");
+                if (badgeChoXuLy) {
+                    let cur = parseInt(badgeChoXuLy.innerText) || 1;
+                    badgeChoXuLy.innerText = Math.max(0, cur - 1);
+                }
+                const badgeDaHuy = document.getElementById("badgeDaHuyCount");
+                if (badgeDaHuy) {
+                    let cur = parseInt(badgeDaHuy.innerText) || 0;
+                    badgeDaHuy.innerText = cur + 1;
+                }
 
-        } else {
-
-            alert(result.message);
-
+                if (window.toast) {
+                    window.toast.info(`Đã hủy đơn hàng #${id}`);
+                }
+            } else {
+                if (window.toast) {
+                    window.toast.error(result.message || 'Không thể hủy đơn này');
+                } else {
+                    alert(result.message);
+                }
+            }
+        } catch (err) {
+            console.error(err);
+            if (window.toast) window.toast.error('Lỗi kết nối khi hủy đơn hàng');
         }
-
     }
-
 </script>

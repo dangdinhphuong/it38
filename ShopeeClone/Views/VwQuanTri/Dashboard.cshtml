@@ -1,201 +1,364 @@
-﻿@{
+@{
     Layout = "~/Views/Shared/_AdminLayout.cshtml";
-
-    ViewData["Title"] = "Dashboard Admin";
+    ViewData["Title"] = "Dashboard Quản Trị";
+    var topSanPhamList = ViewBag.TopSanPham as IEnumerable<dynamic> ?? Enumerable.Empty<dynamic>();
+    int maxBan = 1;
+    foreach (var item in topSanPhamList)
+    {
+        int ban = (int)item.TongBan;
+        if (ban > maxBan) { maxBan = ban; }
+    }
 }
 
-<link rel="stylesheet"
-      href="~/css/admin.css" />
-
-<div class="admin-wrapper">
-
-    <div class="content-area">
-
-        <div class="d-flex justify-content-between align-items-center mb-4">
-
-            <h2>
-                Dashboard Quản Trị
+<div class="admin-dashboard-page">
+    <!-- PAGE HEADER -->
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3 mb-4">
+        <div>
+            <h2 class="mb-1 fw-bold text-primary-emphasis d-flex align-items-center gap-2">
+                <i class="fa-solid fa-chart-pie text-shopee"></i>
+                <span>Dashboard Quản Trị</span>
             </h2>
-
-            <button class="btn btn-admin"
-                    onclick="loadDashboard()">
-
-                Làm mới dữ liệu
-
-            </button>
-
+            <p class="text-muted mb-0 small">Tổng quan tình hình kinh doanh, số liệu đơn hàng và sản phẩm bán chạy theo thời gian thực.</p>
         </div>
-
-        <div class="row g-4">
-
-            <div class="col-md-3">
-
-                <div class="card-admin">
-
-                    <h5>
-                        Tổng sản phẩm
-                    </h5>
-
-                    <h2 id="tongSanPham">
-                        @ViewBag.TongSanPham
-                    </h2>
-
-                </div>
-
-            </div>
-
-            <div class="col-md-3">
-
-                <div class="card-admin">
-
-                    <h5>
-                        Tổng danh mục
-                    </h5>
-
-                    <h2 id="tongDanhMuc">
-                        @ViewBag.TongDanhMuc
-                    </h2>
-
-                </div>
-
-            </div>
-
-            <div class="col-md-3">
-
-                <div class="card-admin">
-
-                    <h5>
-                        Tổng đơn hàng
-                    </h5>
-
-                    <h2 id="tongDonHang">
-                        @ViewBag.TongDonHang
-                    </h2>
-
-                </div>
-
-            </div>
-
-            <div class="col-md-3">
-
-                <div class="card-admin">
-
-                    <h5>
-                        Doanh thu
-                    </h5>
-
-                    <h2 id="doanhThu">
-                        @ViewBag.DoanhThu.ToString("N0") đ
-                    </h2>
-
-                </div>
-
-            </div>
-
-        </div>
-
-        <!-- TOP SẢN PHẨM -->
-
-        <div class="card-admin mt-4">
-
-            <div class="d-flex justify-content-between align-items-center mb-3">
-
-                <h4 class="mb-0">
-                    Top sản phẩm bán chạy
-                </h4>
-
-            </div>
-
-            <table class="table table-bordered">
-
-                <thead>
-
-                    <tr>
-
-                        <th>
-                            Sản phẩm
-                        </th>
-
-                        <th>
-                            Tổng bán
-                        </th>
-
-                    </tr>
-
-                </thead>
-
-                <tbody id="topSanPhamBody">
-
-                    @foreach (var item in ViewBag.TopSanPham)
-                    {
-                        <tr>
-
-                            <td>
-                                @item.TenSanPham
-                            </td>
-
-                            <td>
-                                @item.TongBan
-                            </td>
-
-                        </tr>
-                    }
-
-                </tbody>
-
-            </table>
-
-        </div>
-
+        <button id="btnReloadDashboard" class="btn-shopee btn-shopee-sm" onclick="loadDashboard()" title="Tải lại số liệu mới nhất">
+            <i class="fa-solid fa-rotate" id="reloadIcon"></i>
+            <span>Làm mới dữ liệu</span>
+        </button>
     </div>
 
+    <!-- STATS KPI CARDS -->
+    <div class="row g-3 g-xl-4 mb-4">
+        <!-- TỔNG SẢN PHẨM -->
+        <div class="col-12 col-sm-6 col-xl-3">
+            <div class="card-modern card-modern-hover p-3 p-xl-4 h-100 position-relative overflow-hidden stat-card stat-blue">
+                <div class="d-flex align-items-center justify-content-between mb-3">
+                    <span class="text-secondary fw-semibold small text-uppercase letter-spacing-1">Tổng sản phẩm</span>
+                    <div class="stat-icon-wrapper bg-blue-subtle text-primary">
+                        <i class="fa-solid fa-boxes-stacked"></i>
+                    </div>
+                </div>
+                <div class="d-flex align-items-baseline gap-2">
+                    <h2 class="fw-bold mb-0 text-primary-emphasis display-6" id="tongSanPham">
+                        @ViewBag.TongSanPham
+                    </h2>
+                    <span class="text-muted small">mặt hàng</span>
+                </div>
+                <div class="mt-3 pt-2 border-top border-subtle d-flex align-items-center justify-content-between small text-muted">
+                    <span>Đang quản lý</span>
+                    <a asp-controller="VwQuanTri" asp-action="SanPham" class="text-decoration-none fw-semibold small text-primary">
+                        Xem chi tiết <i class="fa-solid fa-arrow-right ms-1"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- TỔNG DANH MỤC -->
+        <div class="col-12 col-sm-6 col-xl-3">
+            <div class="card-modern card-modern-hover p-3 p-xl-4 h-100 position-relative overflow-hidden stat-card stat-orange">
+                <div class="d-flex align-items-center justify-content-between mb-3">
+                    <span class="text-secondary fw-semibold small text-uppercase letter-spacing-1">Tổng danh mục</span>
+                    <div class="stat-icon-wrapper bg-orange-subtle text-shopee">
+                        <i class="fa-solid fa-layer-group"></i>
+                    </div>
+                </div>
+                <div class="d-flex align-items-baseline gap-2">
+                    <h2 class="fw-bold mb-0 text-primary-emphasis display-6" id="tongDanhMuc">
+                        @ViewBag.TongDanhMuc
+                    </h2>
+                    <span class="text-muted small">ngành hàng</span>
+                </div>
+                <div class="mt-3 pt-2 border-top border-subtle d-flex align-items-center justify-content-between small text-muted">
+                    <span>Phân loại hàng</span>
+                    <a asp-controller="VwQuanTri" asp-action="DanhMuc" class="text-decoration-none fw-semibold small text-shopee">
+                        Xem chi tiết <i class="fa-solid fa-arrow-right ms-1"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- TỔNG ĐƠN HÀNG -->
+        <div class="col-12 col-sm-6 col-xl-3">
+            <div class="card-modern card-modern-hover p-3 p-xl-4 h-100 position-relative overflow-hidden stat-card stat-purple">
+                <div class="d-flex align-items-center justify-content-between mb-3">
+                    <span class="text-secondary fw-semibold small text-uppercase letter-spacing-1">Tổng đơn hàng</span>
+                    <div class="stat-icon-wrapper bg-purple-subtle text-purple">
+                        <i class="fa-solid fa-receipt"></i>
+                    </div>
+                </div>
+                <div class="d-flex align-items-baseline gap-2">
+                    <h2 class="fw-bold mb-0 text-primary-emphasis display-6" id="tongDonHang">
+                        @ViewBag.TongDonHang
+                    </h2>
+                    <span class="text-muted small">đơn phát sinh</span>
+                </div>
+                <div class="mt-3 pt-2 border-top border-subtle d-flex align-items-center justify-content-between small text-muted">
+                    <span>Lịch sử đặt hàng</span>
+                    <a asp-controller="VwQuanTri" asp-action="DonHang" class="text-decoration-none fw-semibold small text-purple">
+                        Xem chi tiết <i class="fa-solid fa-arrow-right ms-1"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- TỔNG DOANH THU -->
+        <div class="col-12 col-sm-6 col-xl-3">
+            <div class="card-modern card-modern-hover p-3 p-xl-4 h-100 position-relative overflow-hidden stat-card stat-green">
+                <div class="d-flex align-items-center justify-content-between mb-3">
+                    <span class="text-secondary fw-semibold small text-uppercase letter-spacing-1">Tổng doanh thu</span>
+                    <div class="stat-icon-wrapper bg-green-subtle text-success">
+                        <i class="fa-solid fa-coins"></i>
+                    </div>
+                </div>
+                <div class="d-flex align-items-baseline gap-2">
+                    <h2 class="fw-bold mb-0 text-success fs-3" id="doanhThu">
+                        @(((decimal)ViewBag.DoanhThu).ToString("N0")) đ
+                    </h2>
+                </div>
+                <div class="mt-3 pt-2 border-top border-subtle d-flex align-items-center justify-content-between small text-muted">
+                    <span>Doanh số hệ thống</span>
+                    <span class="badge-modern badge-status-approved">
+                        <i class="fa-solid fa-arrow-trend-up"></i> Tăng trưởng
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- TOP SẢN PHẨM BÁN CHẠY -->
+    <div class="card-modern mb-4">
+        <div class="card-modern-header d-flex flex-wrap justify-content-between align-items-center gap-2">
+            <div class="d-flex align-items-center gap-2">
+                <span class="p-2 rounded-circle bg-orange-subtle text-shopee d-inline-flex align-items-center justify-content-center" style="width: 32px; height: 32px;">
+                    <i class="fa-solid fa-fire"></i>
+                </span>
+                <div>
+                    <h5 class="mb-0 fw-bold">Top sản phẩm bán chạy</h5>
+                    <small class="text-muted">Các mặt hàng được khách hàng đặt mua nhiều nhất</small>
+                </div>
+            </div>
+            <span class="badge-modern badge-status-approved">
+                <i class="fa-solid fa-chart-simple"></i> Bán chạy nhất
+            </span>
+        </div>
+
+        <div class="table-modern-wrapper border-0 rounded-0">
+            <table class="table-modern w-100">
+                <thead>
+                    <tr>
+                        <th style="width: 80px;" class="text-center">Thứ hạng</th>
+                        <th>Sản phẩm</th>
+                        <th style="width: 280px;">Tiến độ doanh số</th>
+                        <th style="width: 140px;" class="text-end">Tổng đã bán</th>
+                    </tr>
+                </thead>
+                <tbody id="topSanPhamBody">
+                    @{
+                        int index = 0;
+                    }
+                    @foreach (var item in topSanPhamList)
+                    {
+                        index++;
+                        int tongBan = (int)item.TongBan;
+                        int percent = maxBan > 0 ? (int)Math.Round((double)tongBan / maxBan * 100) : 0;
+                        string rankClass = index switch
+                        {
+                            1 => "rank-gold",
+                            2 => "rank-silver",
+                            3 => "rank-bronze",
+                            _ => "rank-default"
+                        };
+                        <tr>
+                            <td class="text-center">
+                                <span class="rank-badge @rankClass">#@index</span>
+                            </td>
+                            <td>
+                                <div class="d-flex align-items-center gap-3">
+                                    <div class="product-thumb-placeholder rounded bg-surface-sunken d-flex align-items-center justify-content-center text-muted">
+                                        <i class="fa-solid fa-box-open"></i>
+                                    </div>
+                                    <span class="fw-semibold text-primary-emphasis">@item.TenSanPham</span>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="d-flex align-items-center gap-2">
+                                    <div class="progress flex-grow-1" style="height: 8px; background-color: var(--border-subtle); border-radius: var(--radius-pill);">
+                                        <div class="progress-bar" role="progressbar" style="width: @percent%; background: var(--shopee-gradient); border-radius: var(--radius-pill);" aria-valuenow="@percent" aria-valuemin="0" aria-valuemax="100"></div>
+                                    </div>
+                                    <small class="text-muted fw-semibold" style="min-width: 38px;">@percent%</small>
+                                </div>
+                            </td>
+                            <td class="text-end">
+                                <span class="fw-bold text-shopee">@tongBan.ToString("N0")</span>
+                                <span class="text-muted small">đã bán</span>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
 </div>
 
-<script>
-
-    async function loadDashboard() {
-
-        let response =
-            await fetch('/VwQuanTri/GetDashboardData');
-
-        let result = await response.json();
-
-        document.getElementById("tongSanPham")
-            .innerText = result.tongSanPham;
-
-        document.getElementById("tongDanhMuc")
-            .innerText = result.tongDanhMuc;
-
-        document.getElementById("tongDonHang")
-            .innerText = result.tongDonHang;
-
-        document.getElementById("doanhThu")
-            .innerText =
-            Number(result.doanhThu).toLocaleString('vi-VN') + ' đ';
-
-        let html = "";
-
-        result.topSanPham.forEach(item => {
-
-            html += `
-                <tr>
-
-                    <td>
-                        ${item.tenSanPham}
-                    </td>
-
-                    <td>
-                        ${item.tongBan}
-                    </td>
-
-                </tr>
-            `;
-
-        });
-
-        document.getElementById("topSanPhamBody")
-            .innerHTML = html;
-
+<style>
+    .letter-spacing-1 {
+        letter-spacing: 0.5px;
     }
+    .text-shopee {
+        color: var(--shopee-orange) !important;
+    }
+    .text-purple {
+        color: #8b5cf6 !important;
+    }
+    .bg-blue-subtle {
+        background-color: rgba(59, 130, 246, 0.12);
+    }
+    .bg-orange-subtle {
+        background-color: var(--shopee-orange-light);
+    }
+    .bg-purple-subtle {
+        background-color: rgba(139, 92, 246, 0.12);
+    }
+    .bg-green-subtle {
+        background-color: var(--color-success-bg);
+    }
+    .stat-card {
+        border-left: 4px solid transparent;
+        transition: all var(--transition-normal);
+    }
+    .stat-blue {
+        border-left-color: #3b82f6;
+    }
+    .stat-orange {
+        border-left-color: var(--shopee-orange);
+    }
+    .stat-purple {
+        border-left-color: #8b5cf6;
+    }
+    .stat-green {
+        border-left-color: var(--color-success);
+    }
+    .stat-icon-wrapper {
+        width: 44px;
+        height: 44px;
+        border-radius: var(--radius-md);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.25rem;
+    }
+    .product-thumb-placeholder {
+        width: 40px;
+        height: 40px;
+        flex-shrink: 0;
+        font-size: 1.1rem;
+    }
+    .rank-badge {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 32px;
+        height: 32px;
+        border-radius: var(--radius-pill);
+        font-size: 0.8125rem;
+        font-weight: 700;
+    }
+    .rank-gold {
+        background: linear-gradient(135deg, #f59e0b, #d97706);
+        color: #ffffff;
+        box-shadow: 0 2px 8px rgba(245, 158, 11, 0.4);
+    }
+    .rank-silver {
+        background: linear-gradient(135deg, #9ca3af, #6b7280);
+        color: #ffffff;
+    }
+    .rank-bronze {
+        background: linear-gradient(135deg, #b45309, #78350f);
+        color: #ffffff;
+    }
+    .rank-default {
+        background: var(--bg-surface-sunken);
+        color: var(--text-secondary);
+        border: 1px solid var(--border-default);
+    }
+</style>
 
+<script>
+    async function loadDashboard() {
+        const reloadBtn = document.getElementById("btnReloadDashboard");
+        const reloadIcon = document.getElementById("reloadIcon");
+        
+        try {
+            if (reloadBtn) reloadBtn.disabled = true;
+            if (reloadIcon) reloadIcon.classList.add("fa-spin");
+
+            let response = await fetch('/VwQuanTri/GetDashboardData');
+            if (!response.ok) throw new Error("HTTP " + response.status);
+
+            let result = await response.json();
+
+            // Cập nhật các chỉ số chính (CONTRACT ID giữ nguyên)
+            document.getElementById("tongSanPham").innerText = result.tongSanPham;
+            document.getElementById("tongDanhMuc").innerText = result.tongDanhMuc;
+            document.getElementById("tongDonHang").innerText = result.tongDonHang;
+            document.getElementById("doanhThu").innerText = Number(result.doanhThu).toLocaleString('vi-VN') + ' đ';
+
+            // Tính max để vẽ progress bar
+            let maxBan = 1;
+            if (result.topSanPham && result.topSanPham.length > 0) {
+                result.topSanPham.forEach(item => {
+                    if (item.tongBan > maxBan) maxBan = item.tongBan;
+                });
+            }
+
+            let html = "";
+            let rank = 0;
+            result.topSanPham.forEach(item => {
+                rank++;
+                let percent = maxBan > 0 ? Math.round((item.tongBan / maxBan) * 100) : 0;
+                let rankClass = rank === 1 ? 'rank-gold' : rank === 2 ? 'rank-silver' : rank === 3 ? 'rank-bronze' : 'rank-default';
+                
+                html += `
+                    <tr>
+                        <td class="text-center">
+                            <span class="rank-badge ${rankClass}">#${rank}</span>
+                        </td>
+                        <td>
+                            <div class="d-flex align-items-center gap-3">
+                                <div class="product-thumb-placeholder rounded bg-surface-sunken d-flex align-items-center justify-content-center text-muted">
+                                    <i class="fa-solid fa-box-open"></i>
+                                </div>
+                                <span class="fw-semibold text-primary-emphasis">${item.tenSanPham}</span>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="d-flex align-items-center gap-2">
+                                <div class="progress flex-grow-1" style="height: 8px; background-color: var(--border-subtle); border-radius: var(--radius-pill);">
+                                    <div class="progress-bar" role="progressbar" style="width: ${percent}%; background: var(--shopee-gradient); border-radius: var(--radius-pill);" aria-valuenow="${percent}" aria-valuemin="0" aria-valuemax="100"></div>
+                                </div>
+                                <small class="text-muted fw-semibold" style="min-width: 38px;">${percent}%</small>
+                            </div>
+                        </td>
+                        <td class="text-end">
+                            <span class="fw-bold text-shopee">${Number(item.tongBan).toLocaleString('vi-VN')}</span>
+                            <span class="text-muted small">đã bán</span>
+                        </td>
+                    </tr>
+                `;
+            });
+
+            document.getElementById("topSanPhamBody").innerHTML = html;
+
+            if (window.toast) {
+                window.toast.success('Đã cập nhật số liệu mới nhất!');
+            }
+        } catch (err) {
+            console.error("Lỗi khi tải dữ liệu dashboard:", err);
+            if (window.toast) {
+                window.toast.error('Không thể cập nhật số liệu: ' + err.message);
+            }
+        } finally {
+            if (reloadBtn) reloadBtn.disabled = false;
+            if (reloadIcon) reloadIcon.classList.remove("fa-spin");
+        }
+    }
 </script>

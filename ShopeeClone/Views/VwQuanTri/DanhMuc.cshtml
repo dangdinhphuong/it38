@@ -1,428 +1,550 @@
-﻿@model List<ShopeeClone.Models.Model_DB.DanhMuc>
+@model List<ShopeeClone.Models.Model_DB.DanhMuc>
 
 @{
     Layout = "~/Views/Shared/_AdminLayout.cshtml";
     ViewData["Title"] = "Quản lý danh mục";
 }
 
-<link rel="stylesheet" href="~/css/admin.css" />
-
-<div class="admin-wrapper">
-
-    <div class="content-area">
-
-        <div class="d-flex justify-content-between align-items-center mb-4">
-
-            <h2>Quản lý danh mục</h2>
-
-            <button class="btn btn-admin"
-                    data-bs-toggle="modal"
-                    data-bs-target="#modalThem">
-
-                + Thêm danh mục
-
-            </button>
-
+<div class="admin-danhmuc-page">
+    <!-- PAGE HEADER -->
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3 mb-4">
+        <div>
+            <h2 class="mb-1 fw-bold text-primary-emphasis d-flex align-items-center gap-2">
+                <i class="fa-solid fa-layer-group text-shopee"></i>
+                <span>Quản Lý Danh Mục</span>
+            </h2>
+            <p class="text-muted mb-0 small">Phân loại các nhóm ngành hàng giúp người mua dễ dàng tìm kiếm và mua sắm.</p>
         </div>
-
-        <table class="table table-bordered align-middle">
-
-            <thead>
-
-                <tr>
-
-                    <th>ID</th>
-
-                    <th>Ảnh</th>
-
-                    <th>Tên danh mục</th>
-
-                    <th width="180">
-                        Chức năng
-                    </th>
-
-                </tr>
-
-            </thead>
-
-            <tbody id="tableDanhMuc">
-
-                @foreach (var item in Model)
-                {
-                    <tr id="row_@item.MaDanhMuc">
-
-                        <td>
-                            @item.MaDanhMuc
-                        </td>
-
-                        <td>
-
-                            @if (!string.IsNullOrEmpty(item.HinhAnh))
-                            {
-                                <img src="@item.HinhAnh"
-                                     width="70"
-                                     class="img-thumbnail" />
-                            }
-                            else
-                            {
-                                <span class="text-muted">
-                                    Chưa có ảnh
-                                </span>
-                            }
-
-                        </td>
-
-                        <td>
-                            @item.TenDanhMuc
-                        </td>
-
-                        <td>
-
-                            <button class="btn btn-warning btn-sm"
-                                    data-bs-toggle="modal"
-                                    data-bs-target="#edit_@item.MaDanhMuc">
-
-                                Sửa
-
-                            </button>
-
-                            <button class="btn btn-danger btn-sm"
-                                    onclick="xoaDanhMuc(@item.MaDanhMuc)">
-
-                                Xóa
-
-                            </button>
-
-                        </td>
-
-                    </tr>
-                }
-
-            </tbody>
-
-        </table>
-
+        <button class="btn-shopee btn-shopee-sm shadow-sm"
+                data-bs-toggle="modal"
+                data-bs-target="#modalThem">
+            <i class="fa-solid fa-circle-plus"></i>
+            <span>Thêm danh mục</span>
+        </button>
     </div>
 
+    <!-- MAIN CARD TABLE -->
+    <div class="card-modern">
+        <div class="card-modern-header d-flex justify-content-between align-items-center">
+            <div class="d-flex align-items-center gap-2">
+                <i class="fa-solid fa-list-check text-shopee"></i>
+                <h5 class="mb-0 fw-bold">Danh sách ngành hàng</h5>
+            </div>
+            <span class="badge-modern badge-status-approved">
+                Tổng cộng: <strong id="danhmuc-count" class="ms-1">@Model.Count</strong> danh mục
+            </span>
+        </div>
+
+        <div class="table-modern-wrapper border-0 rounded-0">
+            <table class="table-modern w-100">
+                <thead>
+                    <tr>
+                        <th style="width: 80px;" class="text-center">ID</th>
+                        <th style="width: 120px;" class="text-center">Hình ảnh</th>
+                        <th>Tên ngành hàng</th>
+                        <th style="width: 180px;" class="text-end">Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody id="tableDanhMuc">
+                    @foreach (var item in Model)
+                    {
+                        <tr id="row_@item.MaDanhMuc">
+                            <td class="text-center">
+                                <span class="badge-modern badge-status-pending font-monospace">#@item.MaDanhMuc</span>
+                            </td>
+                            <td class="text-center">
+                                @if (!string.IsNullOrEmpty(item.HinhAnh))
+                                {
+                                    <div class="dm-thumb-wrapper mx-auto">
+                                        <img src="@item.HinhAnh" alt="@item.TenDanhMuc" class="dm-thumb" />
+                                    </div>
+                                }
+                                else
+                                {
+                                    <div class="dm-thumb-wrapper dm-thumb-placeholder mx-auto">
+                                        <i class="fa-solid fa-image text-muted"></i>
+                                    </div>
+                                }
+                            </td>
+                            <td>
+                                <span class="fw-semibold text-primary-emphasis fs-6">@item.TenDanhMuc</span>
+                            </td>
+                            <td class="text-end">
+                                <div class="d-inline-flex gap-2">
+                                    <button type="button"
+                                            class="btn btn-sm btn-outline-primary rounded-pill px-3 d-inline-flex align-items-center gap-1"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#edit_@item.MaDanhMuc"
+                                            title="Chỉnh sửa danh mục">
+                                        <i class="fa-solid fa-pen-to-square"></i>
+                                        <span>Sửa</span>
+                                    </button>
+                                    <button type="button"
+                                            class="btn btn-sm btn-outline-danger rounded-pill px-3 d-inline-flex align-items-center gap-1"
+                                            onclick="xoaDanhMuc(@item.MaDanhMuc)"
+                                            title="Xóa danh mục này">
+                                        <i class="fa-solid fa-trash-can"></i>
+                                        <span>Xóa</span>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
 </div>
 
-<!-- MODAL EDIT -->
-@foreach (var item in Model)
-{
-    <div class="modal fade"
-         id="edit_@item.MaDanhMuc"
-         tabindex="-1">
+<!-- CONTAINER CHO CÁC MODAL SỬA -->
+<div id="editModalsContainer">
+    @foreach (var item in Model)
+    {
+        <div class="modal fade"
+             id="edit_@item.MaDanhMuc"
+             tabindex="-1"
+             aria-labelledby="labelEdit_@item.MaDanhMuc"
+             aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content border-0 shadow-lg" style="background-color: var(--bg-surface); border-radius: var(--radius-md);">
+                    <form class="formSuaDanhMuc" enctype="multipart/form-data">
+                        <div class="modal-header border-bottom" style="border-color: var(--border-subtle) !important;">
+                            <h5 class="modal-title fw-bold d-flex align-items-center gap-2" id="labelEdit_@item.MaDanhMuc">
+                                <i class="fa-solid fa-pen-to-square text-shopee"></i>
+                                <span>Chỉnh sửa danh mục #@item.MaDanhMuc</span>
+                            </h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
+                        </div>
+                        <div class="modal-body p-4">
+                            <input type="hidden" name="MaDanhMuc" value="@item.MaDanhMuc" />
+                            <input type="hidden" name="HinhAnh" value="@item.HinhAnh" />
 
-        <div class="modal-dialog">
-
-            <div class="modal-content">
-
-                <form class="formSuaDanhMuc"
-                      enctype="multipart/form-data">
-
-                    <div class="modal-header">
-
-                        <h5>
-                            Sửa danh mục
-                        </h5>
-
-                        <button type="button"
-                                class="btn-close"
-                                data-bs-dismiss="modal">
-                        </button>
-
-                    </div>
-
-                    <div class="modal-body">
-
-                        <input type="hidden"
-                               name="MaDanhMuc"
-                               value="@item.MaDanhMuc" />
-
-                        <input type="hidden"
-                               name="HinhAnh"
-                               value="@item.HinhAnh" />
-
-                        <input class="form-control mb-3"
-                               name="TenDanhMuc"
-                               value="@item.TenDanhMuc" />
-
-                        @if (!string.IsNullOrEmpty(item.HinhAnh))
-                        {
-                            <div class="mb-3 text-center">
-
-                                <img src="@item.HinhAnh"
-                                     width="120"
-                                     class="img-thumbnail" />
-
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold small text-secondary">Tên danh mục <span class="text-danger">*</span></label>
+                                <input type="text"
+                                       class="form-control-modern"
+                                       name="TenDanhMuc"
+                                       value="@item.TenDanhMuc"
+                                       required
+                                       placeholder="Ví dụ: Thời trang nam, Thiết bị điện tử..." />
                             </div>
-                        }
 
-                        <input class="form-control"
-                               type="file"
-                               name="fileAnh" />
-
-                    </div>
-
-                    <div class="modal-footer">
-
-                        <button type="submit"
-                                class="btn btn-success">
-
-                            Lưu
-
-                        </button>
-
-                    </div>
-
-                </form>
-
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold small text-secondary">Hình ảnh đại diện</label>
+                                <div class="edit-preview-box text-center p-3 mb-2 rounded bg-surface-sunken border border-subtle">
+                                    @if (!string.IsNullOrEmpty(item.HinhAnh))
+                                    {
+                                        <img src="@item.HinhAnh"
+                                             class="img-preview-edit"
+                                             style="max-height: 120px; max-width: 100%; object-fit: contain; border-radius: var(--radius-sm);" />
+                                    }
+                                    else
+                                    {
+                                        <div class="no-img-text text-muted py-3">
+                                            <i class="fa-solid fa-image fa-2x mb-2 d-block"></i>
+                                            <span>Chưa có ảnh danh mục</span>
+                                        </div>
+                                    }
+                                </div>
+                                <input class="form-control-modern input-file-edit"
+                                       type="file"
+                                       name="fileAnh"
+                                       accept="image/*" />
+                                <small class="text-muted d-block mt-1">Chọn ảnh mới để thay thế ảnh cũ (JPG, PNG, WebP)</small>
+                            </div>
+                        </div>
+                        <div class="modal-footer border-top bg-surface-sunken" style="border-color: var(--border-subtle) !important;">
+                            <button type="button" class="btn-shopee-secondary btn-shopee-sm" data-bs-dismiss="modal">Hủy bỏ</button>
+                            <button type="submit" class="btn-shopee btn-shopee-sm">
+                                <i class="fa-solid fa-floppy-disk"></i>
+                                <span>Lưu thay đổi</span>
+                            </button>
+                        </div>
+                    </form>
+                </div>
             </div>
-
         </div>
-
-    </div>
-}
+    }
+</div>
 
 <!-- MODAL THÊM -->
 <div class="modal fade"
      id="modalThem"
-     tabindex="-1">
-
-    <div class="modal-dialog">
-
-        <div class="modal-content">
-
-            <form id="formThemDanhMuc"
-                  enctype="multipart/form-data">
-
-                <div class="modal-header">
-
-                    <h5>
-                        Thêm danh mục
+     tabindex="-1"
+     aria-labelledby="modalThemLabel"
+     aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg" style="background-color: var(--bg-surface); border-radius: var(--radius-md);">
+            <form id="formThemDanhMuc" enctype="multipart/form-data">
+                <div class="modal-header border-bottom" style="border-color: var(--border-subtle) !important;">
+                    <h5 class="modal-title fw-bold d-flex align-items-center gap-2" id="modalThemLabel">
+                        <i class="fa-solid fa-circle-plus text-shopee"></i>
+                        <span>Thêm ngành hàng mới</span>
                     </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold small text-secondary">Tên danh mục <span class="text-danger">*</span></label>
+                        <input class="form-control-modern"
+                               name="TenDanhMuc"
+                               required
+                               placeholder="Nhập tên ngành hàng..." />
+                    </div>
 
-                    <button type="button"
-                            class="btn-close"
-                            data-bs-dismiss="modal">
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold small text-secondary">Hình ảnh đại diện</label>
+                        <div id="them-preview-box" class="text-center p-3 mb-2 rounded bg-surface-sunken border border-subtle d-none">
+                            <img id="them-preview-img" style="max-height: 120px; max-width: 100%; object-fit: contain; border-radius: var(--radius-sm);" />
+                        </div>
+                        <input class="form-control-modern"
+                               type="file"
+                               name="fileAnh"
+                               id="themFileAnh"
+                               accept="image/*" />
+                        <small class="text-muted d-block mt-1">Định dạng hỗ trợ: JPG, PNG, WebP</small>
+                    </div>
+                </div>
+                <div class="modal-footer border-top bg-surface-sunken" style="border-color: var(--border-subtle) !important;">
+                    <button type="button" class="btn-shopee-secondary btn-shopee-sm" data-bs-dismiss="modal">Hủy bỏ</button>
+                    <button type="submit" class="btn-shopee btn-shopee-sm">
+                        <i class="fa-solid fa-plus"></i>
+                        <span>Thêm danh mục</span>
                     </button>
-
                 </div>
-
-                <div class="modal-body">
-
-                    <input class="form-control mb-3"
-                           name="TenDanhMuc"
-                           placeholder="Tên danh mục" />
-
-                    <input class="form-control"
-                           type="file"
-                           name="fileAnh" />
-
-                </div>
-
-                <div class="modal-footer">
-
-                    <button type="submit"
-                            class="btn btn-primary">
-
-                        Thêm
-
-                    </button>
-
-                </div>
-
             </form>
-
         </div>
-
     </div>
-
 </div>
 
+<style>
+    .text-shopee {
+        color: var(--shopee-orange) !important;
+    }
+    .dm-thumb-wrapper {
+        width: 56px;
+        height: 56px;
+        border-radius: var(--radius-sm);
+        overflow: hidden;
+        background-color: var(--bg-surface-sunken);
+        border: 1px solid var(--border-default);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: transform var(--transition-fast);
+    }
+    .dm-thumb-wrapper:hover {
+        transform: scale(1.08);
+    }
+    .dm-thumb {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+    .dm-thumb-placeholder {
+        font-size: 1.5rem;
+    }
+    .bg-surface-sunken {
+        background-color: var(--bg-surface-sunken);
+    }
+</style>
+
 <script>
+    // PREVIEW ẢNH TRONG FORM THÊM
+    const themFileInput = document.getElementById("themFileAnh");
+    const themPreviewBox = document.getElementById("them-preview-box");
+    const themPreviewImg = document.getElementById("them-preview-img");
 
-    // THÊM DANH MỤC
-    document.getElementById("formThemDanhMuc")
-        .addEventListener("submit", async function (e) {
-
-            e.preventDefault();
-
-            let formData = new FormData(this);
-
-            let response = await fetch('/VwQuanTri/ThemDanhMuc', {
-                method: 'POST',
-                body: formData
-            });
-
-            let result = await response.json();
-
-            if (result.success) {
-
-                let dm = result.data;
-
-                let html = `
-                    <tr id="row_${dm.maDanhMuc}">
-
-                        <td>
-                            ${dm.maDanhMuc}
-                        </td>
-
-                        <td>
-
-                            <img src="${dm.hinhAnh}"
-                                 width="70"
-                                 class="img-thumbnail" />
-
-                        </td>
-
-                        <td>
-                            ${dm.tenDanhMuc}
-                        </td>
-
-                        <td>
-
-                            <button class="btn btn-warning btn-sm"
-                                    data-bs-toggle="modal"
-                                    data-bs-target="#edit_${dm.maDanhMuc}">
-
-                                Sửa
-
-                            </button>
-
-                            <button class="btn btn-danger btn-sm"
-                                    onclick="xoaDanhMuc(${dm.maDanhMuc})">
-
-                                Xóa
-
-                            </button>
-
-                        </td>
-
-                    </tr>
-                `;
-
-                document.getElementById("tableDanhMuc")
-                    .insertAdjacentHTML("beforeend", html);
-
-                bootstrap.Modal.getInstance(
-                    document.getElementById('modalThem')
-                ).hide();
-
-                document.getElementById("formThemDanhMuc")
-                    .reset();
-
+    if (themFileInput) {
+        themFileInput.addEventListener("change", function () {
+            const file = this.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    themPreviewImg.src = e.target.result;
+                    themPreviewBox.classList.remove("d-none");
+                };
+                reader.readAsDataURL(file);
             } else {
-
-                alert(result.message);
-
+                themPreviewBox.classList.add("d-none");
             }
-
         });
+    }
 
-    // SỬA DANH MỤC
-    document.querySelectorAll(".formSuaDanhMuc")
-        .forEach(form => {
+    // PREVIEW ẢNH TRONG FORM SỬA (EVENT DELEGATION)
+    document.addEventListener("change", function(e) {
+        if (e.target && e.target.classList.contains("input-file-edit")) {
+            const input = e.target;
+            const file = input.files[0];
+            const modal = input.closest(".modal");
+            if (file && modal) {
+                const previewImg = modal.querySelector(".img-preview-edit");
+                const previewBox = modal.querySelector(".edit-preview-box");
+                const reader = new FileReader();
+                reader.onload = function(evt) {
+                    if (previewImg) {
+                        previewImg.src = evt.target.result;
+                    } else if (previewBox) {
+                        previewBox.innerHTML = `<img src="${evt.target.result}" class="img-preview-edit" style="max-height: 120px; max-width: 100%; object-fit: contain; border-radius: var(--radius-sm);" />`;
+                    }
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+    });
 
-            form.addEventListener("submit", async function (e) {
+    // TẠO DÒNG BẢNG DANH MỤC HTML
+    function createCategoryRowHtml(dm) {
+        const imgHtml = dm.hinhAnh 
+            ? `<div class="dm-thumb-wrapper mx-auto"><img src="${dm.hinhAnh}" alt="${dm.tenDanhMuc}" class="dm-thumb" /></div>`
+            : `<div class="dm-thumb-wrapper dm-thumb-placeholder mx-auto"><i class="fa-solid fa-image text-muted"></i></div>`;
 
-                e.preventDefault();
+        return `
+            <tr id="row_${dm.maDanhMuc}">
+                <td class="text-center">
+                    <span class="badge-modern badge-status-pending font-monospace">#${dm.maDanhMuc}</span>
+                </td>
+                <td class="text-center">
+                    ${imgHtml}
+                </td>
+                <td>
+                    <span class="fw-semibold text-primary-emphasis fs-6">${dm.tenDanhMuc}</span>
+                </td>
+                <td class="text-end">
+                    <div class="d-inline-flex gap-2">
+                        <button type="button"
+                                class="btn btn-sm btn-outline-primary rounded-pill px-3 d-inline-flex align-items-center gap-1"
+                                data-bs-toggle="modal"
+                                data-bs-target="#edit_${dm.maDanhMuc}"
+                                title="Chỉnh sửa danh mục">
+                            <i class="fa-solid fa-pen-to-square"></i>
+                            <span>Sửa</span>
+                        </button>
+                        <button type="button"
+                                class="btn btn-sm btn-outline-danger rounded-pill px-3 d-inline-flex align-items-center gap-1"
+                                onclick="xoaDanhMuc(${dm.maDanhMuc})"
+                                title="Xóa danh mục này">
+                            <i class="fa-solid fa-trash-can"></i>
+                            <span>Xóa</span>
+                        </button>
+                    </div>
+                </td>
+            </tr>
+        `;
+    }
+
+    // TẠO MODAL SỬA HTML ĐỘNG KHI THÊM DANH MỤC
+    function createCategoryEditModalHtml(dm) {
+        return `
+            <div class="modal fade"
+                 id="edit_${dm.maDanhMuc}"
+                 tabindex="-1"
+                 aria-labelledby="labelEdit_${dm.maDanhMuc}"
+                 aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content border-0 shadow-lg" style="background-color: var(--bg-surface); border-radius: var(--radius-md);">
+                        <form class="formSuaDanhMuc" enctype="multipart/form-data">
+                            <div class="modal-header border-bottom" style="border-color: var(--border-subtle) !important;">
+                                <h5 class="modal-title fw-bold d-flex align-items-center gap-2" id="labelEdit_${dm.maDanhMuc}">
+                                    <i class="fa-solid fa-pen-to-square text-shopee"></i>
+                                    <span>Chỉnh sửa danh mục #${dm.maDanhMuc}</span>
+                                </h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
+                            </div>
+                            <div class="modal-body p-4">
+                                <input type="hidden" name="MaDanhMuc" value="${dm.maDanhMuc}" />
+                                <input type="hidden" name="HinhAnh" value="${dm.hinhAnh || ''}" />
+
+                                <div class="mb-3">
+                                    <label class="form-label fw-semibold small text-secondary">Tên danh mục <span class="text-danger">*</span></label>
+                                    <input type="text"
+                                           class="form-control-modern"
+                                           name="TenDanhMuc"
+                                           value="${dm.tenDanhMuc}"
+                                           required
+                                           placeholder="Ví dụ: Thời trang nam, Thiết bị điện tử..." />
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label fw-semibold small text-secondary">Hình ảnh đại diện</label>
+                                    <div class="edit-preview-box text-center p-3 mb-2 rounded bg-surface-sunken border border-subtle">
+                                        ${dm.hinhAnh ? `<img src="${dm.hinhAnh}" class="img-preview-edit" style="max-height: 120px; max-width: 100%; object-fit: contain; border-radius: var(--radius-sm);" />` : `<div class="no-img-text text-muted py-3"><i class="fa-solid fa-image fa-2x mb-2 d-block"></i><span>Chưa có ảnh danh mục</span></div>`}
+                                    </div>
+                                    <input class="form-control-modern input-file-edit"
+                                           type="file"
+                                           name="fileAnh"
+                                           accept="image/*" />
+                                    <small class="text-muted d-block mt-1">Chọn ảnh mới để thay thế ảnh cũ (JPG, PNG, WebP)</small>
+                                </div>
+                            </div>
+                            <div class="modal-footer border-top bg-surface-sunken" style="border-color: var(--border-subtle) !important;">
+                                <button type="button" class="btn-shopee-secondary btn-shopee-sm" data-bs-dismiss="modal">Hủy bỏ</button>
+                                <button type="submit" class="btn-shopee btn-shopee-sm">
+                                    <i class="fa-solid fa-floppy-disk"></i>
+                                    <span>Lưu thay đổi</span>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
+    // GẮN SỰ KIỆN SUBMIT CHO FORM SỬA
+    function bindEditForm(form) {
+        form.addEventListener("submit", async function (e) {
+            e.preventDefault();
+            const submitBtn = form.querySelector('button[type="submit"]');
+            try {
+                if (submitBtn) submitBtn.disabled = true;
 
                 let formData = new FormData(this);
-
                 let response = await fetch('/VwQuanTri/SuaDanhMuc', {
                     method: 'POST',
                     body: formData
                 });
 
                 let result = await response.json();
-
                 if (result.success) {
-
                     let dm = result.data;
+                    let row = document.getElementById("row_" + dm.maDanhMuc);
+                    if (row) {
+                        row.outerHTML = createCategoryRowHtml(dm);
+                    }
 
-                    let row =
-                        document.getElementById(
-                            "row_" + dm.maDanhMuc
-                        );
+                    // Đóng modal sửa
+                    const modalEl = form.closest('.modal');
+                    const modalInstance = bootstrap.Modal.getInstance(modalEl);
+                    if (modalInstance) modalInstance.hide();
 
-                    row.innerHTML = `
-                        <td>
-                            ${dm.maDanhMuc}
-                        </td>
-
-                        <td>
-
-                            <img src="${dm.hinhAnh}"
-                                 width="70"
-                                 class="img-thumbnail" />
-
-                        </td>
-
-                        <td>
-                            ${dm.tenDanhMuc}
-                        </td>
-
-                        <td>
-
-                            <button class="btn btn-warning btn-sm"
-                                    data-bs-toggle="modal"
-                                    data-bs-target="#edit_${dm.maDanhMuc}">
-
-                                Sửa
-
-                            </button>
-
-                            <button class="btn btn-danger btn-sm"
-                                    onclick="xoaDanhMuc(${dm.maDanhMuc})">
-
-                                Xóa
-
-                            </button>
-
-                        </td>
-                    `;
-
-                    bootstrap.Modal.getInstance(
-                        form.closest('.modal')
-                    ).hide();
-
+                    if (window.toast) {
+                        window.toast.success(`Cập nhật danh mục "${dm.tenDanhMuc}" thành công!`);
+                    }
                 } else {
-
-                    alert(result.message);
-
+                    if (window.toast) {
+                        window.toast.error(result.message || 'Lỗi cập nhật danh mục');
+                    } else {
+                        alert(result.message);
+                    }
                 }
+            } catch (err) {
+                console.error(err);
+                if (window.toast) window.toast.error('Lỗi kết nối khi sửa danh mục');
+            } finally {
+                if (submitBtn) submitBtn.disabled = false;
+            }
+        });
+    }
 
+    // Gắn cho các form sửa sẵn có
+    document.querySelectorAll(".formSuaDanhMuc").forEach(bindEditForm);
+
+    // THÊM DANH MỤC
+    document.getElementById("formThemDanhMuc").addEventListener("submit", async function (e) {
+        e.preventDefault();
+        const submitBtn = this.querySelector('button[type="submit"]');
+
+        try {
+            if (submitBtn) submitBtn.disabled = true;
+
+            let formData = new FormData(this);
+            let response = await fetch('/VwQuanTri/ThemDanhMuc', {
+                method: 'POST',
+                body: formData
             });
 
-        });
+            let result = await response.json();
+            if (result.success) {
+                let dm = result.data;
+
+                // Thêm hàng vào bảng
+                const tableBody = document.getElementById("tableDanhMuc");
+                tableBody.insertAdjacentHTML("beforeend", createCategoryRowHtml(dm));
+
+                // Tạo modal sửa cho danh mục mới và gắn event
+                const editModalsContainer = document.getElementById("editModalsContainer");
+                editModalsContainer.insertAdjacentHTML("beforeend", createCategoryEditModalHtml(dm));
+                const newEditModal = document.getElementById("edit_" + dm.maDanhMuc);
+                if (newEditModal) {
+                    const newForm = newEditModal.querySelector(".formSuaDanhMuc");
+                    if (newForm) bindEditForm(newForm);
+                }
+
+                // Cập nhật số lượng
+                const countBadge = document.getElementById("danhmuc-count");
+                if (countBadge) {
+                    let current = parseInt(countBadge.innerText) || 0;
+                    countBadge.innerText = current + 1;
+                }
+
+                // Đóng modal thêm và reset form
+                const modalThemEl = document.getElementById('modalThem');
+                const modalThemInstance = bootstrap.Modal.getInstance(modalThemEl);
+                if (modalThemInstance) modalThemInstance.hide();
+
+                this.reset();
+                if (themPreviewBox) themPreviewBox.classList.add("d-none");
+
+                if (window.toast) {
+                    window.toast.success(`Đã thêm danh mục "${dm.tenDanhMuc}" thành công!`);
+                }
+            } else {
+                if (window.toast) {
+                    window.toast.error(result.message || 'Lỗi thêm danh mục');
+                } else {
+                    alert(result.message);
+                }
+            }
+        } catch (err) {
+            console.error(err);
+            if (window.toast) window.toast.error('Lỗi kết nối khi thêm danh mục');
+        } finally {
+            if (submitBtn) submitBtn.disabled = false;
+        }
+    });
 
     // XÓA DANH MỤC
     async function xoaDanhMuc(id) {
-
-        if (!confirm('Bạn có chắc chắn muốn xóa danh mục?'))
+        if (!confirm('Bạn có chắc chắn muốn xóa danh mục này?'))
             return;
 
-        let response =
-            await fetch('/VwQuanTri/XoaDanhMuc/' + id, {
-
+        try {
+            let response = await fetch('/VwQuanTri/XoaDanhMuc/' + id, {
                 method: 'POST'
-
             });
 
-        let result = await response.json();
+            let result = await response.json();
+            if (result.success) {
+                const row = document.getElementById("row_" + id);
+                if (row) {
+                    row.remove();
+                }
 
-        if (result.success) {
+                // Xóa modal edit
+                const editModal = document.getElementById("edit_" + id);
+                if (editModal) editModal.remove();
 
-            document.getElementById("row_" + id)
-                .remove();
+                // Cập nhật số lượng
+                const countBadge = document.getElementById("danhmuc-count");
+                if (countBadge) {
+                    let current = parseInt(countBadge.innerText) || 1;
+                    countBadge.innerText = Math.max(0, current - 1);
+                }
 
-        } else {
-
-            alert(result.message);
-
+                if (window.toast) {
+                    window.toast.success('Đã xóa danh mục thành công!');
+                }
+            } else {
+                if (window.toast) {
+                    window.toast.error(result.message || 'Không thể xóa danh mục này');
+                } else {
+                    alert(result.message);
+                }
+            }
+        } catch (err) {
+            console.error(err);
+            if (window.toast) window.toast.error('Lỗi kết nối khi xóa danh mục');
         }
-
     }
-
 </script>
