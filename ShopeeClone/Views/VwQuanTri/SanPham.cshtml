@@ -1,4 +1,4 @@
-﻿@model List<ShopeeClone.Models.Model_DB.SanPham>
+@model List<ShopeeClone.Models.Model_DB.SanPham>
 
 @using ShopeeClone.Models
 @using static ShopeeClone.Models.Model_DB
@@ -7,530 +7,833 @@
     Layout = "~/Views/Shared/_AdminLayout.cshtml";
     ViewData["Title"] = "Quản lý sản phẩm";
 
-    var dsDanhMuc =
-        ViewBag.DanhMuc as List<DanhMuc>;
+    var dsDanhMuc = ViewBag.DanhMuc as List<DanhMuc> ?? new List<DanhMuc>();
+    var currentKeyword = Context.Request.Query["keyword"].ToString();
 }
 
-<link rel="stylesheet"
-      href="~/css/admin.css" />
-
-<div class="admin-wrapper">
-
-    <div class="content-area">
-
-        <div class="d-flex
-            justify-content-between
-            align-items-center
-            mb-4">
-
-            <h2>Quản lý sản phẩm</h2>
-
-            <button class="btn btn-admin"
+<div class="admin-sanpham-page">
+    <!-- PAGE HEADER -->
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3 mb-4">
+        <div>
+            <h2 class="mb-1 fw-bold text-primary-emphasis d-flex align-items-center gap-2">
+                <i class="fa-solid fa-boxes-stacked text-shopee"></i>
+                <span>Quản Lý Sản Phẩm</span>
+            </h2>
+            <p class="text-muted mb-0 small">Danh sách toàn bộ các mặt hàng đang bày bán trong hệ thống ShopeeClone.</p>
+        </div>
+        <div class="d-flex gap-2">
+            <button class="btn-shopee btn-shopee-sm shadow-sm"
                     data-bs-toggle="modal"
                     data-bs-target="#modalThem">
-
-                + Thêm sản phẩm
-
+                <i class="fa-solid fa-circle-plus"></i>
+                <span>Thêm sản phẩm</span>
             </button>
-
         </div>
-
-        <table class="table table-bordered align-middle">
-
-            <thead>
-
-                <tr>
-
-                    <th>Ảnh</th>
-
-                    <th>Tên SP</th>
-
-                    <th>Giá</th>
-
-                    <th>Tồn kho</th>
-
-                    <th>Danh mục</th>
-
-                    <th>Trạng thái</th>
-
-                    <th width="180">
-                        Chức năng
-                    </th>
-
-                </tr>
-
-            </thead>
-
-            <tbody id="tableSanPham">
-
-                @foreach (var item in Model)
-                {
-                    <tr id="row_@item.MaSanPham">
-
-                        <td>
-
-                            <img src="@item.HinhAnh"
-                                 width="70"
-                                 class="img-thumbnail" />
-
-                        </td>
-
-                        <td>
-                            @item.TenSanPham
-                        </td>
-
-                        <td>
-                            @item.Gia.ToString("N0") đ
-                        </td>
-
-                        <td>
-                            @item.SoLuongTon
-                        </td>
-
-                        <td>
-                            @item.DanhMuc?.TenDanhMuc
-                        </td>
-
-                        <td>
-                            @item.TrangThai
-                        </td>
-
-                        <td>
-
-                            <button class="btn btn-warning btn-sm"
-                                    data-bs-toggle="modal"
-                                    data-bs-target="#edit_@item.MaSanPham">
-
-                                Sửa
-
-                            </button>
-
-                            <button class="btn btn-danger btn-sm"
-                                    onclick="xoaSanPham(@item.MaSanPham)">
-
-                                Xóa
-
-                            </button>
-
-                        </td>
-
-                    </tr>
-                }
-
-            </tbody>
-
-        </table>
-
     </div>
 
-</div>
+    <!-- FILTER & STATS BAR -->
+    <div class="card-modern mb-4">
+        <div class="p-3 d-flex flex-wrap justify-content-between align-items-center gap-3">
+            <div class="d-flex align-items-center gap-2 flex-grow-1" style="max-width: 480px;">
+                <div class="input-group">
+                    <span class="input-group-text bg-surface-sunken border-default text-muted">
+                        <i class="fa-solid fa-filter"></i>
+                    </span>
+                    <input type="text"
+                           id="quickFilterInput"
+                           class="form-control-modern border-start-0"
+                           placeholder="Lọc nhanh theo tên hoặc danh mục..." />
+                </div>
+            </div>
+            <div class="d-flex align-items-center gap-2">
+                <span class="badge-modern badge-status-approved">
+                    Tổng số: <strong id="sanpham-count" class="ms-1">@Model.Count</strong> sản phẩm
+                </span>
+                @if (!string.IsNullOrEmpty(currentKeyword))
+                {
+                    <a asp-controller="VwQuanTri" asp-action="SanPham" class="btn btn-sm btn-outline-secondary rounded-pill">
+                        <i class="fa-solid fa-xmark me-1"></i> Bỏ lọc từ khóa "@currentKeyword"
+                    </a>
+                }
+            </div>
+        </div>
+    </div>
 
-@foreach (var item in Model)
-{
-    <!-- MODAL SỬA -->
-    <div class="modal fade"
-         id="edit_@item.MaSanPham"
-         tabindex="-1">
+    <!-- MAIN PRODUCT TABLE -->
+    <div class="card-modern">
+        <div class="table-modern-wrapper border-0 rounded-0">
+            <table class="table-modern w-100">
+                <thead>
+                    <tr>
+                        <th style="width: 70px;" class="text-center">Mã</th>
+                        <th style="width: 90px;" class="text-center">Hình ảnh</th>
+                        <th>Tên sản phẩm</th>
+                        <th style="width: 140px;" class="text-end">Đơn giá</th>
+                        <th style="width: 110px;" class="text-center">Tồn kho</th>
+                        <th style="width: 150px;">Ngành hàng</th>
+                        <th style="width: 130px;" class="text-center">Trạng thái</th>
+                        <th style="width: 160px;" class="text-end">Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody id="tableSanPham">
+                    @foreach (var item in Model)
+                    {
+                        string statusBadgeClass = item.TrangThai switch
+                        {
+                            "Còn hàng" => "badge-status-approved",
+                            "Hết hàng" => "badge-status-cancelled",
+                            "Dừng bán" => "badge-status-pending",
+                            _ => "badge-status-pending"
+                        };
 
-        <div class="modal-dialog modal-lg">
+                        string statusIcon = item.TrangThai switch
+                        {
+                            "Còn hàng" => "fa-circle-check",
+                            "Hết hàng" => "fa-circle-xmark",
+                            "Dừng bán" => "fa-ban",
+                            _ => "fa-clock"
+                        };
 
-            <div class="modal-content">
-
-                <form class="formSuaSanPham"
-                      enctype="multipart/form-data">
-
-                    <div class="modal-header">
-
-                        <h5>
-                            Sửa sản phẩm
-                        </h5>
-
-                        <button type="button"
-                                class="btn-close"
-                                data-bs-dismiss="modal">
-                        </button>
-
-                    </div>
-
-                    <div class="modal-body">
-
-                        <input type="hidden"
-                               name="MaSanPham"
-                               value="@item.MaSanPham" />
-
-                        <input type="hidden"
-                               name="HinhAnh"
-                               value="@item.HinhAnh" />
-
-                        <input class="form-control mb-3"
-                               name="TenSanPham"
-                               value="@item.TenSanPham"
-                               placeholder="Tên sản phẩm" />
-
-                        <textarea class="form-control mb-3"
-                                  name="MoTa"
-                                  placeholder="Mô tả">@item.MoTa</textarea>
-
-                        <input class="form-control mb-3"
-                               type="number"
-                               name="Gia"
-                               value="@item.Gia"
-                               placeholder="Giá" />
-
-                        <input class="form-control mb-3"
-                               type="number"
-                               name="SoLuongTon"
-                               value="@item.SoLuongTon"
-                               placeholder="Số lượng tồn" />
-
-                        <select class="form-select mb-3"
-                                name="MaDanhMuc">
-
-                            @foreach (var dm in dsDanhMuc ?? new List<DanhMuc>())
-                            {
-                                if (dm.MaDanhMuc == item.MaDanhMuc)
+                        <tr id="row_@item.MaSanPham">
+                            <td class="text-center">
+                                <span class="badge-modern badge-status-pending font-monospace">#@item.MaSanPham</span>
+                            </td>
+                            <td class="text-center">
+                                @if (!string.IsNullOrEmpty(item.HinhAnh))
                                 {
-                                    <option value="@dm.MaDanhMuc" selected>
-                                        @dm.TenDanhMuc
-                                    </option>
+                                    <div class="sp-thumb-wrapper mx-auto">
+                                        <img src="@item.HinhAnh" alt="@item.TenSanPham" class="sp-thumb" />
+                                    </div>
                                 }
                                 else
                                 {
-                                    <option value="@dm.MaDanhMuc">
-                                        @dm.TenDanhMuc
-                                    </option>
+                                    <div class="sp-thumb-wrapper sp-thumb-placeholder mx-auto">
+                                        <i class="fa-solid fa-image text-muted"></i>
+                                    </div>
                                 }
-                            }
-
-                        </select>
-
-                        @if (!string.IsNullOrEmpty(item.HinhAnh))
-                        {
-                            <div class="mb-3 text-center">
-
-                                <img src="@item.HinhAnh"
-                                     width="120"
-                                     class="img-thumbnail" />
-
-                            </div>
-                        }
-
-                        <input class="form-control"
-                               type="file"
-                               name="fileAnh" />
-
-                    </div>
-
-                    <div class="modal-footer">
-
-                        <button type="submit"
-                                class="btn btn-success">
-
-                            Cập nhật
-
-                        </button>
-
-                    </div>
-
-                </form>
-
-            </div>
-
+                            </td>
+                            <td>
+                                <div class="fw-semibold text-primary-emphasis sp-title" title="@item.TenSanPham">
+                                    @item.TenSanPham
+                                </div>
+                                @if (!string.IsNullOrWhiteSpace(item.MoTa))
+                                {
+                                    <div class="text-muted small text-truncate" style="max-width: 320px;">
+                                        @item.MoTa
+                                    </div>
+                                }
+                            </td>
+                            <td class="text-end">
+                                <span class="fw-bold text-shopee">@item.Gia.ToString("N0") đ</span>
+                            </td>
+                            <td class="text-center">
+                                @if (item.SoLuongTon <= 0)
+                                {
+                                    <span class="badge bg-danger-subtle text-danger border border-danger-subtle rounded-pill px-2">Hết (0)</span>
+                                }
+                                else if (item.SoLuongTon <= 5)
+                                {
+                                    <span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle rounded-pill px-2">@item.SoLuongTon (Sắp hết)</span>
+                                }
+                                else
+                                {
+                                    <span class="fw-semibold text-secondary">@item.SoLuongTon</span>
+                                }
+                            </td>
+                            <td>
+                                <span class="badge bg-secondary-subtle text-secondary-emphasis rounded-pill px-2">
+                                    <i class="fa-solid fa-tag me-1 small"></i>@(item.DanhMuc?.TenDanhMuc ?? "Chưa phân loại")
+                                </span>
+                            </td>
+                            <td class="text-center">
+                                <span class="badge-modern @statusBadgeClass">
+                                    <i class="fa-solid @statusIcon"></i> @item.TrangThai
+                                </span>
+                            </td>
+                            <td class="text-end">
+                                <div class="d-inline-flex gap-2">
+                                    <button type="button"
+                                            class="btn btn-sm btn-outline-primary rounded-pill px-3 d-inline-flex align-items-center gap-1"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#edit_@item.MaSanPham"
+                                            title="Chỉnh sửa sản phẩm">
+                                        <i class="fa-solid fa-pen-to-square"></i>
+                                        <span>Sửa</span>
+                                    </button>
+                                    <button type="button"
+                                            class="btn btn-sm btn-outline-danger rounded-pill px-3 d-inline-flex align-items-center gap-1"
+                                            onclick="xoaSanPham(@item.MaSanPham)"
+                                            title="Xóa sản phẩm">
+                                        <i class="fa-solid fa-trash-can"></i>
+                                        <span>Xóa</span>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
         </div>
-
     </div>
-}
-
-<!-- MODAL THÊM -->
-
-<div class="modal fade"
-     id="modalThem"
-     tabindex="-1">
-
-    <div class="modal-dialog modal-lg">
-
-        <div class="modal-content">
-
-            <form id="formThemSanPham"
-                  enctype="multipart/form-data">
-
-                <div class="modal-header">
-
-                    <h5>
-                        Thêm sản phẩm
-                    </h5>
-
-                    <button type="button"
-                            class="btn-close"
-                            data-bs-dismiss="modal">
-                    </button>
-
-                </div>
-
-                <div class="modal-body">
-
-                    <input class="form-control mb-3"
-                           name="TenSanPham"
-                           placeholder="Tên sản phẩm" />
-
-                    <textarea class="form-control mb-3"
-                              name="MoTa"
-                              placeholder="Mô tả"></textarea>
-
-                    <input class="form-control mb-3"
-                           type="number"
-                           name="Gia"
-                           placeholder="Giá" />
-
-                    <input class="form-control mb-3"
-                           type="number"
-                           name="SoLuongTon"
-                           placeholder="Số lượng tồn" />
-
-                    <select class="form-select mb-3"
-                            name="MaDanhMuc">
-
-                        @foreach (var dm in dsDanhMuc ?? new List<DanhMuc>())
-                        {
-                            <option value="@dm.MaDanhMuc">
-                                @dm.TenDanhMuc
-                            </option>
-                        }
-
-                    </select>
-
-                    <input class="form-control"
-                           type="file"
-                           name="fileAnh" />
-
-                </div>
-
-                <div class="modal-footer">
-
-                    <button type="submit"
-                            class="btn btn-success">
-
-                        Lưu sản phẩm
-
-                    </button>
-
-                </div>
-
-            </form>
-
-        </div>
-
-    </div>
-
 </div>
 
+<!-- MODAL SỬA SẢN PHẨM (CONTAINER) -->
+<div id="spEditModalsContainer">
+    @foreach (var item in Model)
+    {
+        <div class="modal fade"
+             id="edit_@item.MaSanPham"
+             tabindex="-1"
+             aria-labelledby="labelEdit_@item.MaSanPham"
+             aria-hidden="true">
+            <div class="modal-dialog modal-lg modal-dialog-centered">
+                <div class="modal-content border-0 shadow-lg" style="background-color: var(--bg-surface); border-radius: var(--radius-md);">
+                    <form class="formSuaSanPham" enctype="multipart/form-data">
+                        <div class="modal-header border-bottom" style="border-color: var(--border-subtle) !important;">
+                            <h5 class="modal-title fw-bold d-flex align-items-center gap-2" id="labelEdit_@item.MaSanPham">
+                                <i class="fa-solid fa-pen-to-square text-shopee"></i>
+                                <span>Chỉnh sửa sản phẩm #@item.MaSanPham</span>
+                            </h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
+                        </div>
+
+                        <div class="modal-body p-4">
+                            <input type="hidden" name="MaSanPham" value="@item.MaSanPham" />
+                            <input type="hidden" name="HinhAnh" value="@item.HinhAnh" />
+
+                            <div class="row g-3">
+                                <div class="col-12">
+                                    <label class="form-label fw-semibold small text-secondary">Tên sản phẩm <span class="text-danger">*</span></label>
+                                    <input class="form-control-modern"
+                                           name="TenSanPham"
+                                           value="@item.TenSanPham"
+                                           required
+                                           placeholder="Nhập tên sản phẩm..." />
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label class="form-label fw-semibold small text-secondary">Giá bán (VNĐ) <span class="text-danger">*</span></label>
+                                    <div class="input-group">
+                                        <input class="form-control-modern"
+                                               type="number"
+                                               step="any"
+                                               name="Gia"
+                                               value="@item.Gia"
+                                               required
+                                               min="0"
+                                               placeholder="Ví dụ: 150000" />
+                                        <span class="input-group-text bg-surface-sunken border-default">₫</span>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label class="form-label fw-semibold small text-secondary">Số lượng tồn kho <span class="text-danger">*</span></label>
+                                    <input class="form-control-modern"
+                                           type="number"
+                                           name="SoLuongTon"
+                                           value="@item.SoLuongTon"
+                                           required
+                                           min="0"
+                                           placeholder="Số lượng hiện có" />
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label class="form-label fw-semibold small text-secondary">Danh mục ngành hàng <span class="text-danger">*</span></label>
+                                    <select class="form-select-modern" name="MaDanhMuc" required>
+                                        @foreach (var dm in dsDanhMuc)
+                                        {
+                                            if (dm.MaDanhMuc == item.MaDanhMuc)
+                                            {
+                                                <option value="@dm.MaDanhMuc" selected>@dm.TenDanhMuc</option>
+                                            }
+                                            else
+                                            {
+                                                <option value="@dm.MaDanhMuc">@dm.TenDanhMuc</option>
+                                            }
+                                        }
+                                    </select>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label class="form-label fw-semibold small text-secondary">Trạng thái bán <span class="text-danger">*</span></label>
+                                    <select class="form-select-modern" name="TrangThai">
+                                        <option value="Còn hàng" selected="@(item.TrangThai == "Còn hàng" ? "selected" : null)">Còn hàng</option>
+                                        <option value="Hết hàng" selected="@(item.TrangThai == "Hết hàng" ? "selected" : null)">Hết hàng</option>
+                                        <option value="Dừng bán" selected="@(item.TrangThai == "Dừng bán" ? "selected" : null)">Dừng bán</option>
+                                    </select>
+                                </div>
+
+                                <div class="col-12">
+                                    <label class="form-label fw-semibold small text-secondary">Mô tả sản phẩm</label>
+                                    <textarea class="form-control-modern"
+                                              name="MoTa"
+                                              rows="3"
+                                              placeholder="Mô tả thông số, đặc điểm nổi bật...">@item.MoTa</textarea>
+                                </div>
+
+                                <div class="col-12">
+                                    <label class="form-label fw-semibold small text-secondary">Hình ảnh sản phẩm</label>
+                                    <div class="sp-edit-preview-box text-center p-3 mb-2 rounded bg-surface-sunken border border-subtle">
+                                        @if (!string.IsNullOrEmpty(item.HinhAnh))
+                                        {
+                                            <img src="@item.HinhAnh"
+                                                 class="sp-img-preview-edit"
+                                                 style="max-height: 140px; max-width: 100%; object-fit: contain; border-radius: var(--radius-sm);" />
+                                        }
+                                        else
+                                        {
+                                            <div class="no-img-text text-muted py-3">
+                                                <i class="fa-solid fa-image fa-2x mb-2 d-block"></i>
+                                                <span>Chưa có hình ảnh</span>
+                                            </div>
+                                        }
+                                    </div>
+                                    <input class="form-control-modern sp-input-file-edit"
+                                           type="file"
+                                           name="fileAnh"
+                                           accept="image/*" />
+                                    <small class="text-muted d-block mt-1">Chọn ảnh mới để thay thế ảnh hiện tại (JPG, PNG, WebP)</small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="modal-footer border-top bg-surface-sunken" style="border-color: var(--border-subtle) !important;">
+                            <button type="button" class="btn-shopee-secondary btn-shopee-sm" data-bs-dismiss="modal">Hủy bỏ</button>
+                            <button type="submit" class="btn-shopee btn-shopee-sm">
+                                <i class="fa-solid fa-floppy-disk"></i>
+                                <span>Cập nhật sản phẩm</span>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+<!-- MODAL THÊM SẢN PHẨM -->
+<div class="modal fade"
+     id="modalThem"
+     tabindex="-1"
+     aria-labelledby="modalThemSPLabel"
+     aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg" style="background-color: var(--bg-surface); border-radius: var(--radius-md);">
+            <form id="formThemSanPham" enctype="multipart/form-data">
+                <div class="modal-header border-bottom" style="border-color: var(--border-subtle) !important;">
+                    <h5 class="modal-title fw-bold d-flex align-items-center gap-2" id="modalThemSPLabel">
+                        <i class="fa-solid fa-circle-plus text-shopee"></i>
+                        <span>Thêm sản phẩm mới</span>
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
+                </div>
+
+                <div class="modal-body p-4">
+                    <div class="row g-3">
+                        <div class="col-12">
+                            <label class="form-label fw-semibold small text-secondary">Tên sản phẩm <span class="text-danger">*</span></label>
+                            <input class="form-control-modern"
+                                   name="TenSanPham"
+                                   required
+                                   placeholder="Nhập tên sản phẩm..." />
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold small text-secondary">Giá bán (VNĐ) <span class="text-danger">*</span></label>
+                            <div class="input-group">
+                                <input class="form-control-modern"
+                                       type="number"
+                                       step="any"
+                                       name="Gia"
+                                       required
+                                       min="0"
+                                       placeholder="Ví dụ: 199000" />
+                                <span class="input-group-text bg-surface-sunken border-default">₫</span>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold small text-secondary">Số lượng tồn kho <span class="text-danger">*</span></label>
+                            <input class="form-control-modern"
+                                   type="number"
+                                   name="SoLuongTon"
+                                   required
+                                   min="0"
+                                   value="10"
+                                   placeholder="Số lượng tồn kho ban đầu" />
+                        </div>
+
+                        <div class="col-12">
+                            <label class="form-label fw-semibold small text-secondary">Danh mục ngành hàng <span class="text-danger">*</span></label>
+                            <select class="form-select-modern" name="MaDanhMuc" required>
+                                <option value="">-- Chọn danh mục phù hợp --</option>
+                                @foreach (var dm in dsDanhMuc)
+                                {
+                                    <option value="@dm.MaDanhMuc">@dm.TenDanhMuc</option>
+                                }
+                            </select>
+                        </div>
+
+                        <div class="col-12">
+                            <label class="form-label fw-semibold small text-secondary">Mô tả sản phẩm</label>
+                            <textarea class="form-control-modern"
+                                      name="MoTa"
+                                      rows="3"
+                                      placeholder="Mô tả thông tin chi tiết, xuất xứ, chất liệu..."></textarea>
+                        </div>
+
+                        <div class="col-12">
+                            <label class="form-label fw-semibold small text-secondary">Hình ảnh đại diện</label>
+                            <div id="sp-them-preview-box" class="text-center p-3 mb-2 rounded bg-surface-sunken border border-subtle d-none">
+                                <img id="sp-them-preview-img" style="max-height: 140px; max-width: 100%; object-fit: contain; border-radius: var(--radius-sm);" />
+                            </div>
+                            <input class="form-control-modern"
+                                   type="file"
+                                   name="fileAnh"
+                                   id="spThemFileAnh"
+                                   accept="image/*" />
+                            <small class="text-muted d-block mt-1">Định dạng hỗ trợ: JPG, PNG, WebP (Tối đa 5MB)</small>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-footer border-top bg-surface-sunken" style="border-color: var(--border-subtle) !important;">
+                    <button type="button" class="btn-shopee-secondary btn-shopee-sm" data-bs-dismiss="modal">Hủy bỏ</button>
+                    <button type="submit" class="btn-shopee btn-shopee-sm">
+                        <i class="fa-solid fa-floppy-disk"></i>
+                        <span>Lưu sản phẩm</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+    .text-shopee {
+        color: var(--shopee-orange) !important;
+    }
+    .sp-thumb-wrapper {
+        width: 50px;
+        height: 50px;
+        border-radius: var(--radius-sm);
+        overflow: hidden;
+        background-color: var(--bg-surface-sunken);
+        border: 1px solid var(--border-default);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: transform var(--transition-fast);
+    }
+    .sp-thumb-wrapper:hover {
+        transform: scale(1.1);
+    }
+    .sp-thumb {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+    .sp-thumb-placeholder {
+        font-size: 1.3rem;
+    }
+    .sp-title {
+        max-width: 380px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    .bg-surface-sunken {
+        background-color: var(--bg-surface-sunken);
+    }
+</style>
+
 <script>
+    // PREVIEW ẢNH KHI THÊM
+    const spThemFileInput = document.getElementById("spThemFileAnh");
+    const spThemPreviewBox = document.getElementById("sp-them-preview-box");
+    const spThemPreviewImg = document.getElementById("sp-them-preview-img");
 
-    // THÊM SẢN PHẨM
-    document.getElementById("formThemSanPham")
-        .addEventListener("submit", async function (e) {
-
-            e.preventDefault();
-
-            let formData = new FormData(this);
-
-            let response = await fetch('/VwQuanTri/ThemSanPham', {
-                method: 'POST',
-                body: formData
-            });
-
-            let result = await response.json();
-
-            if (result.success) {
-
-                let sp = result.data;
-
-                let html = `
-                    <tr id="row_${sp.maSanPham}">
-
-                        <td>
-
-                            <img src="${sp.hinhAnh}"
-                                 width="70"
-                                 class="img-thumbnail" />
-
-                        </td>
-
-                        <td>
-                            ${sp.tenSanPham}
-                        </td>
-
-                        <td>
-                            ${Number(sp.gia).toLocaleString('vi-VN')} đ
-                        </td>
-
-                        <td>
-                            ${sp.soLuongTon}
-                        </td>
-
-                        <td>
-                            ${sp.tenDanhMuc}
-                        </td>
-
-                        <td>
-                            ${sp.trangThai}
-                        </td>
-
-                        <td>
-
-                            <button class="btn btn-warning btn-sm"
-                                    data-bs-toggle="modal"
-                                    data-bs-target="#edit_${sp.maSanPham}">
-
-                                Sửa
-
-                            </button>
-
-                            <button class="btn btn-danger btn-sm"
-                                    onclick="xoaSanPham(${sp.maSanPham})">
-
-                                Xóa
-
-                            </button>
-
-                        </td>
-
-                    </tr>
-                `;
-
-                document.getElementById("tableSanPham")
-                    .insertAdjacentHTML("beforeend", html);
-
-                bootstrap.Modal.getInstance(
-                    document.getElementById('modalThem')
-                ).hide();
-
-                document.getElementById("formThemSanPham")
-                    .reset();
-
+    if (spThemFileInput) {
+        spThemFileInput.addEventListener("change", function () {
+            const file = this.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    spThemPreviewImg.src = e.target.result;
+                    spThemPreviewBox.classList.remove("d-none");
+                };
+                reader.readAsDataURL(file);
             } else {
-
-                alert(result.message);
-
+                spThemPreviewBox.classList.add("d-none");
             }
-
         });
+    }
 
-    // SỬA SẢN PHẨM
-    document.querySelectorAll(".formSuaSanPham")
-        .forEach(form => {
+    // PREVIEW ẢNH KHI SỬA (EVENT DELEGATION)
+    document.addEventListener("change", function(e) {
+        if (e.target && e.target.classList.contains("sp-input-file-edit")) {
+            const input = e.target;
+            const file = input.files[0];
+            const modal = input.closest(".modal");
+            if (file && modal) {
+                const previewImg = modal.querySelector(".sp-img-preview-edit");
+                const previewBox = modal.querySelector(".sp-edit-preview-box");
+                const reader = new FileReader();
+                reader.onload = function(evt) {
+                    if (previewImg) {
+                        previewImg.src = evt.target.result;
+                    } else if (previewBox) {
+                        previewBox.innerHTML = `<img src="${evt.target.result}" class="sp-img-preview-edit" style="max-height: 140px; max-width: 100%; object-fit: contain; border-radius: var(--radius-sm);" />`;
+                    }
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+    });
 
-            form.addEventListener("submit", async function (e) {
+    // LỌC NHANH CLIENT-SIDE
+    const quickFilterInput = document.getElementById("quickFilterInput");
+    if (quickFilterInput) {
+        quickFilterInput.addEventListener("input", function() {
+            const term = this.value.toLowerCase().trim();
+            const rows = document.querySelectorAll("#tableSanPham tr");
+            rows.forEach(r => {
+                const text = r.innerText.toLowerCase();
+                r.style.display = text.includes(term) ? "" : "none";
+            });
+        });
+    }
 
-                e.preventDefault();
+    // TẠO ROW SẢN PHẨM HTML
+    function createProductRowHtml(sp) {
+        const imgHtml = sp.hinhAnh 
+            ? `<div class="sp-thumb-wrapper mx-auto"><img src="${sp.hinhAnh}" alt="${sp.tenSanPham}" class="sp-thumb" /></div>`
+            : `<div class="sp-thumb-wrapper sp-thumb-placeholder mx-auto"><i class="fa-solid fa-image text-muted"></i></div>`;
+
+        const statusClass = sp.trangThai === "Còn hàng" ? "badge-status-approved" 
+                          : sp.trangThai === "Hết hàng" ? "badge-status-cancelled" 
+                          : "badge-status-pending";
+
+        const statusIcon = sp.trangThai === "Còn hàng" ? "fa-circle-check" 
+                         : sp.trangThai === "Hết hàng" ? "fa-circle-xmark" 
+                         : "fa-ban";
+
+        let tonKhoHtml = `<span class="fw-semibold text-secondary">${sp.soLuongTon}</span>`;
+        if (sp.soLuongTon <= 0) {
+            tonKhoHtml = `<span class="badge bg-danger-subtle text-danger border border-danger-subtle rounded-pill px-2">Hết (0)</span>`;
+        } else if (sp.soLuongTon <= 5) {
+            tonKhoHtml = `<span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle rounded-pill px-2">${sp.soLuongTon} (Sắp hết)</span>`;
+        }
+
+        return `
+            <tr id="row_${sp.maSanPham}">
+                <td class="text-center">
+                    <span class="badge-modern badge-status-pending font-monospace">#${sp.maSanPham}</span>
+                </td>
+                <td class="text-center">
+                    ${imgHtml}
+                </td>
+                <td>
+                    <div class="fw-semibold text-primary-emphasis sp-title" title="${sp.tenSanPham}">
+                        ${sp.tenSanPham}
+                    </div>
+                </td>
+                <td class="text-end">
+                    <span class="fw-bold text-shopee">${Number(sp.gia).toLocaleString('vi-VN')} đ</span>
+                </td>
+                <td class="text-center">
+                    ${tonKhoHtml}
+                </td>
+                <td>
+                    <span class="badge bg-secondary-subtle text-secondary-emphasis rounded-pill px-2">
+                        <i class="fa-solid fa-tag me-1 small"></i>${sp.tenDanhMuc || 'Chưa phân loại'}
+                    </span>
+                </td>
+                <td class="text-center">
+                    <span class="badge-modern ${statusClass}">
+                        <i class="fa-solid ${statusIcon}"></i> ${sp.trangThai || 'Còn hàng'}
+                    </span>
+                </td>
+                <td class="text-end">
+                    <div class="d-inline-flex gap-2">
+                        <button type="button"
+                                class="btn btn-sm btn-outline-primary rounded-pill px-3 d-inline-flex align-items-center gap-1"
+                                data-bs-toggle="modal"
+                                data-bs-target="#edit_${sp.maSanPham}"
+                                title="Chỉnh sửa sản phẩm">
+                            <i class="fa-solid fa-pen-to-square"></i>
+                            <span>Sửa</span>
+                        </button>
+                        <button type="button"
+                                class="btn btn-sm btn-outline-danger rounded-pill px-3 d-inline-flex align-items-center gap-1"
+                                onclick="xoaSanPham(${sp.maSanPham})"
+                                title="Xóa sản phẩm">
+                            <i class="fa-solid fa-trash-can"></i>
+                            <span>Xóa</span>
+                        </button>
+                    </div>
+                </td>
+            </tr>
+        `;
+    }
+
+    // TẠO DYNAMIC MODAL SỬA SẢN PHẨM KHI THÊM MỚI
+    function createProductEditModalHtml(sp) {
+        return `
+            <div class="modal fade"
+                 id="edit_${sp.maSanPham}"
+                 tabindex="-1"
+                 aria-labelledby="labelEdit_${sp.maSanPham}"
+                 aria-hidden="true">
+                <div class="modal-dialog modal-lg modal-dialog-centered">
+                    <div class="modal-content border-0 shadow-lg" style="background-color: var(--bg-surface); border-radius: var(--radius-md);">
+                        <form class="formSuaSanPham" enctype="multipart/form-data">
+                            <div class="modal-header border-bottom" style="border-color: var(--border-subtle) !important;">
+                                <h5 class="modal-title fw-bold d-flex align-items-center gap-2" id="labelEdit_${sp.maSanPham}">
+                                    <i class="fa-solid fa-pen-to-square text-shopee"></i>
+                                    <span>Chỉnh sửa sản phẩm #${sp.maSanPham}</span>
+                                </h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
+                            </div>
+
+                            <div class="modal-body p-4">
+                                <input type="hidden" name="MaSanPham" value="${sp.maSanPham}" />
+                                <input type="hidden" name="HinhAnh" value="${sp.hinhAnh || ''}" />
+
+                                <div class="row g-3">
+                                    <div class="col-12">
+                                        <label class="form-label fw-semibold small text-secondary">Tên sản phẩm <span class="text-danger">*</span></label>
+                                        <input class="form-control-modern"
+                                               name="TenSanPham"
+                                               value="${sp.tenSanPham}"
+                                               required
+                                               placeholder="Nhập tên sản phẩm..." />
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-semibold small text-secondary">Giá bán (VNĐ) <span class="text-danger">*</span></label>
+                                        <div class="input-group">
+                                            <input class="form-control-modern"
+                                                   type="number"
+                                                   step="any"
+                                                   name="Gia"
+                                                   value="${sp.gia}"
+                                                   required
+                                                   min="0" />
+                                            <span class="input-group-text bg-surface-sunken border-default">₫</span>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-semibold small text-secondary">Số lượng tồn kho <span class="text-danger">*</span></label>
+                                        <input class="form-control-modern"
+                                               type="number"
+                                               name="SoLuongTon"
+                                               value="${sp.soLuongTon}"
+                                               required
+                                               min="0" />
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-semibold small text-secondary">Danh mục ngành hàng <span class="text-danger">*</span></label>
+                                        <select class="form-select-modern" name="MaDanhMuc" required>
+                                            ${document.querySelector('#modalThem select[name="MaDanhMuc"]').innerHTML}
+                                        </select>
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-semibold small text-secondary">Trạng thái bán <span class="text-danger">*</span></label>
+                                        <select class="form-select-modern" name="TrangThai">
+                                            <option value="Còn hàng" ${sp.trangThai === 'Còn hàng' ? 'selected' : ''}>Còn hàng</option>
+                                            <option value="Hết hàng" ${sp.trangThai === 'Hết hàng' ? 'selected' : ''}>Hết hàng</option>
+                                            <option value="Dừng bán" ${sp.trangThai === 'Dừng bán' ? 'selected' : ''}>Dừng bán</option>
+                                        </select>
+                                    </div>
+
+                                    <div class="col-12">
+                                        <label class="form-label fw-semibold small text-secondary">Mô tả sản phẩm</label>
+                                        <textarea class="form-control-modern" name="MoTa" rows="3"></textarea>
+                                    </div>
+
+                                    <div class="col-12">
+                                        <label class="form-label fw-semibold small text-secondary">Hình ảnh sản phẩm</label>
+                                        <div class="sp-edit-preview-box text-center p-3 mb-2 rounded bg-surface-sunken border border-subtle">
+                                            ${sp.hinhAnh ? `<img src="${sp.hinhAnh}" class="sp-img-preview-edit" style="max-height: 140px; max-width: 100%; object-fit: contain; border-radius: var(--radius-sm);" />` : `<div class="no-img-text text-muted py-3"><i class="fa-solid fa-image fa-2x mb-2 d-block"></i><span>Chưa có hình ảnh</span></div>`}
+                                        </div>
+                                        <input class="form-control-modern sp-input-file-edit"
+                                               type="file"
+                                               name="fileAnh"
+                                               accept="image/*" />
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="modal-footer border-top bg-surface-sunken" style="border-color: var(--border-subtle) !important;">
+                                <button type="button" class="btn-shopee-secondary btn-shopee-sm" data-bs-dismiss="modal">Hủy bỏ</button>
+                                <button type="submit" class="btn-shopee btn-shopee-sm">
+                                    <i class="fa-solid fa-floppy-disk"></i>
+                                    <span>Cập nhật sản phẩm</span>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
+    // BIND EVENT SUBMIT CHO FORM SỬA SẢN PHẨM
+    function bindProductEditForm(form) {
+        form.addEventListener("submit", async function (e) {
+            e.preventDefault();
+            const submitBtn = form.querySelector('button[type="submit"]');
+
+            try {
+                if (submitBtn) submitBtn.disabled = true;
 
                 let formData = new FormData(this);
-
                 let response = await fetch('/VwQuanTri/SuaSanPham', {
                     method: 'POST',
                     body: formData
                 });
 
                 let result = await response.json();
-
                 if (result.success) {
-
                     let sp = result.data;
+                    let row = document.getElementById("row_" + sp.maSanPham);
+                    if (row) {
+                        row.outerHTML = createProductRowHtml(sp);
+                    }
 
-                    let row =
-                        document.getElementById(
-                            "row_" + sp.maSanPham
-                        );
+                    const modalEl = form.closest('.modal');
+                    const modalInstance = bootstrap.Modal.getInstance(modalEl);
+                    if (modalInstance) modalInstance.hide();
 
-                    row.innerHTML = `
-                        <td>
-
-                            <img src="${sp.hinhAnh}"
-                                 width="70"
-                                 class="img-thumbnail" />
-
-                        </td>
-
-                        <td>
-                            ${sp.tenSanPham}
-                        </td>
-
-                        <td>
-                            ${Number(sp.gia).toLocaleString('vi-VN')} đ
-                        </td>
-
-                        <td>
-                            ${sp.soLuongTon}
-                        </td>
-
-                        <td>
-                            ${sp.tenDanhMuc}
-                        </td>
-
-                        <td>
-                            ${sp.trangThai}
-                        </td>
-
-                        <td>
-
-                            <button class="btn btn-warning btn-sm"
-                                    data-bs-toggle="modal"
-                                    data-bs-target="#edit_${sp.maSanPham}">
-
-                                Sửa
-
-                            </button>
-
-                            <button class="btn btn-danger btn-sm"
-                                    onclick="xoaSanPham(${sp.maSanPham})">
-
-                                Xóa
-
-                            </button>
-
-                        </td>
-                    `;
-
-                    bootstrap.Modal.getInstance(
-                        form.closest('.modal')
-                    ).hide();
-
+                    if (window.toast) {
+                        window.toast.success(`Cập nhật sản phẩm "${sp.tenSanPham}" thành công!`);
+                    }
                 } else {
-
-                    alert(result.message);
-
+                    if (window.toast) {
+                        window.toast.error(result.message || 'Lỗi cập nhật sản phẩm');
+                    } else {
+                        alert(result.message);
+                    }
                 }
+            } catch (err) {
+                console.error(err);
+                if (window.toast) window.toast.error('Lỗi kết nối khi sửa sản phẩm');
+            } finally {
+                if (submitBtn) submitBtn.disabled = false;
+            }
+        });
+    }
 
+    // Gắn cho các form sửa sẵn có
+    document.querySelectorAll(".formSuaSanPham").forEach(bindProductEditForm);
+
+    // THÊM SẢN PHẨM
+    document.getElementById("formThemSanPham").addEventListener("submit", async function (e) {
+        e.preventDefault();
+        const submitBtn = this.querySelector('button[type="submit"]');
+
+        try {
+            if (submitBtn) submitBtn.disabled = true;
+
+            let formData = new FormData(this);
+            let response = await fetch('/VwQuanTri/ThemSanPham', {
+                method: 'POST',
+                body: formData
             });
 
-        });
+            let result = await response.json();
+            if (result.success) {
+                let sp = result.data;
+
+                // Thêm vào bảng
+                const tableBody = document.getElementById("tableSanPham");
+                tableBody.insertAdjacentHTML("beforeend", createProductRowHtml(sp));
+
+                // Tạo modal sửa cho SP mới và bind event
+                const container = document.getElementById("spEditModalsContainer");
+                container.insertAdjacentHTML("beforeend", createProductEditModalHtml(sp));
+                const newModal = document.getElementById("edit_" + sp.maSanPham);
+                if (newModal) {
+                    const newForm = newModal.querySelector(".formSuaSanPham");
+                    if (newForm) bindProductEditForm(newForm);
+                }
+
+                // Cập nhật số lượng
+                const countBadge = document.getElementById("sanpham-count");
+                if (countBadge) {
+                    let current = parseInt(countBadge.innerText) || 0;
+                    countBadge.innerText = current + 1;
+                }
+
+                // Đóng modal thêm và reset form
+                const modalThemEl = document.getElementById('modalThem');
+                const modalThemInstance = bootstrap.Modal.getInstance(modalThemEl);
+                if (modalThemInstance) modalThemInstance.hide();
+
+                this.reset();
+                if (spThemPreviewBox) spThemPreviewBox.classList.add("d-none");
+
+                if (window.toast) {
+                    window.toast.success(`Đã thêm sản phẩm "${sp.tenSanPham}" thành công!`);
+                }
+            } else {
+                if (window.toast) {
+                    window.toast.error(result.message || 'Lỗi thêm sản phẩm');
+                } else {
+                    alert(result.message);
+                }
+            }
+        } catch (err) {
+            console.error(err);
+            if (window.toast) window.toast.error('Lỗi kết nối khi thêm sản phẩm');
+        } finally {
+            if (submitBtn) submitBtn.disabled = false;
+        }
+    });
 
     // XÓA SẢN PHẨM
     async function xoaSanPham(id) {
-
         if (!confirm('Bạn có chắc muốn xoá sản phẩm này không?'))
             return;
 
-        let response =
-            await fetch('/VwQuanTri/XoaSanPham/' + id, {
-
+        try {
+            let response = await fetch('/VwQuanTri/XoaSanPham/' + id, {
                 method: 'POST'
-
             });
 
-        let result = await response.json();
+            let result = await response.json();
+            if (result.success) {
+                const row = document.getElementById("row_" + id);
+                if (row) {
+                    row.remove();
+                }
 
-        if (result.success) {
+                const editModal = document.getElementById("edit_" + id);
+                if (editModal) editModal.remove();
 
-            document.getElementById("row_" + id)
-                .remove();
+                const countBadge = document.getElementById("sanpham-count");
+                if (countBadge) {
+                    let current = parseInt(countBadge.innerText) || 1;
+                    countBadge.innerText = Math.max(0, current - 1);
+                }
 
-        } else {
-
-            alert(result.message);
-
+                if (window.toast) {
+                    window.toast.success('Đã xóa sản phẩm thành công!');
+                }
+            } else {
+                if (window.toast) {
+                    window.toast.error(result.message || 'Không thể xóa sản phẩm này');
+                } else {
+                    alert(result.message);
+                }
+            }
+        } catch (err) {
+            console.error(err);
+            if (window.toast) window.toast.error('Lỗi kết nối khi xóa sản phẩm');
         }
-
     }
-
 </script>
