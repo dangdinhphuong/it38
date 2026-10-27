@@ -1,85 +1,251 @@
-﻿@model ShopeeClone.Models.ViewModels.DangNhapViewModel
+@model ShopeeClone.Models.ViewModels.DangNhapViewModel
 
 @{
     ViewData["Title"] = "Đăng nhập";
 }
 
-<div class="auth-page">
+@section Styles {
+    <style>
+        .auth-wrapper-section {
+            min-height: calc(100vh - 200px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2.5rem 1rem;
+            background: linear-gradient(135deg, rgba(238, 77, 45, 0.06) 0%, rgba(255, 115, 55, 0.03) 100%);
+        }
 
-    <div class="auth-container">
+        .auth-card-modern {
+            background-color: var(--bg-surface);
+            border: 1px solid var(--border-default);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-lg);
+            overflow: hidden;
+            width: 100%;
+            max-width: 920px;
+        }
 
-        <div class="auth-left">
-            <h2>Xin chào!</h2>
-            <p>Đăng nhập để tiếp tục mua sắm.</p>
-        </div>
+        .auth-banner-side {
+            background: var(--shopee-gradient);
+            color: #ffffff;
+            padding: 3rem 2.5rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
 
-        <div class="auth-right">
+        .auth-banner-side::after {
+            content: '';
+            position: absolute;
+            width: 200px;
+            height: 200px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            bottom: -50px;
+            right: -50px;
+        }
 
-            <h3 class="auth-title">Đăng nhập</h3>
+        .auth-form-side {
+            padding: 3rem 2.5rem;
+            background-color: var(--bg-surface);
+        }
 
-            @if (TempData["Error"] != null)
-            {
-                <div class="alert alert-danger">
-                    @TempData["Error"]
+        .auth-input-group {
+            position: relative;
+            margin-bottom: 1.25rem;
+        }
+
+        .auth-input-group .input-icon {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+            font-size: 1rem;
+            z-index: 2;
+        }
+
+        .auth-input-control {
+            width: 100%;
+            padding: 0.75rem 1rem 0.75rem 2.5rem;
+            background-color: var(--bg-surface);
+            border: 1.5px solid var(--border-default);
+            border-radius: var(--radius-sm);
+            color: var(--text-primary);
+            font-size: 0.9375rem;
+            transition: all var(--transition-fast);
+        }
+
+        .auth-input-control:focus {
+            outline: none;
+            border-color: var(--shopee-orange);
+            box-shadow: 0 0 0 3px var(--shopee-orange-glow);
+            background-color: var(--bg-surface);
+        }
+
+        .toggle-password-btn {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            z-index: 2;
+            padding: 4px;
+        }
+
+        .toggle-password-btn:hover {
+            color: var(--text-primary);
+        }
+
+        .btn-auth-submit {
+            width: 100%;
+            padding: 0.85rem;
+            background: var(--shopee-gradient);
+            color: #ffffff !important;
+            font-weight: 700;
+            font-size: 1rem;
+            border: none;
+            border-radius: var(--radius-sm);
+            box-shadow: var(--shadow-glow-sm);
+            cursor: pointer;
+            transition: all var(--transition-fast);
+        }
+
+        .btn-auth-submit:hover {
+            box-shadow: var(--shadow-glow);
+            transform: translateY(-2px);
+        }
+    </style>
+}
+
+<div class="auth-wrapper-section">
+    <div class="auth-card-modern">
+        <div class="row g-0">
+
+            <!-- CỘT TRÁI: BANNER THƯƠNG HIỆU -->
+            <div class="col-lg-5 d-none d-lg-flex auth-banner-side">
+                <div>
+                    <div class="d-inline-flex align-items-center justify-content-center bg-white text-danger rounded-circle p-3 mb-4 shadow-sm" style="width: 64px; height: 64px;">
+                        <i class="fa-solid fa-bag-shopping fa-2x"></i>
+                    </div>
+                    <h2 class="fw-bold mb-3">ShopeeClone</h2>
+                    <p class="fs-6 opacity-90 mb-4">
+                        Nền tảng mua sắm trực tuyến hàng đầu, kết nối hàng triệu người mua và người bán với ngàn ưu đãi hấp dẫn mỗi ngày.
+                    </p>
+                    <ul class="list-unstyled opacity-90 small mb-0">
+                        <li class="mb-2"><i class="fa-solid fa-check-circle me-2"></i> Miễn phí vận chuyển toàn quốc</li>
+                        <li class="mb-2"><i class="fa-solid fa-check-circle me-2"></i> Hàng hiệu chính hãng 100%</li>
+                        <li><i class="fa-solid fa-check-circle me-2"></i> Đổi trả dễ dàng trong 15 ngày</li>
+                    </ul>
                 </div>
-            }
-
-            <form asp-action="DangNhap"
-                  asp-controller="VwTaiKhoan"
-                  method="post">
-
-                <div class="form-group">
-                    <label>Tên đăng nhập</label>
-                    <input asp-for="TenDangNhap"
-                           class="form-control" />
-
-                    <span asp-validation-for="TenDangNhap"
-                          class="text-danger"></span>
-                </div>
-
-                <div class="form-group">
-                    <label>Mật khẩu</label>
-
-                    <input asp-for="MatKhau"
-                           type="password"
-                           class="form-control" />
-
-                    <span asp-validation-for="MatKhau"
-                          class="text-danger"></span>
-                </div>
-
-                <button type="submit"
-                        class="btn-auth">
-                    Đăng nhập
-                </button>
-
-            </form>
-
-            <div class="auth-footer">
-                Chưa có tài khoản?
-                <a asp-action="DangKy"
-                       asp-controller="VwTaiKhoan">
-                    Đăng ký
-                </a>
             </div>
 
-            <div class="auth-footer">
+            <!-- CỘT PHẢI: FORM ĐĂNG NHẬP -->
+            <div class="col-lg-7 auth-form-side">
+                <div class="mb-4">
+                    <h3 class="fw-bold text-primary mb-1">Đăng Nhập Tài Khoản</h3>
+                    <p class="text-muted small">Chào mừng bạn quay trở lại! Vui lòng nhập thông tin.</p>
+                </div>
 
-                <a asp-action="QuenMatKhau"
-                       asp-controller="VwTaiKhoan">
-                    Quên mật khẩu?
-                </a>
+                @if (TempData["Error"] != null)
+                {
+                    <div class="alert alert-danger py-2 px-3 small rounded-3 mb-3 d-flex align-items-center gap-2">
+                        <i class="fa-solid fa-circle-exclamation fs-5 flex-shrink-0"></i>
+                        <div>@TempData["Error"]</div>
+                    </div>
+                }
 
+                @if (TempData["Success"] != null)
+                {
+                    <div class="alert alert-success py-2 px-3 small rounded-3 mb-3 d-flex align-items-center gap-2">
+                        <i class="fa-solid fa-circle-check fs-5 flex-shrink-0"></i>
+                        <div>@TempData["Success"]</div>
+                    </div>
+                }
+
+                <!-- FORM ĐĂNG NHẬP (CONTRACT: TenDangNhap, MatKhau) -->
+                <form asp-action="DangNhap"
+                      asp-controller="VwTaiKhoan"
+                      method="post"
+                      id="loginForm">
+
+                    <!-- TÊN ĐĂNG NHẬP -->
+                    <div class="auth-input-group">
+                        <label class="form-label small fw-semibold text-secondary mb-1">Tên đăng nhập</label>
+                        <div class="position-relative">
+                            <i class="fa-regular fa-user input-icon"></i>
+                            <input asp-for="TenDangNhap"
+                                   class="auth-input-control"
+                                   placeholder="Nhập tên đăng nhập của bạn..."
+                                   autocomplete="username" />
+                        </div>
+                        <span asp-validation-for="TenDangNhap" class="text-danger small mt-1 d-block"></span>
+                    </div>
+
+                    <!-- MẬT KHẨU -->
+                    <div class="auth-input-group">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <label class="form-label small fw-semibold text-secondary mb-0">Mật khẩu</label>
+                            <a asp-action="QuenMatKhau" asp-controller="VwTaiKhoan" class="small text-decoration-none">
+                                Quên mật khẩu?
+                            </a>
+                        </div>
+                        <div class="position-relative">
+                            <i class="fa-solid fa-lock input-icon"></i>
+                            <input asp-for="MatKhau"
+                                   type="password"
+                                   id="loginPassword"
+                                   class="auth-input-control"
+                                   placeholder="Nhập mật khẩu..."
+                                   autocomplete="current-password" />
+                            <button type="button" class="toggle-password-btn" onclick="togglePasswordVisibility('loginPassword', this)">
+                                <i class="fa-regular fa-eye"></i>
+                            </button>
+                        </div>
+                        <span asp-validation-for="MatKhau" class="text-danger small mt-1 d-block"></span>
+                    </div>
+
+                    <!-- NÚT ĐĂNG NHẬP -->
+                    <button type="submit" class="btn-auth-submit btn-auth mb-3">
+                        <i class="fa-solid fa-arrow-right-to-bracket me-2"></i>ĐĂNG NHẬP
+                    </button>
+                </form>
+
+                <!-- FOOTER -->
+                <div class="text-center mt-3 pt-3 border-top">
+                    <span class="text-muted small">Bạn chưa có tài khoản?</span>
+                    <a asp-action="DangKy" asp-controller="VwTaiKhoan" class="small fw-bold text-decoration-none ms-1">
+                        Đăng ký ngay
+                    </a>
+                </div>
             </div>
 
         </div>
-
     </div>
-
 </div>
 
 @section Scripts {
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
+    <script>
+        function togglePasswordVisibility(inputId, btn) {
+            const input = document.getElementById(inputId);
+            const icon = btn.querySelector('i');
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            } else {
+                input.type = 'password';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            }
+        }
+    </script>
 }

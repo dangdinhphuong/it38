@@ -1,82 +1,214 @@
-﻿@model ShopeeClone.Models.ViewModels.CapNhatThongTinViewModel
+@model ShopeeClone.Models.ViewModels.CapNhatThongTinViewModel
 
 @{
-    ViewData["Title"] = "Thông tin tài khoản";
+    ViewData["Title"] = "Hồ sơ của tôi";
+    Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<div class="container mt-4">
+@section Styles {
+    <style>
+        .profile-page-wrapper {
+            padding: 2rem 0 4rem;
+        }
 
-    <div class="card shadow-sm">
+        .profile-sidebar-card {
+            background-color: var(--bg-surface);
+            border: 1px solid var(--border-default);
+            border-radius: var(--radius-md);
+            padding: 1.5rem;
+            box-shadow: var(--shadow-sm);
+        }
 
-        <div class="card-header">
-            <h4>Thông tin tài khoản</h4>
+        .profile-user-avatar {
+            width: 72px;
+            height: 72px;
+            border-radius: 50%;
+            background: var(--shopee-gradient);
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.75rem;
+            margin: 0 auto 1rem;
+            box-shadow: var(--shadow-glow-sm);
+        }
+
+        .profile-nav-link {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1rem;
+            border-radius: var(--radius-sm);
+            color: var(--text-secondary);
+            font-weight: 500;
+            text-decoration: none;
+            transition: all var(--transition-fast);
+            margin-bottom: 0.25rem;
+        }
+
+        .profile-nav-link:hover {
+            background-color: var(--shopee-orange-light);
+            color: var(--shopee-orange);
+        }
+
+        .profile-nav-link.active {
+            background: var(--shopee-gradient);
+            color: #ffffff !important;
+            font-weight: 600;
+        }
+
+        .profile-main-card {
+            background-color: var(--bg-surface);
+            border: 1px solid var(--border-default);
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-sm);
+            padding: 2rem;
+        }
+
+        .form-label-title {
+            font-weight: 600;
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            margin-bottom: 0.35rem;
+        }
+    </style>
+}
+
+<div class="profile-page-wrapper">
+    <div class="container">
+
+        <!-- BREADCRUMB -->
+        <nav aria-label="breadcrumb" class="mb-3">
+            <ol class="breadcrumb small">
+                <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index"><i class="fa-solid fa-house me-1"></i>Trang chủ</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Hồ sơ cá nhân</li>
+            </ol>
+        </nav>
+
+        <div class="row g-4">
+
+            <!-- SIDEBAR THÔNG TIN CÁ NHÂN -->
+            <div class="col-lg-3">
+                <div class="profile-sidebar-card text-center mb-3">
+                    <div class="profile-user-avatar">
+                        <i class="fa-solid fa-user"></i>
+                    </div>
+                    <h5 class="fw-bold mb-1 text-primary">@(string.IsNullOrEmpty(Model?.HoTen) ? "Người Dùng" : Model.HoTen)</h5>
+                    <span class="badge bg-warning text-dark px-2 py-1 small fw-bold">
+                        <i class="fa-solid fa-star me-1"></i>Thành Viên Shopee
+                    </span>
+                </div>
+
+                <div class="profile-sidebar-card p-2">
+                    <a asp-action="TaiKhoan" asp-controller="VwTaiKhoan" class="profile-nav-link active">
+                        <i class="fa-regular fa-user"></i>
+                        <span>Hồ sơ của tôi</span>
+                    </a>
+                    <a asp-action="DoiMatKhau" asp-controller="VwTaiKhoan" class="profile-nav-link">
+                        <i class="fa-solid fa-key"></i>
+                        <span>Đổi mật khẩu</span>
+                    </a>
+                    <a asp-action="Dashboard" asp-controller="VwDonHang" class="profile-nav-link">
+                        <i class="fa-solid fa-box-open"></i>
+                        <span>Đơn mua</span>
+                    </a>
+                    <a asp-action="Dashboard" asp-controller="VwGioHang" class="profile-nav-link">
+                        <i class="fa-solid fa-cart-shopping"></i>
+                        <span>Giỏ hàng</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- NỘI DUNG CHÍNH: FORM CẬP NHẬT THÔNG TIN -->
+            <div class="col-lg-9">
+                <div class="profile-main-card">
+                    <div class="border-bottom pb-3 mb-4">
+                        <h4 class="fw-bold text-primary mb-1">Hồ Sơ Của Tôi</h4>
+                        <p class="text-muted small mb-0">Quản lý thông tin hồ sơ để bảo mật tài khoản và giao hàng chính xác</p>
+                    </div>
+
+                    @if (TempData["Success"] != null)
+                    {
+                        <div class="alert alert-success py-2 px-3 small rounded-3 mb-4 d-flex align-items-center gap-2">
+                            <i class="fa-solid fa-circle-check fs-5 flex-shrink-0"></i>
+                            <div>@TempData["Success"]</div>
+                        </div>
+                    }
+
+                    @if (TempData["Error"] != null)
+                    {
+                        <div class="alert alert-danger py-2 px-3 small rounded-3 mb-4 d-flex align-items-center gap-2">
+                            <i class="fa-solid fa-circle-exclamation fs-5 flex-shrink-0"></i>
+                            <div>@TempData["Error"]</div>
+                        </div>
+                    }
+
+                    <!-- FORM CONTRACT: MaNguoiDung, HoTen, Email, SoDienThoai, DiaChi -->
+                    <form asp-action="TaiKhoan" method="post">
+
+                        <input type="hidden" asp-for="MaNguoiDung" />
+
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label-title">Họ và tên</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-transparent border-end-0 text-muted">
+                                        <i class="fa-regular fa-user"></i>
+                                    </span>
+                                    <input asp-for="HoTen"
+                                           class="form-control form-control-modern border-start-0"
+                                           placeholder="Nhập họ và tên..." />
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label-title">Địa chỉ Email</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-transparent border-end-0 text-muted">
+                                        <i class="fa-regular fa-envelope"></i>
+                                    </span>
+                                    <input asp-for="Email"
+                                           type="email"
+                                           class="form-control form-control-modern border-start-0"
+                                           placeholder="example@email.com" />
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label-title">Số điện thoại</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-transparent border-end-0 text-muted">
+                                        <i class="fa-solid fa-phone"></i>
+                                    </span>
+                                    <input asp-for="SoDienThoai"
+                                           class="form-control form-control-modern border-start-0"
+                                           placeholder="0912345678" />
+                                </div>
+                            </div>
+
+                            <div class="col-12">
+                                <label class="form-label-title">Địa chỉ giao hàng</label>
+                                <textarea asp-for="DiaChi"
+                                          rows="3"
+                                          class="form-control form-control-modern"
+                                          placeholder="Số nhà, đường, phường/xã, quận/huyện, tỉnh/thành phố..."></textarea>
+                            </div>
+                        </div>
+
+                        <div class="d-flex align-items-center gap-3 mt-4 pt-3 border-top">
+                            <button type="submit" class="btn-shopee btn btn-danger">
+                                <i class="fa-regular fa-floppy-disk me-1"></i> Lưu Thay Đổi
+                            </button>
+
+                            <a asp-action="DoiMatKhau" class="btn-shopee-secondary btn btn-dark">
+                                <i class="fa-solid fa-key me-1"></i> Đổi mật khẩu
+                            </a>
+                        </div>
+
+                    </form>
+                </div>
+            </div>
+
         </div>
-
-        <div class="card-body">
-
-            @if (TempData["Success"] != null)
-            {
-                <div class="alert alert-success">
-                    @TempData["Success"]
-                </div>
-            }
-
-            @if (TempData["Error"] != null)
-            {
-                <div class="alert alert-danger">
-                    @TempData["Error"]
-                </div>
-            }
-
-            <form asp-action="TaiKhoan"
-                  method="post">
-
-                <input type="hidden"
-                       asp-for="MaNguoiDung" />
-
-                <div class="mb-3">
-                    <label>Họ tên</label>
-
-                    <input asp-for="HoTen"
-                           class="form-control" />
-                </div>
-
-                <div class="mb-3">
-                    <label>Email</label>
-
-                    <input asp-for="Email"
-                           class="form-control" />
-                </div>
-
-                <div class="mb-3">
-                    <label>Số điện thoại</label>
-
-                    <input asp-for="SoDienThoai"
-                           class="form-control" />
-                </div>
-
-                <div class="mb-3">
-                    <label>Địa chỉ</label>
-
-                    <textarea asp-for="DiaChi"
-                              rows="3"
-                              class="form-control"></textarea>
-                </div>
-
-                <button type="submit"
-                        class="btn btn-danger">
-                    Cập nhật
-                </button>
-
-                <a asp-action="DoiMatKhau"
-                       class="btn btn-dark">
-                    Đổi mật khẩu
-                </a>
-
-            </form>
-
-        </div>
-
     </div>
-
 </div>

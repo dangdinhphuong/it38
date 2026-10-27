@@ -1,62 +1,251 @@
-﻿@model ShopeeClone.Models.ViewModels.DoiMatKhauViewModel
+@model ShopeeClone.Models.ViewModels.DoiMatKhauViewModel
 
 @{
     ViewData["Title"] = "Đổi mật khẩu";
+    Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<div class="container mt-4">
+@section Styles {
+    <style>
+        .profile-page-wrapper {
+            padding: 2rem 0 4rem;
+        }
 
-    <div class="card shadow-sm">
+        .profile-sidebar-card {
+            background-color: var(--bg-surface);
+            border: 1px solid var(--border-default);
+            border-radius: var(--radius-md);
+            padding: 1.5rem;
+            box-shadow: var(--shadow-sm);
+        }
 
-        <div class="card-header">
-            <h4>Đổi mật khẩu</h4>
+        .profile-user-avatar {
+            width: 72px;
+            height: 72px;
+            border-radius: 50%;
+            background: var(--shopee-gradient);
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.75rem;
+            margin: 0 auto 1rem;
+            box-shadow: var(--shadow-glow-sm);
+        }
+
+        .profile-nav-link {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1rem;
+            border-radius: var(--radius-sm);
+            color: var(--text-secondary);
+            font-weight: 500;
+            text-decoration: none;
+            transition: all var(--transition-fast);
+            margin-bottom: 0.25rem;
+        }
+
+        .profile-nav-link:hover {
+            background-color: var(--shopee-orange-light);
+            color: var(--shopee-orange);
+        }
+
+        .profile-nav-link.active {
+            background: var(--shopee-gradient);
+            color: #ffffff !important;
+            font-weight: 600;
+        }
+
+        .profile-main-card {
+            background-color: var(--bg-surface);
+            border: 1px solid var(--border-default);
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-sm);
+            padding: 2rem;
+            max-width: 650px;
+        }
+
+        .form-label-title {
+            font-weight: 600;
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            margin-bottom: 0.35rem;
+        }
+
+        .toggle-pwd-icon {
+            cursor: pointer;
+            color: var(--text-muted);
+        }
+
+        .toggle-pwd-icon:hover {
+            color: var(--text-primary);
+        }
+    </style>
+}
+
+<div class="profile-page-wrapper">
+    <div class="container">
+
+        <!-- BREADCRUMB -->
+        <nav aria-label="breadcrumb" class="mb-3">
+            <ol class="breadcrumb small">
+                <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index"><i class="fa-solid fa-house me-1"></i>Trang chủ</a></li>
+                <li class="breadcrumb-item"><a asp-action="TaiKhoan" asp-controller="VwTaiKhoan">Tài khoản</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Đổi mật khẩu</li>
+            </ol>
+        </nav>
+
+        <div class="row g-4">
+
+            <!-- SIDEBAR -->
+            <div class="col-lg-3">
+                <div class="profile-sidebar-card text-center mb-3">
+                    <div class="profile-user-avatar">
+                        <i class="fa-solid fa-shield-halved"></i>
+                    </div>
+                    <h5 class="fw-bold mb-1 text-primary">Bảo Mật Tài Khoản</h5>
+                    <span class="badge bg-success text-white px-2 py-1 small">
+                        <i class="fa-solid fa-lock me-1"></i>Đã bảo vệ
+                    </span>
+                </div>
+
+                <div class="profile-sidebar-card p-2">
+                    <a asp-action="TaiKhoan" asp-controller="VwTaiKhoan" class="profile-nav-link">
+                        <i class="fa-regular fa-user"></i>
+                        <span>Hồ sơ của tôi</span>
+                    </a>
+                    <a asp-action="DoiMatKhau" asp-controller="VwTaiKhoan" class="profile-nav-link active">
+                        <i class="fa-solid fa-key"></i>
+                        <span>Đổi mật khẩu</span>
+                    </a>
+                    <a asp-action="Dashboard" asp-controller="VwDonHang" class="profile-nav-link">
+                        <i class="fa-solid fa-box-open"></i>
+                        <span>Đơn mua</span>
+                    </a>
+                    <a asp-action="Dashboard" asp-controller="VwGioHang" class="profile-nav-link">
+                        <i class="fa-solid fa-cart-shopping"></i>
+                        <span>Giỏ hàng</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- MAIN FORM -->
+            <div class="col-lg-9">
+                <div class="profile-main-card">
+                    <div class="border-bottom pb-3 mb-4">
+                        <h4 class="fw-bold text-primary mb-1">Đổi Mật Khẩu</h4>
+                        <p class="text-muted small mb-0">Để bảo mật tài khoản, vui lòng không chia sẻ mật khẩu cho người khác</p>
+                    </div>
+
+                    @if (TempData["Error"] != null)
+                    {
+                        <div class="alert alert-danger py-2 px-3 small rounded-3 mb-4 d-flex align-items-center gap-2">
+                            <i class="fa-solid fa-circle-exclamation fs-5 flex-shrink-0"></i>
+                            <div>@TempData["Error"]</div>
+                        </div>
+                    }
+
+                    @if (TempData["Success"] != null)
+                    {
+                        <div class="alert alert-success py-2 px-3 small rounded-3 mb-4 d-flex align-items-center gap-2">
+                            <i class="fa-solid fa-circle-check fs-5 flex-shrink-0"></i>
+                            <div>@TempData["Success"]</div>
+                        </div>
+                    }
+
+                    <!-- CONTRACT FORM: MatKhauCu, MatKhauMoi, XacNhanMatKhauMoi -->
+                    <form asp-action="DoiMatKhau" method="post">
+
+                        <!-- MẬT KHẨU CŨ -->
+                        <div class="mb-3">
+                            <label class="form-label-title">Mật khẩu hiện tại</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-transparent border-end-0 text-muted">
+                                    <i class="fa-solid fa-lock"></i>
+                                </span>
+                                <input asp-for="MatKhauCu"
+                                       type="password"
+                                       id="oldPassword"
+                                       class="form-control form-control-modern border-start-0 border-end-0"
+                                       placeholder="Nhập mật khẩu cũ..." />
+                                <span class="input-group-text bg-transparent border-start-0 toggle-pwd-icon"
+                                      onclick="togglePasswordVisibility('oldPassword', this)">
+                                    <i class="fa-regular fa-eye"></i>
+                                </span>
+                            </div>
+                        </div>
+
+                        <!-- MẬT KHẨU MỚI -->
+                        <div class="mb-3">
+                            <label class="form-label-title">Mật khẩu mới</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-transparent border-end-0 text-muted">
+                                    <i class="fa-solid fa-key"></i>
+                                </span>
+                                <input asp-for="MatKhauMoi"
+                                       type="password"
+                                       id="newPassword"
+                                       class="form-control form-control-modern border-start-0 border-end-0"
+                                       placeholder="Tối thiểu 6 ký tự..." />
+                                <span class="input-group-text bg-transparent border-start-0 toggle-pwd-icon"
+                                      onclick="togglePasswordVisibility('newPassword', this)">
+                                    <i class="fa-regular fa-eye"></i>
+                                </span>
+                            </div>
+                        </div>
+
+                        <!-- XÁC NHẬN MẬT KHẨU MỚI -->
+                        <div class="mb-4">
+                            <label class="form-label-title">Xác nhận mật khẩu mới</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-transparent border-end-0 text-muted">
+                                    <i class="fa-solid fa-shield-halved"></i>
+                                </span>
+                                <input asp-for="XacNhanMatKhauMoi"
+                                       type="password"
+                                       id="confirmNewPassword"
+                                       class="form-control form-control-modern border-start-0 border-end-0"
+                                       placeholder="Nhập lại mật khẩu mới..." />
+                                <span class="input-group-text bg-transparent border-start-0 toggle-pwd-icon"
+                                      onclick="togglePasswordVisibility('confirmNewPassword', this)">
+                                    <i class="fa-regular fa-eye"></i>
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="d-flex align-items-center gap-3 pt-3 border-top">
+                            <button type="submit" class="btn-shopee btn btn-danger">
+                                <i class="fa-solid fa-check me-1"></i> Xác Nhận Đổi Mật Khẩu
+                            </button>
+
+                            <a asp-action="TaiKhoan" class="btn-shopee-secondary">
+                                Hủy bỏ
+                            </a>
+                        </div>
+
+                    </form>
+                </div>
+            </div>
+
         </div>
-
-        <div class="card-body">
-
-            @if (TempData["Error"] != null)
-            {
-                <div class="alert alert-danger">
-                    @TempData["Error"]
-                </div>
-            }
-
-            <form asp-action="DoiMatKhau"
-                  method="post">
-
-                <div class="mb-3">
-                    <label>Mật khẩu cũ</label>
-
-                    <input asp-for="MatKhauCu"
-                           type="password"
-                           class="form-control" />
-                </div>
-
-                <div class="mb-3">
-                    <label>Mật khẩu mới</label>
-
-                    <input asp-for="MatKhauMoi"
-                           type="password"
-                           class="form-control" />
-                </div>
-
-                <div class="mb-3">
-                    <label>Xác nhận mật khẩu mới</label>
-
-                    <input asp-for="XacNhanMatKhauMoi"
-                           type="password"
-                           class="form-control" />
-                </div>
-
-                <button type="submit"
-                        class="btn btn-danger">
-                    Đổi mật khẩu
-                </button>
-
-            </form>
-
-        </div>
-
     </div>
-
 </div>
+
+@section Scripts {
+    <script>
+        function togglePasswordVisibility(inputId, btn) {
+            const input = document.getElementById(inputId);
+            const icon = btn.querySelector('i');
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            } else {
+                input.type = 'password';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            }
+        }
+    </script>
+}
