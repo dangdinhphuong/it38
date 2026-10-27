@@ -1,284 +1,353 @@
-﻿@using Microsoft.AspNetCore.Http
+@using Microsoft.AspNetCore.Http
 
 @{
-    var tenDangNhap =
-        Context.Session.GetString("TenDangNhap");
+    var tenDangNhap = Context.Session.GetString("TenDangNhap");
+    var vaiTro = Context.Session.GetString("VaiTro");
 }
 
 <!DOCTYPE html>
 <html lang="vi">
 
 <head>
-
     <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - ShopeeClone</title>
 
-    <meta name="viewport"
-          content="width=device-width, initial-scale=1.0" />
+    <!-- ANTI-FLICKER THEME INITIALIZATION -->
+    <script>
+        (function() {
+            try {
+                var saved = localStorage.getItem('shopee_theme');
+                var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+                var theme = (saved === 'dark' || saved === 'light') ? saved : (prefersDark ? 'dark' : 'light');
+                document.documentElement.setAttribute('data-theme', theme);
+            } catch (e) {}
+        })();
+    </script>
 
-    <title>
-        @ViewData["Title"] - ShopeeClone
-    </title>
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
-    <!-- Bootstrap -->
-    <link rel="stylesheet"
-          href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
 
     <!-- Font Awesome -->
-    <link rel="stylesheet"
-          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+
+    <!-- Design System & Theme CSS -->
+    <link rel="stylesheet" href="~/css/theme.css" asp-append-version="true" />
 
     <!-- Global CSS -->
-    <link rel="stylesheet"
-          href="~/css/site.css"
-          asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
 
     @RenderSection("Styles", required: false)
-
 </head>
 
 <body>
 
     <!-- TOP BAR -->
     <div class="topbar">
-
-        <div class="container d-flex justify-content-between">
-
-            <div>
-                <a href="#">
-                    Website mua sắm trực tuyến
+        <div class="container d-flex justify-content-between align-items-center">
+            <div class="d-flex align-items-center gap-3">
+                <a href="/" class="d-inline-flex align-items-center gap-1">
+                    <i class="fa-solid fa-shop"></i>
+                    <span>Kênh Người Mua &amp; Bán</span>
                 </a>
+                <span class="opacity-50 d-none d-sm-inline">|</span>
+                <a href="#" class="d-none d-sm-inline-flex align-items-center gap-1">
+                    <i class="fa-solid fa-mobile-screen"></i>
+                    <span>Tải ứng dụng</span>
+                </a>
+                <span class="opacity-50 d-none d-md-inline">|</span>
+                <span class="d-none d-md-inline opacity-75">Kết nối mua sắm tiện lợi 24/7</span>
             </div>
 
-            <div>
-
-                <a href="#">
-                    Thông báo
+            <div class="d-flex align-items-center gap-3">
+                <a href="#" class="d-inline-flex align-items-center gap-1">
+                    <i class="fa-regular fa-bell"></i>
+                    <span class="d-none d-sm-inline">Thông báo</span>
+                </a>
+                <a href="#" class="d-inline-flex align-items-center gap-1">
+                    <i class="fa-regular fa-circle-question"></i>
+                    <span class="d-none d-sm-inline">Hỗ trợ</span>
                 </a>
 
-                <a href="#">
-                    Hỗ trợ
-                </a>
+                <!-- DARK MODE TOGGLE (TOPBAR) -->
+                <button type="button" class="btn-theme-toggle" data-theme-toggle title="Chuyển chế độ giao diện" aria-label="Đổi giao diện Sáng / Tối">
+                    <i class="fa-solid fa-sun icon-sun"></i>
+                    <i class="fa-solid fa-moon icon-moon"></i>
+                </button>
 
+                @if (vaiTro == "Admin")
+                {
+                    <a asp-controller="VwQuanTri" asp-action="Dashboard" class="badge bg-warning text-dark text-decoration-none fw-bold px-2 py-1">
+                        <i class="fa-solid fa-shield-halved"></i> Quản trị Admin
+                    </a>
+                }
             </div>
-
         </div>
-
     </div>
 
-    <!-- HEADER -->
+    <!-- MAIN HEADER -->
     <header class="header-main">
-
         <div class="container d-flex align-items-center">
 
             <!-- LOGO -->
-            <a class="logo"
-                   asp-controller="Home"
-                   asp-action="Index">
-
-                Shopping Home
-
+            <a class="logo" asp-controller="Home" asp-action="Index">
+                <i class="fa-solid fa-bag-shopping me-2 fs-4"></i>
+                <span>ShopeeClone</span>
             </a>
 
-            <!-- SEARCH -->
+            <!-- SEARCH BOX (CONTRACT: form GET /Home/Index, input[name=keyword], .btn-search) -->
             <div class="search-box flex-grow-1 mx-4">
-
-                <form asp-controller="Home"
-                      asp-action="Index"
-                      method="get">
-
+                <form asp-controller="Home" asp-action="Index" method="get">
                     <div class="input-group">
-
                         <input type="text"
                                name="keyword"
                                class="form-control"
-                               placeholder="Tìm sản phẩm..."
-                               value="@Context.Request.Query["keyword"]" />
+                               placeholder="Tìm kiếm sản phẩm, thương hiệu, danh mục..."
+                               value="@Context.Request.Query["keyword"]"
+                               autocomplete="off" />
 
-                        <button class="btn btn-search"
-                                type="submit">
-
+                        <button class="btn btn-search" type="submit" aria-label="Tìm kiếm">
                             <i class="fas fa-search"></i>
-
                         </button>
-
                     </div>
-
                 </form>
-
             </div>
 
-            <!-- RIGHT -->
+            <!-- RIGHT NAVIGATION -->
             <div class="header-right d-flex align-items-center gap-4">
 
-                <!-- ĐƠN HÀNG -->
+                <!-- ĐƠN HÀNG (KHI ĐÃ ĐĂNG NHẬP) -->
                 @if (!string.IsNullOrEmpty(tenDangNhap))
                 {
                     <a asp-controller="VwDonHang"
-                           asp-action="Dashboard"
-                           class="header-order text-decoration-none">
-
-                        <div class="position-relative">
-
-                            <i class="fa-solid fa-box fs-4"></i>
-
+                       asp-action="Dashboard"
+                       class="header-order text-decoration-none"
+                       title="Xem danh sách đơn hàng đã mua">
+                        <div class="position-relative text-center">
+                            <i class="fa-solid fa-box-open fs-4"></i>
                         </div>
-
-                        <span class="d-block text-center small mt-1">
-                            Đơn mua
-                        </span>
-
+                        <span class="d-block text-center small mt-1">Đơn mua</span>
                     </a>
                 }
 
-                <!-- CART -->
+                <!-- GIỎ HÀNG -->
                 <a asp-controller="VwGioHang"
-                       asp-action="Dashboard"
-                       class="cart text-decoration-none">
-
-                    <div class="position-relative">
-
+                   asp-action="Dashboard"
+                   class="cart text-decoration-none"
+                   title="Xem giỏ hàng của bạn">
+                    <div class="position-relative text-center">
                         <i class="fas fa-shopping-cart fs-4"></i>
-
-                        <span class="badge">
-                            0
-                        </span>
-
+                        <span class="badge">0</span>
                     </div>
-
-                    <span class="d-block text-center small mt-1">
-                        Giỏ hàng
-                    </span>
-
+                    <span class="d-block text-center small mt-1">Giỏ hàng</span>
                 </a>
 
+                <!-- TÀI KHOẢN -->
                 @if (string.IsNullOrEmpty(tenDangNhap))
                 {
                     <!-- LOGIN -->
                     <a asp-controller="VwTaiKhoan"
-                           asp-action="DangNhap"
-                           class="btn-login">
-
+                       asp-action="DangNhap"
+                       class="btn-login text-decoration-none">
                         <i class="fas fa-sign-in-alt"></i>
-
-                        Đăng nhập
-
+                        <span>Đăng nhập</span>
                     </a>
 
                     <!-- REGISTER -->
                     <a asp-controller="VwTaiKhoan"
-                           asp-action="DangKy"
-                           class="btn-register">
-
+                       asp-action="DangKy"
+                       class="btn-register text-decoration-none">
                         <i class="fas fa-user-plus"></i>
-
-                        Đăng ký
-
+                        <span>Đăng ký</span>
                     </a>
                 }
                 else
                 {
-                    <!-- ACCOUNT -->
+                    <!-- ACCOUNT DROPDOWN -->
                     <div class="account-dropdown">
-
                         <a asp-controller="VwTaiKhoan"
-                               asp-action="TaiKhoan"
-                               class="btn-account">
-
-                            <i class="fas fa-user"></i>
-
-                            @tenDangNhap
-
-                            <i class="fas fa-chevron-down ms-1"></i>
-
+                           asp-action="TaiKhoan"
+                           class="btn-account text-decoration-none">
+                            <i class="fas fa-user-circle fs-5"></i>
+                            <span class="fw-semibold">@tenDangNhap</span>
+                            <i class="fas fa-chevron-down ms-1 small"></i>
                         </a>
 
                         <!-- MENU CON -->
                         <div class="account-menu">
+                            <div class="px-3 py-2 border-bottom bg-light">
+                                <small class="text-muted d-block">Xin chào,</small>
+                                <strong class="text-dark">@tenDangNhap</strong>
+                            </div>
 
-                            <a asp-controller="VwTaiKhoan"
-                                   asp-action="TaiKhoan">
-
-                                <i class="fas fa-id-card"></i>
-
-                                Thông tin tài khoản
-
+                            <a asp-controller="VwTaiKhoan" asp-action="TaiKhoan">
+                                <i class="fas fa-id-card text-primary"></i>
+                                <span>Thông tin tài khoản</span>
                             </a>
 
-                            <a asp-controller="VwTaiKhoan"
-                                   asp-action="DoiMatKhau">
-
-                                <i class="fas fa-key"></i>
-
-                                Đổi mật khẩu
-
+                            <a asp-controller="VwTaiKhoan" asp-action="DoiMatKhau">
+                                <i class="fas fa-key text-warning"></i>
+                                <span>Đổi mật khẩu</span>
                             </a>
 
-                            <a asp-controller="VwDonHang"
-                                   asp-action="Dashboard">
-
-                                <i class="fas fa-box"></i>
-
-                                Đơn mua
-
+                            <a asp-controller="VwDonHang" asp-action="Dashboard">
+                                <i class="fas fa-box text-info"></i>
+                                <span>Đơn mua của tôi</span>
                             </a>
 
-                            <a asp-controller="VwGioHang"
-                                   asp-action="Dashboard">
-
-                                <i class="fas fa-shopping-cart"></i>
-
-                                Giỏ hàng
-
+                            <a asp-controller="VwGioHang" asp-action="Dashboard">
+                                <i class="fas fa-shopping-cart text-success"></i>
+                                <span>Giỏ hàng</span>
                             </a>
+
+                            @if (vaiTro == "Admin")
+                            {
+                                <a asp-controller="VwQuanTri" asp-action="Dashboard" class="text-danger fw-bold">
+                                    <i class="fas fa-shield-halved"></i>
+                                    <span>Trang Quản Trị Admin</span>
+                                </a>
+                            }
 
                             <hr class="my-1" />
 
-                            <a asp-controller="VwTaiKhoan"
-                                   asp-action="DangXuat">
-
+                            <a asp-controller="VwTaiKhoan" asp-action="DangXuat" class="text-danger">
                                 <i class="fas fa-sign-out-alt"></i>
-
-                                Đăng xuất
-
+                                <span>Đăng xuất</span>
                             </a>
-
                         </div>
-
                     </div>
                 }
 
             </div>
 
         </div>
-
     </header>
 
-    <!-- MAIN -->
+    <!-- MAIN CONTENT -->
     <main class="main-content">
-
         <div class="container">
-
             @RenderBody()
-
         </div>
-
     </main>
 
     <!-- FOOTER -->
-    <footer class="footer">
+    <footer class="footer mt-5 pt-5 pb-4">
+        <div class="container">
+            <div class="row g-4 pb-4 border-bottom">
+                <!-- CỘT 1 -->
+                <div class="col-12 col-sm-6 col-lg-3">
+                    <h6 class="text-uppercase fw-bold mb-3 text-dark">Chăm sóc khách hàng</h6>
+                    <ul class="list-unstyled small text-muted d-flex flex-column gap-2 mb-0">
+                        <li><a href="#" class="text-reset">Trung Tâm Trợ Giúp</a></li>
+                        <li><a href="#" class="text-reset">Shopee Blog Mua Sắm</a></li>
+                        <li><a href="#" class="text-reset">Hướng Dẫn Mua Hàng</a></li>
+                        <li><a href="#" class="text-reset">Chính Sách Vận Chuyển</a></li>
+                        <li><a href="#" class="text-reset">Trả Hàng &amp; Hoàn Tiền</a></li>
+                    </ul>
+                </div>
 
-        <div class="container text-center">
+                <!-- CỘT 2 -->
+                <div class="col-12 col-sm-6 col-lg-3">
+                    <h6 class="text-uppercase fw-bold mb-3 text-dark">Về ShopeeClone</h6>
+                    <ul class="list-unstyled small text-muted d-flex flex-column gap-2 mb-0">
+                        <li><a href="#" class="text-reset">Giới Thiệu ShopeeClone Việt Nam</a></li>
+                        <li><a href="#" class="text-reset">Tuyển Dụng Nhân Tài</a></li>
+                        <li><a href="#" class="text-reset">Điều Khoản Dịch Vụ</a></li>
+                        <li><a href="#" class="text-reset">Chính Sách Bảo Mật</a></li>
+                        <li><a href="#" class="text-reset">Hàng Chính Hãng 100%</a></li>
+                    </ul>
+                </div>
 
-            © 2026 - Kênh mua sắm online
+                <!-- CỘT 3 -->
+                <div class="col-12 col-sm-6 col-lg-3">
+                    <h6 class="text-uppercase fw-bold mb-3 text-dark">Thanh toán &amp; Vận chuyển</h6>
+                    <div class="d-flex flex-wrap gap-2 mb-3">
+                        <span class="badge bg-light text-dark border p-2"><i class="fa-brands fa-cc-visa fs-5 text-primary"></i></span>
+                        <span class="badge bg-light text-dark border p-2"><i class="fa-brands fa-cc-mastercard fs-5 text-danger"></i></span>
+                        <span class="badge bg-light text-dark border p-2"><i class="fa-brands fa-cc-jcb fs-5 text-success"></i></span>
+                        <span class="badge bg-light text-dark border p-2"><i class="fa-solid fa-money-bill-wave fs-5 text-warning"></i> COD</span>
+                    </div>
+                    <h6 class="text-uppercase fw-bold mb-2 text-dark small">Đơn vị vận chuyển</h6>
+                    <div class="d-flex flex-wrap gap-2">
+                        <span class="badge bg-light text-dark border px-2 py-1"><i class="fa-solid fa-truck-fast text-primary"></i> SPX Express</span>
+                        <span class="badge bg-light text-dark border px-2 py-1"><i class="fa-solid fa-bolt text-warning"></i> Hỏa Tốc</span>
+                    </div>
+                </div>
 
+                <!-- CỘT 4 -->
+                <div class="col-12 col-sm-6 col-lg-3">
+                    <h6 class="text-uppercase fw-bold mb-3 text-dark">Theo dõi chúng tôi</h6>
+                    <div class="d-flex gap-3 mb-3 fs-5">
+                        <a href="#" class="text-primary"><i class="fa-brands fa-facebook"></i></a>
+                        <a href="#" class="text-danger"><i class="fa-brands fa-instagram"></i></a>
+                        <a href="#" class="text-info"><i class="fa-brands fa-linkedin"></i></a>
+                        <a href="#" class="text-dark"><i class="fa-brands fa-tiktok"></i></a>
+                    </div>
+                    <h6 class="text-uppercase fw-bold mb-2 text-dark small">Tải ứng dụng ShopeeClone</h6>
+                    <p class="small text-muted mb-0">Trải nghiệm mua sắm nhanh hơn trên thiết bị di động của bạn.</p>
+                </div>
+            </div>
+
+            <!-- COPYRIGHT -->
+            <div class="pt-4 text-center small text-muted">
+                <p class="mb-1">© 2026 - ShopeeClone. Dự án phát triển hệ thống Thương Mại Điện Tử Hiện Đại.</p>
+                <p class="mb-0">Địa chỉ: Tòa nhà Công Nghệ, Quận Cầu Giấy, TP. Hà Nội | Tổng đài hỗ trợ: 1900 1234 (Miễn phí)</p>
+            </div>
         </div>
-
     </footer>
 
-    <!-- JS -->
-    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <!-- MOBILE BOTTOM NAVIGATION (HIỂN THỊ TRÊN MÀN HÌNH NHỎ) -->
+    <nav class="mobile-bottom-nav" aria-label="Thanh điều hướng di động">
+        <a asp-controller="Home" asp-action="Index" class="mobile-nav-item active">
+            <i class="fa-solid fa-house"></i>
+            <span>Trang chủ</span>
+        </a>
+        <a asp-controller="VwSanPham" asp-action="Dashboard" class="mobile-nav-item">
+            <i class="fa-solid fa-layer-group"></i>
+            <span>Danh mục</span>
+        </a>
+        <a asp-controller="VwDonHang" asp-action="Dashboard" class="mobile-nav-item">
+            <i class="fa-solid fa-box-open"></i>
+            <span>Đơn mua</span>
+        </a>
+        <a asp-controller="VwGioHang" asp-action="Dashboard" class="mobile-nav-item">
+            <i class="fa-solid fa-cart-shopping"></i>
+            <span>Giỏ hàng</span>
+        </a>
+        @if (string.IsNullOrEmpty(tenDangNhap))
+        {
+            <a asp-controller="VwTaiKhoan" asp-action="DangNhap" class="mobile-nav-item">
+                <i class="fa-solid fa-user"></i>
+                <span>Tài khoản</span>
+            </a>
+        }
+        else
+        {
+            <a asp-controller="VwTaiKhoan" asp-action="TaiKhoan" class="mobile-nav-item">
+                <i class="fa-solid fa-user-check"></i>
+                <span>Tôi</span>
+            </a>
+        }
+    </nav>
 
+    <!-- TOAST NOTIFICATION CONTAINER -->
+    <div id="toast-container" aria-live="polite" aria-atomic="true"></div>
+
+    <!-- BACK TO TOP BUTTON -->
+    <button type="button" id="back-to-top" aria-label="Cuộn lên đầu trang" title="Lên đầu trang">
+        <i class="fa-solid fa-arrow-up"></i>
+    </button>
+
+    <!-- JS SCRIPTS -->
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/ui-core.js" asp-append-version="true"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
 
     @RenderSection("Scripts", required: false)
 

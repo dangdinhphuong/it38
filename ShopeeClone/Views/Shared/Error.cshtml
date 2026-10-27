@@ -1,25 +1,70 @@
-﻿@model ErrorViewModel
+@model ErrorViewModel
 @{
-    ViewData["Title"] = "Error";
+    ViewData["Title"] = "Đã xảy ra lỗi - ShopeeClone";
 }
 
-<h1 class="text-danger">Error.</h1>
-<h2 class="text-danger">An error occurred while processing your request.</h2>
+<div class="row justify-content-center py-5">
+    <div class="col-12 col-md-8 col-lg-6">
+        <div class="card-modern text-center p-4 p-md-5">
 
-@if (Model.ShowRequestId)
-{
-    <p>
-        <strong>Request ID:</strong> <code>@Model.RequestId</code>
-    </p>
-}
+            <!-- ICON LỖI -->
+            <div class="empty-state-icon mx-auto mb-4" style="width: 90px; height: 90px; font-size: 2.5rem; background: var(--color-danger-bg); color: var(--color-danger);">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+            </div>
 
-<h3>Development Mode</h3>
-<p>
-    Swapping to <strong>Development</strong> environment will display more detailed information about the error that occurred.
-</p>
-<p>
-    <strong>The Development environment shouldn't be enabled for deployed applications.</strong>
-    It can result in displaying sensitive information from exceptions to end users.
-    For local debugging, enable the <strong>Development</strong> environment by setting the <strong>ASPNETCORE_ENVIRONMENT</strong> environment variable to <strong>Development</strong>
-    and restarting the app.
-</p>
+            <!-- TIÊU ĐỀ -->
+            <h2 class="fw-bold mb-2 text-danger">Có lỗi xảy ra!</h2>
+            <p class="text-muted mb-4 lead fs-6">
+                Hệ thống gặp sự cố ngoài ý muốn trong quá trình xử lý yêu cầu của bạn. Chúng tôi rất tiếc vì sự bất tiện này.
+            </p>
+
+            <!-- REQUEST ID (NẾU CÓ) -->
+            @if (Model != null && Model.ShowRequestId)
+            {
+                <div class="p-3 mb-4 rounded-3 text-start d-flex align-items-center justify-content-between" style="background: var(--bg-surface-sunken); border: 1px solid var(--border-default);">
+                    <div>
+                        <small class="text-muted d-block fw-semibold">Mã yêu cầu (Request ID):</small>
+                        <code class="text-primary fw-bold" id="error-request-id">@Model.RequestId</code>
+                    </div>
+                    <button type="button" class="btn btn-sm btn-outline-secondary" onclick="navigator.clipboard.writeText('@Model.RequestId'); if (window.showToast) window.showToast('Đã sao chép Request ID vào clipboard!', 'info', 2000);" title="Sao chép mã lỗi">
+                        <i class="fa-regular fa-copy me-1"></i> Sao chép
+                    </button>
+                </div>
+            }
+
+            <!-- NÚT HÀNH ĐỘNG -->
+            <div class="d-flex flex-wrap justify-content-center gap-3 mb-4">
+                <a asp-controller="Home" asp-action="Index" class="btn-shopee px-4">
+                    <i class="fa-solid fa-house me-1"></i>
+                    <span>Về Trang Chủ</span>
+                </a>
+
+                <button type="button" class="btn-shopee-outline px-4" onclick="window.location.reload();">
+                    <i class="fa-solid fa-arrow-rotate-right me-1"></i>
+                    <span>Tải lại trang</span>
+                </button>
+
+                <button type="button" class="btn-shopee-secondary px-3" onclick="window.history.back();">
+                    <i class="fa-solid fa-arrow-left me-1"></i>
+                    <span>Quay lại</span>
+                </button>
+            </div>
+
+            <!-- CHI TIẾT KỸ THUẬT CHO DEVELOPER (COLLAPSIBLE) -->
+            <details class="text-start mt-4 pt-3 border-top small text-muted">
+                <summary class="cursor-pointer text-secondary fw-semibold">
+                    <i class="fa-solid fa-code me-1"></i> Thông tin kỹ thuật (Chế độ phát triển)
+                </summary>
+                <div class="mt-2 p-3 bg-light rounded text-dark">
+                    <p class="mb-2">
+                        Để xem chi tiết vết ngăn xếp lỗi (stack trace), hãy chắc chắn biến môi trường <code>ASPNETCORE_ENVIRONMENT</code> được thiết lập là <code>Development</code>.
+                    </p>
+                    <p class="mb-0 text-muted fst-italic">
+                        Lưu ý: Không bật Development mode trên môi trường production để bảo mật thông tin.
+                    </p>
+                </div>
+            </details>
+
+        </div>
+    </div>
+</div>
