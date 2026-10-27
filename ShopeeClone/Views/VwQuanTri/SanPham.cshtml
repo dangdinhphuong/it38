@@ -80,17 +80,17 @@
                     {
                         string statusBadgeClass = item.TrangThai switch
                         {
-                            "Còn hàng" => "badge-status-approved",
-                            "Hết hàng" => "badge-status-cancelled",
-                            "Dừng bán" => "badge-status-pending",
+                            TrangThaiSanPham.ConHang => "badge-status-approved",
+                            TrangThaiSanPham.HetHang => "badge-status-cancelled",
+                            TrangThaiSanPham.DungBan => "badge-status-pending",
                             _ => "badge-status-pending"
                         };
 
                         string statusIcon = item.TrangThai switch
                         {
-                            "Còn hàng" => "fa-circle-check",
-                            "Hết hàng" => "fa-circle-xmark",
-                            "Dừng bán" => "fa-ban",
+                            TrangThaiSanPham.ConHang => "fa-circle-check",
+                            TrangThaiSanPham.HetHang => "fa-circle-xmark",
+                            TrangThaiSanPham.DungBan => "fa-ban",
                             _ => "fa-clock"
                         };
 
@@ -257,9 +257,9 @@
                                 <div class="col-md-6">
                                     <label class="form-label fw-semibold small text-secondary">Trạng thái bán <span class="text-danger">*</span></label>
                                     <select class="form-select-modern" name="TrangThai">
-                                        <option value="Còn hàng" selected="@(item.TrangThai == "Còn hàng" ? "selected" : null)">Còn hàng</option>
-                                        <option value="Hết hàng" selected="@(item.TrangThai == "Hết hàng" ? "selected" : null)">Hết hàng</option>
-                                        <option value="Dừng bán" selected="@(item.TrangThai == "Dừng bán" ? "selected" : null)">Dừng bán</option>
+                                        <option value="Còn hàng" selected="@(item.TrangThai == TrangThaiSanPham.ConHang ? "selected" : null)">Còn hàng</option>
+                                        <option value="Hết hàng" selected="@(item.TrangThai == TrangThaiSanPham.HetHang ? "selected" : null)">Hết hàng</option>
+                                        <option value="Dừng bán" selected="@(item.TrangThai == TrangThaiSanPham.DungBan ? "selected" : null)">Dừng bán</option>
                                     </select>
                                 </div>
 
