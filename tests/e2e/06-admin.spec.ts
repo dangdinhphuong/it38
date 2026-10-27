@@ -103,9 +103,9 @@ test.describe('Luồng Quản Trị Admin (Dashboard, Categories, Products, Orde
     await modalThem.locator('input[name="Gia"]').fill('99000');
     await modalThem.locator('input[name="SoLuongTon"]').fill('50');
 
-    // Chọn danh mục
+    // Chọn danh mục thực tế (index 1 trở đi vì index 0 là option rỗng placeholder)
     const catSelect = modalThem.locator('select[name="MaDanhMuc"]');
-    await catSelect.selectOption({ index: 0 });
+    await catSelect.selectOption({ index: 1 });
 
     await Promise.all([
       page.waitForResponse(resp => resp.url().includes('/ThemSanPham')),

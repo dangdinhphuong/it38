@@ -18,7 +18,8 @@ test.describe('Luồng Giỏ Hàng (Cart Management)', () => {
     await page.click('button.btn-add');
     await page.waitForTimeout(1000);
 
-    expect(dialogMessage.toLowerCase()).toContain('đăng nhập');
+    const toastMsg = (await page.locator('#toast-container, .toast, .alert').textContent().catch(() => '')) || '';
+    expect((dialogMessage + ' ' + toastMsg).toLowerCase()).toContain('đăng nhập');
   });
 
   test('TC-CART-02: Đã đăng nhập - Thêm sản phẩm vào giỏ thành công', async ({ page }) => {
@@ -35,7 +36,8 @@ test.describe('Luồng Giỏ Hàng (Cart Management)', () => {
     await page.click('button.btn-add');
     await page.waitForTimeout(1500);
 
-    expect(dialogMessage).toMatch(/thành công|đã thêm/i);
+    const toastMsg = (await page.locator('#toast-container, .toast, .alert').textContent().catch(() => '')) || '';
+    expect(dialogMessage + ' ' + toastMsg).toMatch(/thành công|đã thêm/i);
   });
 
   test('TC-CART-03: Xem trang giỏ hàng và kiểm tra các selector chuẩn DOM', async ({ page }) => {

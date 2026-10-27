@@ -100,7 +100,7 @@ test.describe('Luồng Tài Khoản (Authentication & Account Management)', () =
 
     // Phải về trang chủ và hiển thị nút Đăng nhập / Đăng ký
     await expect(page).toHaveURL(/(\/$|\/Home|\/Home\/Index)/);
-    await expect(page.locator('.btn-login, a[href*="DangNhap"]')).toBeVisible();
+    await expect(page.locator('.btn-login, a[href*="DangNhap"]').first()).toBeVisible();
   });
 
   test('TC-AUTH-07: Đổi mật khẩu thành công', async ({ page }) => {

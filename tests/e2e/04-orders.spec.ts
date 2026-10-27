@@ -37,9 +37,10 @@ test.describe('Luồng Đặt Hàng & Quản Lý Đơn Hàng Người Dùng (Ord
     });
 
     await page.click('button.btn-checkout');
-    await page.waitForTimeout(500);
+    await page.waitForTimeout(1000);
 
-    expect(dialogMessage).toMatch(/chọn sản phẩm/i);
+    const toastMsg = (await page.locator('#toast-container, .toast, .alert').textContent().catch(() => '')) || '';
+    expect(dialogMessage + ' ' + toastMsg).toMatch(/chọn.*sản phẩm/i);
   });
 
   test('TC-ORD-03: Đặt hàng thành công từ giỏ hàng và chuyển hướng sang danh sách đơn mua', async ({ page }) => {

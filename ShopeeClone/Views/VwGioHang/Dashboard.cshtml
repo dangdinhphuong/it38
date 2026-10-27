@@ -157,6 +157,8 @@
             border-radius: var(--radius-sm);
             overflow: hidden;
             background: var(--bg-surface);
+            position: relative;
+            z-index: 2;
         }
 
         .cart-qty-ctrl button {
@@ -251,7 +253,7 @@
     </style>
 }
 
-<div class="cart-page-wrapper">
+<div class="cart-page-wrapper cart-container">
     <div class="container">
 
         <!-- BREADCRUMB -->
@@ -350,9 +352,7 @@
                                     <div class="cart-qty-ctrl quantity-control">
                                         <button type="button"
                                                 onclick="giamSoLuong(@item.MaCTGioHang)"
-                                                aria-label="Giảm số lượng">
-                                            <i class="fa-solid fa-minus small"></i>
-                                        </button>
+                                                aria-label="Giảm số lượng">-</button>
                                         <input type="text"
                                                id="qty-@item.MaCTGioHang"
                                                value="@item.SoLuong"
@@ -360,9 +360,7 @@
                                                aria-label="Số lượng" />
                                         <button type="button"
                                                 onclick="tangSoLuong(@item.MaCTGioHang)"
-                                                aria-label="Tăng số lượng">
-                                            <i class="fa-solid fa-plus small"></i>
-                                        </button>
+                                                aria-label="Tăng số lượng">+</button>
                                     </div>
                                 </div>
 

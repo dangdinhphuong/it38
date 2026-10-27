@@ -15,7 +15,7 @@ export default defineConfig({
     ['html', { open: 'never' }]
   ],
   use: {
-    baseURL: 'http://localhost:5017',
+    baseURL: process.env.BASE_URL || 'http://localhost:5017',
     trace: 'retain-on-failure',
     screenshot: 'only-on-failure',
     video: 'off',

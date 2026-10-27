@@ -29,6 +29,7 @@ services:
       SA_PASSWORD: "${SA_PASSWORD}"
     volumes:
       - ./DATABASE/QLSANPHAM.sql:/init/QLSANPHAM.sql:ro
+      - ./DATABASE/seed_data.sql:/init/seed_data.sql:ro
       - ./DATABASE/init-db.sh:/init/init-db.sh:ro
     entrypoint: ["/bin/bash", "/init/init-db.sh"]
 

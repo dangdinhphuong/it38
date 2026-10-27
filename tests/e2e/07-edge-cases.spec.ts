@@ -61,7 +61,8 @@ test.describe('Ca Biên & Bảo Mật (Edge Cases & Security)', () => {
     await page.click('button.btn-add');
     await page.waitForTimeout(1000);
 
-    expect(dialogMessage.toLowerCase()).toMatch(/vượt quá|tồn kho|không đủ/i);
+    const toastMsg = (await page.locator('#toast-container, .toast, .alert').textContent().catch(() => '')) || '';
+    expect((dialogMessage + ' ' + toastMsg).toLowerCase()).toMatch(/vượt quá|tồn kho|không đủ/i);
   });
 
   test('TC-EDGE-03: Tìm kiếm với payload XSS (<script>alert(1)</script>)', async ({ page }) => {

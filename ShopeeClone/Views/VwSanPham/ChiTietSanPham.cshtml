@@ -381,7 +381,7 @@
                             <span class="badge bg-secondary opacity-75 small">Chính Hãng 100%</span>
                         </div>
 
-                        <h1 class="detail-info-title">@Model.TenSanPham</h1>
+                        <h1 class="detail-info-title product-name">@Model.TenSanPham</h1>
 
                         <!-- RATING & META ROW -->
                         <div class="detail-rating-row">
@@ -409,7 +409,7 @@
 
                         <!-- GIÁ BÁN & KHUYẾN MÃI -->
                         <div class="detail-price-box">
-                            <div class="current-price">@Model.Gia.ToString("N0") ₫</div>
+                            <div class="current-price product-price">@Model.Gia.ToString("N0") ₫</div>
                             <div class="original-price">@((Model.Gia * 1.25m).ToString("N0")) ₫</div>
                             <div class="price-discount-tag">-20% GIẢM</div>
                         </div>
@@ -442,24 +442,19 @@
                         <!-- SỐ LƯỢNG MUA (CONTRACT: #qtyInput, increaseQty(), decreaseQty()) -->
                         <div class="quantity-section">
                             <span class="text-secondary fw-semibold">Số lượng:</span>
-                            <div class="quantity-controller">
+                            <div class="quantity-controller quantity-control">
                                 <button type="button"
                                         onclick="decreaseQty()"
                                         aria-label="Giảm số lượng"
-                                        @(isOutOfStock ? "disabled" : "")>
-                                    <i class="fa-solid fa-minus small"></i>
-                                </button>
+                                        @(isOutOfStock ? "disabled" : "")>-</button>
                                 <input type="text"
                                        id="qtyInput"
                                        value="1"
-                                       readonly
                                        aria-label="Số lượng sản phẩm" />
                                 <button type="button"
                                         onclick="increaseQty()"
                                         aria-label="Tăng số lượng"
-                                        @(isOutOfStock ? "disabled" : "")>
-                                    <i class="fa-solid fa-plus small"></i>
-                                </button>
+                                        @(isOutOfStock ? "disabled" : "")>+</button>
                             </div>
                             <span class="text-muted small">
                                 @if (Model.SoLuongTon > 0)

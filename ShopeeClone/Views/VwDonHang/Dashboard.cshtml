@@ -169,9 +169,9 @@
         </nav>
 
         <div class="d-flex align-items-center justify-content-between mb-3">
-            <h1 class="h4 fw-bold text-primary mb-0">
+            <h2 class="h4 fw-bold text-primary mb-0">
                 <i class="fa-solid fa-box-open text-danger me-2"></i>Đơn Hàng Của Tôi
-            </h1>
+            </h2>
             <span class="text-muted small">Tổng cộng: <strong>@donHangs.Count</strong> đơn hàng</span>
         </div>
 
@@ -224,12 +224,12 @@
                         statusIcon = "fa-ban";
                     }
 
-                    <div class="order-card order-item-card"
+                    <div class="order-card order-item-card card shadow-sm"
                          data-id="@donHang.MaDonHang"
                          data-status="@statusSlug">
 
                         <!-- HEADER -->
-                        <div class="order-card-header">
+                        <div class="order-card-header card-header">
                             <div class="d-flex align-items-center gap-3">
                                 <span class="fw-bold text-primary">
                                     <i class="fa-solid fa-receipt me-1 text-danger"></i>Mã đơn: #@donHang.MaDonHang
@@ -239,7 +239,7 @@
                                 </div>
                             </div>
 
-                            <span class="badge-modern @badgeClass">
+                            <span class="badge-modern badge @badgeClass">
                                 <i class="fa-solid @statusIcon"></i> @status
                             </span>
                         </div>
@@ -286,7 +286,7 @@
                         </div>
 
                         <!-- FOOTER (CONTRACT: TongTien) -->
-                        <div class="order-card-footer">
+                        <div class="order-card-footer card-footer">
                             <div class="d-flex align-items-center gap-2">
                                 <span class="text-secondary">Tổng thanh toán:</span>
                                 <span class="order-total-price">

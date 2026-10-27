@@ -72,10 +72,26 @@ test.describe('Chất Lượng Giao Diện, Console, Network & Responsive (UI Qu
         const images = Array.from(document.querySelectorAll('img'));
         const broken: string[] = [];
 
+        // Kích hoạt load cho các ảnh lazy load để trình duyệt tải tài nguyên
+        for (const img of images) {
+          if (img.getAttribute('loading') === 'lazy') {
+            img.removeAttribute('loading');
+          }
+        }
+
+        await Promise.all(images.map(img => {
+          if (img.complete && img.naturalWidth > 0) return Promise.resolve();
+          return new Promise<void>((resolve) => {
+            img.addEventListener('load', () => resolve(), { once: true });
+            img.addEventListener('error', () => { broken.push(img.src); resolve(); }, { once: true });
+            setTimeout(resolve, 3000);
+          });
+        }));
+
         for (const img of images) {
           // Bỏ qua ảnh 1x1 tracking nếu có
-          if (img.src && !img.complete || img.naturalWidth === 0) {
-            broken.push(img.src);
+          if (img.src && (!img.complete || img.naturalWidth === 0)) {
+            if (!broken.includes(img.src)) broken.push(img.src);
           }
         }
         return broken;
