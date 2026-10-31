@@ -558,11 +558,17 @@ img {
 /* =========================================================
    GRID SẢN PHẨM
 ========================================================= */
-.product-grid,
-.product-grid-container {
+.product-grid:not(.row),
+.product-grid-container:not(.row) {
     display: grid;
     grid-template-columns: repeat(auto-fill,minmax(190px,1fr));
     gap: 15px;
+}
+
+.product-grid.row,
+.product-grid-container.row {
+    display: flex;
+    flex-wrap: wrap;
 }
 
 /* =========================================================
@@ -578,6 +584,7 @@ img {
     border: 1px solid #f3f3f3;
     transition: var(--transition);
     cursor: pointer;
+    height: 100%;
 }
 
     .product-card:hover {
@@ -1137,8 +1144,8 @@ footer,
         grid-template-columns: repeat(3,1fr);
     }
 
-    .product-grid,
-    .product-grid-container {
+    .product-grid:not(.row),
+    .product-grid-container:not(.row) {
         grid-template-columns: repeat(2,1fr);
     }
 

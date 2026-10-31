@@ -15,6 +15,17 @@
             padding: 1.5rem 0 3rem;
         }
 
+        /* Fix Product Grid Row Flex display */
+        .product-grid.row,
+        .product-grid-container.row {
+            display: flex !important;
+            flex-wrap: wrap !important;
+        }
+        .product-grid.row > .col,
+        .product-grid-container.row > .col {
+            flex: 0 0 auto !important;
+        }
+
         /* Sidebar Styling */
         .category-sidebar {
             background-color: var(--bg-surface);

@@ -13,6 +13,17 @@
 
 @section Styles {
     <style>
+        /* Fix Product Grid Row Flex display */
+        .product-grid.row,
+        .product-grid-container.row {
+            display: flex !important;
+            flex-wrap: wrap !important;
+        }
+        .product-grid.row > .col,
+        .product-grid-container.row > .col {
+            flex: 0 0 auto !important;
+        }
+
         /* Hero Banner Section */
         .hero-banner-section {
             margin-top: 1.25rem;
