@@ -229,3 +229,72 @@ npx playwright show-report
 - [DESIGN_SYSTEM.md](file:///run/media/phuong-dev/backup/BTL_IT38.006_N8_Phuong_Quan_Quang_Sang_Sinh/BTL_IT38.006_N8/DESIGN_SYSTEM.md): Hệ thống thiết kế CSS Tokens, Dark Mode, Toasts, Skeletons và Responsive Layout.
 - [BAO_CAO_LOI.md](file:///run/media/phuong-dev/backup/BTL_IT38.006_N8_Phuong_Quan_Quang_Sang_Sinh/BTL_IT38.006_N8/BAO_CAO_LOI.md): Báo cáo chi tiết 10 lỗi phát hiện được, quy trình khắc phục và nghiệm thu 100% test cases pass.
 - Thư mục ảnh chụp màn hình kiểm thử: `docs/screenshots/`.
+
+
+---
+
+## 8. Hướng Dẫn Chạy Bộ Kiểm Thử Tự Động Playwright (E2E Testing)
+
+Dự án tích hợp bộ kiểm thử tự động toàn diện gồm **42 test cases** sử dụng Playwright (TypeScript) bao phủ 8 nhóm tính năng: Tài khoản, Sản phẩm, Giỏ hàng, Đơn mua, Phân quyền RBAC, Quản trị Admin, Ca biên & Bảo mật (XSS, SQL Injection), và Chất lượng Giao diện Responsive.
+
+### 8.1. Cài đặt môi trường kiểm thử (chỉ cần chạy 1 lần)
+
+```bash
+cd tests/e2e
+npm install
+npx playwright install chromium
+```
+
+### 8.2. Chạy toàn bộ 42 test cases
+
+```bash
+# Đứng tại thư mục tests/e2e
+npx playwright test
+
+# Hoặc nếu chạy trên cổng khác (ví dụ 5018):
+BASE_URL=http://localhost:5018 npx playwright test
+```
+
+### 8.3. Chạy từng bộ test riêng biệt
+
+```bash
+# Kiểm thử xác thực & tài khoản
+npx playwright test 01-auth.spec.ts
+
+# Kiểm thử danh mục & sản phẩm
+npx playwright test 02-products.spec.ts
+
+# Kiểm thử giỏ hàng
+npx playwright test 03-cart.spec.ts
+
+# Kiểm thử đặt hàng & quản lý đơn mua
+npx playwright test 04-orders.spec.ts
+
+# Kiểm thử phân quyền RBAC & an ninh
+npx playwright test 05-authorization.spec.ts
+
+# Kiểm thử tính năng quản trị Admin
+npx playwright test 06-admin.spec.ts
+
+# Kiểm thử ca biên (Edge cases & Security)
+npx playwright test 07-edge-cases.spec.ts
+
+# Kiểm thử Console, Network 404 & Responsive
+npx playwright test 08-ui-quality.spec.ts
+```
+
+### 8.4. Xem báo cáo kiểm thử trực quan HTML
+
+```bash
+npx playwright show-report
+```
+
+---
+
+## 9. Cấu Trúc Tài Liệu Kỹ Thuật
+
+- [CONTRACT.md](file:///run/media/phuong-dev/backup/BTL_IT38.006_N8_Phuong_Quan_Quang_Sang_Sinh/BTL_IT38.006_N8/CONTRACT.md): Hợp đồng kỹ thuật bất biến về Routes, Form Inputs, Session keys, DOM Selectors và Action APIs.
+- [DESIGN_SYSTEM.md](file:///run/media/phuong-dev/backup/BTL_IT38.006_N8_Phuong_Quan_Quang_Sang_Sinh/BTL_IT38.006_N8/DESIGN_SYSTEM.md): Hệ thống thiết kế CSS Tokens, Dark Mode, Toasts, Skeletons và Responsive Layout.
+- [BAO_CAO_LOI.md](file:///run/media/phuong-dev/backup/BTL_IT38.006_N8_Phuong_Quan_Quang_Sang_Sinh/BTL_IT38.006_N8/BAO_CAO_LOI.md): Báo cáo chi tiết 10 lỗi phát hiện được, quy trình khắc phục và nghiệm thu 100% test cases pass.
+- Thư mục ảnh chụp màn hình kiểm thử: `docs/screenshots/`.
+
